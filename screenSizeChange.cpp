@@ -12,15 +12,16 @@ void screenSizeChange(SDL_Rect &windowTextureSize, SDL_Window *window){
     int aspectRatio_X = 16;
     int aspectRatio_Y = 9;
 
+    //Gets window height and width
+    windowTextureSize.w = SDL_GetWindowSurface(window)->w;
+    windowTextureSize.h = SDL_GetWindowSurface(window)->h;
+
     //My computer for some reason set the height to 1009 whn full screening even though my screen is 1080,
     // so I changed it here because it annoyed me so forgive the "magic numbers"
     if (windowTextureSize.h == 1009 || windowTextureSize.h == 1017){
         windowTextureSize.h = 1080;
         SDL_GetWindowSurface(window)->h = 1080;
     }
-    //Gets window height and width
-    windowTextureSize.w = SDL_GetWindowSurface(window)->w;
-    windowTextureSize.h = SDL_GetWindowSurface(window)->h;
 
     //Since I am keeping the dimensions at a 16:9 ratio, this checks weather the width or height is
     // unable to expand more and then sets the other side to the 16:9 ration with respects to the
@@ -29,16 +30,13 @@ void screenSizeChange(SDL_Rect &windowTextureSize, SDL_Window *window){
 
         //Sets dimension of the windowText if the height cannot expand more at a 16:9 ratio
         windowTextureSize.w = aspectRatio_X * (windowTextureSize.h / aspectRatio_Y);
-        windowTextureSize.h = windowTextureSize.h;
 
     } else if (windowTextureSize.w / aspectRatio_X < windowTextureSize.h / aspectRatio_Y) {
 
         //Sets dimension of the windowText if the width cannot expand more at a 16:9 ration
         windowTextureSize.h = 9 * (windowTextureSize.w / aspectRatio_X);
-        windowTextureSize.w = windowTextureSize.w;
     }
 
-    //Creates equal length margins on the sides that have empty space, by centering the windowText
-    windowTextureSize.x = (SDL_GetWindowSurface(window)->w - windowTextureSize.w) / 2;
-    windowTextureSize.y = (SDL_GetWindowSurface(window)->h - windowTextureSize.h) / 2;
+    //Sets window size to the windowTextureSize
+    SDL_SetWindowSize(window, windowTextureSize.w, windowTextureSize.h);
 }
