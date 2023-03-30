@@ -200,10 +200,16 @@ int main(int argc, char* argv[]) {
                 case SDL_MOUSEBUTTONUP:
                     cout << "Mouse button up\n";
                     break;
-            }
 
-            //Handles the user changing the window size
-            screenSizeChange(windowTextureSize, window);
+                //User changes the screen size
+                case SDL_WINDOWEVENT:
+                    if (event.window.event == SDL_WINDOWEVENT_RESIZED || event.window.event == SDL_WINDOWEVENT_MAXIMIZED
+                    || event.window.event == SDL_WINDOWEVENT_MINIMIZED){
+
+                        //Handles the user changing the window size
+                        screenSizeChange(windowTextureSize, window);
+                    }
+            }
 
             SDL_Rect dest = {10, 10, 1000, 1000};
             textSurf = TTF_RenderText_Solid(font, "Woooooo!!", textColor);

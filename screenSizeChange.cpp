@@ -12,6 +12,12 @@ void screenSizeChange(SDL_Rect &windowTextureSize, SDL_Window *window){
     int aspectRatio_X = 16;
     int aspectRatio_Y = 9;
 
+    //My computer for some reason set the height to 1009 whn full screening even though my screen is 1080,
+    // so I changed it here because it annoyed me so forgive the "magic numbers"
+    if (windowTextureSize.h == 1009 || windowTextureSize.h == 1017){
+        windowTextureSize.h = 1080;
+        SDL_GetWindowSurface(window)->h = 1080;
+    }
     //Gets window height and width
     windowTextureSize.w = SDL_GetWindowSurface(window)->w;
     windowTextureSize.h = SDL_GetWindowSurface(window)->h;
