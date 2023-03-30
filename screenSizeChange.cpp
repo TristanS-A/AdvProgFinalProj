@@ -16,12 +16,13 @@ void screenSizeChange(SDL_Rect &windowTextureSize, SDL_Window *window){
     windowTextureSize.w = SDL_GetWindowSurface(window)->w;
     windowTextureSize.h = SDL_GetWindowSurface(window)->h;
 
-    //My computer for some reason set the height to 1009 whn full screening even though my screen is 1080,
-    // so I changed it here because it annoyed me so forgive the "magic numbers"
+    /*
+    //To fix full screening the window, but only works for my pc and school computers because of magic numbers
     if (windowTextureSize.h == 1009 || windowTextureSize.h == 1017){
         windowTextureSize.h = 1080;
         SDL_GetWindowSurface(window)->h = 1080;
     }
+     */
 
     //Since I am keeping the dimensions at a 16:9 ratio, this checks weather the width or height is
     // unable to expand more and then sets the other side to the 16:9 ration with respects to the
@@ -37,6 +38,7 @@ void screenSizeChange(SDL_Rect &windowTextureSize, SDL_Window *window){
         windowTextureSize.h = 9 * (windowTextureSize.w / aspectRatio_X);
     }
 
-    //Sets window size to the windowTextureSize
-    SDL_SetWindowSize(window, windowTextureSize.w, windowTextureSize.h);
+    //Creates equal length margins on the side that has empty space
+    windowTextureSize.x = (SDL_GetWindowSurface(window)->w - windowTextureSize.w) / 2;
+    windowTextureSize.y = (SDL_GetWindowSurface(window)->h - windowTextureSize.h) / 2;
 }

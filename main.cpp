@@ -203,9 +203,7 @@ int main(int argc, char* argv[]) {
 
                 //User changes the screen size
                 case SDL_WINDOWEVENT:
-                    if (event.window.event == SDL_WINDOWEVENT_RESIZED || event.window.event == SDL_WINDOWEVENT_MAXIMIZED
-                    || event.window.event == SDL_WINDOWEVENT_MINIMIZED){
-
+                    if (event.window.event == SDL_WINDOWEVENT_RESIZED){
                         //Handles the user changing the window size
                         screenSizeChange(windowTextureSize, window);
                     }
