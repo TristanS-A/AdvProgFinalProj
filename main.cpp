@@ -113,9 +113,6 @@ int main(int argc, char* argv[]) {
 
         if (TTF_Init() != -1){
 
-            //Close the font that was used
-            //TTF_CloseFont( font );
-
             //Quit SDL_ttf
             TTF_Quit();
         }
@@ -126,9 +123,23 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    //------------------------------------------\\
-    //------------- Actual Project -------------\\
-    //------------------------------------------\\
+    //---------------------------------------------------\\
+    //------------- Variable initialization -------------\\
+    //---------------------------------------------------\\
+
+    //Font for game
+    TTF_Font *font = TTF_OpenFont("fonts/font.ttf", 28);
+
+    //Check for if font was correctly opened
+    if (!font){
+        cout << "Font could not be opened\n";
+    }
+
+    //Surface to display text
+    SDL_Surface *textSurf;
+
+    //Text color
+    SDL_Color textColor = {255, 255, 255};
 
     //To quit the game
     bool quit = false;
@@ -149,6 +160,10 @@ int main(int argc, char* argv[]) {
 
     //Creates Rect for windowSurf surface so that its dimensions can be rescaled and repositioned
     SDL_Rect windowTextureSize = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+
+    //-------------------------------------\\
+    //------------- Game Loop -------------\\
+    //-------------------------------------\\
 
     while (!quit) {
 
@@ -190,6 +205,10 @@ int main(int argc, char* argv[]) {
             //Handles the user changing the window size
             screenSizeChange(windowTextureSize, window);
 
+            SDL_Rect dest = {10, 10, 1000, 1000};
+            textSurf = TTF_RenderText_Solid(font, "Woooooo!!", textColor);
+            SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
+
             //Updates windowTexture, so it can be rendered with new blit info
             SDL_UpdateTexture(windowTexture, nullptr, windowSurf->pixels, windowSurf->pitch);
         }
@@ -210,9 +229,10 @@ int main(int argc, char* argv[]) {
 
     //Frees surfaces
     SDL_FreeSurface(windowSurf);
+    SDL_FreeSurface(textSurf);
 
     //Close the font that was used
-    //TTF_CloseFont( font );
+    TTF_CloseFont(font);
 
     //Quit SDL_ttf
     TTF_Quit();
