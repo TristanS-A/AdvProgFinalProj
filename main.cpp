@@ -6,6 +6,8 @@
 using namespace std;
 
 #include "screenSizeChange.h"
+#include "player.h"
+#include "handlePlayerMovement.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -138,15 +140,10 @@ int main(int argc, char* argv[]) {
     //Sets up key presses
     const Uint8 *keystates = SDL_GetKeyboardState(nullptr);
 
-    SDL_Surface* player = IMG_Load("images/p.png");
-    SDL_Rect playerPos = {SCREEN_WIDTH / 2 - player->w / 2,SCREEN_HEIGHT / 2 - player->h / 2, 0, 0};
-
-    const int walkSpeed = 5;
-    const int sprintSpeed = 10;
-    int playerSpeed;
+    Player* player = new Player({SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2, 0, 0});
 
     SDL_Surface* background = IMG_Load("images/background.png");
-    SDL_Rect bgPos = {-background->w / 2 + SCREEN_WIDTH / 2, -background->h / 2 + SCREEN_HEIGHT / 2, 0, 0};
+    SDL_Rect bgPos = {-background->w / 2 + SCREEN_WIDTH / 2, -background->h / 2 + SCREEN_HEIGHT / 2, background->w, background->h};
 
     //This exists because SDL's blitting function changes the destination rect's position when blitting, if the
     // position is offscreen
@@ -231,143 +228,16 @@ int main(int argc, char* argv[]) {
 
                     //Sets player speed back to walk speed (This is done here instead of an else statement after the
                     // sprinting check to not call this every frame that the user is not pressing the sprint button)
-                    playerSpeed = walkSpeed;
+                    player->setWakling();
             }
 
-            //Handles walking inputs
-            if (keystates[SDL_SCANCODE_A]) {
-
-                //Moves the background to the right while it's not at its left border, and while the player is at the
-                // x-axis center of the screen (So moving the opposite direction moves the player and not the background)
-                if (bgPos.x < 0 && playerPos.x == SCREEN_WIDTH / 2 - player->w / 2) {
-                    bgPos.x += playerSpeed;
-
-                    //Check for if the background goes past its left border
-                    if (bgPos.x > 0){
-                        bgPos.x = 0;
-                    }
-                }
-                else {
-
-                    //Moves player instead of the background while the background is at its left border
-                    if (playerPos.x > 0) {
-                        playerPos.x -= playerSpeed;
-
-                        //Check for if the player moves past the left window border (Offscreen left)
-                        if (playerPos.x < 0){
-                            playerPos.x = 0;
-                        }
-
-                        //Check for if the player moves past the x-axis center of the screen (To transition to moving
-                        // the background instead of the player)
-                        else if (playerPos.x < SCREEN_WIDTH / 2 - player->w / 2 && bgPos.x != 0){
-                            playerPos.x = SCREEN_WIDTH / 2 - player->w / 2;
-                        }
-                    }
-                }
-            }
-            if ((keystates[SDL_SCANCODE_D])) {
-
-                //Moves the background to the left while it's not at its right border, and while the player is at the
-                // x-axis center of the screen (So moving the opposite direction moves the player and not the background)
-                if (bgPos.x > -background->w + SCREEN_WIDTH && playerPos.x == SCREEN_WIDTH / 2 - player->w / 2) {
-                    bgPos.x -= playerSpeed;
-
-                    //Check for if the background goes past its right border
-                    if (bgPos.x < -background->w + SCREEN_WIDTH) {
-                        bgPos.x = -background->w + SCREEN_WIDTH;
-                    }
-                }
-                else {
-
-                    //Moves player instead of the background while the background is at its right border
-                    if (playerPos.x < SCREEN_WIDTH - player->w) {
-                        playerPos.x += playerSpeed;
-
-                        //Check for if the player moves past the right window border (Offscreen right)
-                        if (playerPos.x > SCREEN_WIDTH - player->w){
-                            playerPos.x = SCREEN_WIDTH - player->w;
-                        }
-
-                        //Check for if the player moves past the x-axis center of the screen (To transition to moving
-                        // the background instead of the player)
-                        else if (playerPos.x > SCREEN_WIDTH / 2 - player->w / 2 && bgPos.x != -background->w + SCREEN_WIDTH){
-                            playerPos.x = SCREEN_WIDTH / 2 - player->w / 2;
-                        }
-                    }
-                }
-            }
-            if (keystates[SDL_SCANCODE_W]) {
-
-                //Moves the background down while it's not at its top border, and while the player is at the y-axis
-                // center of the screen (So moving the opposite direction moves the player and not the background)
-                if (bgPos.y <  0 && playerPos.y == SCREEN_HEIGHT / 2 - player->h / 2) {
-                    bgPos.y += playerSpeed;
-
-                    //Check for if the background goes past its top border
-                    if (bgPos.y > 0) {
-                        bgPos.y = 0;
-                    }
-                }
-                else {
-
-                    //Moves player instead of the background while the background is at its top border
-                    if (playerPos.y > 0) {
-                        playerPos.y -= playerSpeed;
-
-                        //Check for if the player moves past the top window border (Offscreen top)
-                        if (playerPos.y < 0){
-                            playerPos.y = 0;
-                        }
-
-                            //Check for if the player moves past the y-axis center of the screen (To transition to moving
-                            // the background instead of the player)
-                        else if (playerPos.y < SCREEN_HEIGHT / 2 - player->h / 2 && bgPos.y != 0){
-                            playerPos.y = SCREEN_HEIGHT / 2 - player->h / 2;
-                        }
-                    }
-                }
-            }
-            if ((keystates[SDL_SCANCODE_S])) {
-
-                //Moves the background up while it's not at its bottom border, and while the player is at the y-axis
-                // center of the screen (So moving the opposite direction moves the player and not the background)
-                if (bgPos.y > -background->h + SCREEN_HEIGHT && playerPos.y == SCREEN_HEIGHT / 2 - player->h / 2) {
-                    bgPos.y -= playerSpeed;
-
-                    //Check for if the background goes past its bottom border
-                    if (bgPos.y < -background->h + SCREEN_HEIGHT) {
-                        bgPos.y = -background->h + SCREEN_HEIGHT;
-                    }
-                }
-                else {
-
-                    //Moves player instead of the background while the background is at its bottom border
-                    if (playerPos.y < SCREEN_HEIGHT - player->w) {
-                        playerPos.y += playerSpeed;
-
-                        //Check for if the player moves past the bottom window border (Offscreen bottom)
-                        if (playerPos.y > SCREEN_HEIGHT - player->w){
-                            playerPos.y = SCREEN_HEIGHT - player->w;
-                        }
-
-                        //Check for if the player moves past the y-axis center of the screen (To transition to moving
-                        // the background instead of the player)
-                        else if (playerPos.y > SCREEN_HEIGHT / 2 - player->h / 2 && bgPos.y != -background->h + SCREEN_HEIGHT){
-                            playerPos.y = SCREEN_HEIGHT / 2 - player->h / 2;
-                        }
-                    }
-                }
-            }
-
-            //Gets input for sprinting and sets player speed to sprinting speed
-            if (keystates[SDL_SCANCODE_LSHIFT]){
-                playerSpeed = sprintSpeed;
-            }
+            //Handles movement inputs
+            handlePlayerMovement(player, bgPos, SCREEN_WIDTH, SCREEN_HEIGHT, keystates);
 
             placeHolderRect = bgPos;
             SDL_BlitSurface(background, nullptr, windowSurf, &placeHolderRect);
-            SDL_BlitSurface(player, nullptr, windowSurf, &playerPos);
+
+            player->displayPlayer(windowSurf);
 
             SDL_Rect dest = {10, 10, 1000, 1000};
             textSurf = TTF_RenderText_Solid(font, "Woooooo!!", textColor);
@@ -378,7 +248,7 @@ int main(int argc, char* argv[]) {
         }
 
         // Initialize renderer color white for the background
-        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 
         // Clear screen
         SDL_RenderClear(renderer);
@@ -394,6 +264,9 @@ int main(int argc, char* argv[]) {
     //Frees surfaces
     SDL_FreeSurface(windowSurf);
     SDL_FreeSurface(textSurf);
+
+    //Deletes player
+    delete player;
 
     //Close the font that was used
     TTF_CloseFont(font);
