@@ -6,68 +6,73 @@
 #define ADVPROGFINPROJ_POKEMON_H
 
 #include "SDL.h"
+#include "SDL_ttf.h"
 #include "string"
 
 using namespace std;
 
 class Pokemon{
 public:
-    void attack(string name, int damage);
 
-    void displayMoves(string* moveNames, int movePower);
+    Pokemon(string name, int level, int health, SDL_Surface* pokeImage);
+
+    virtual bool attack(string &message) = 0;
+
+    virtual bool displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, bool mouseDown, string &message);
 protected:
     string name;
     int health;
     int level;
     SDL_Rect pokeRect;
     SDL_Surface* pokeImage;
-    string moveNames[4];
+    string moveNames[4] {"attak", "double", "eat", "goooo"};
     int movePower[4];
     int currAttack;
 };
 
 class FireType : public Pokemon{
 public:
-    FireType(string name, SDL_Surface* pokeImage, int health);
+    FireType(string name, int level, int health, SDL_Surface *pokeImage, int fireTemperature);
 
-    void fireAttack(string name, int damage);
+    bool attack(string &message) override;
 
-    void displayMoves(string* moveNames, int movePower);
+    bool displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, bool mouseDown, string &message) override;
 private:
     int fireTemperature;
 };
 
 class WaterType : public Pokemon{
 public:
-    WaterType(string name, SDL_Surface* pokeImage, int health);
+    WaterType(string name, int level, int health, SDL_Surface *pokeImage, int mineralValue);
 
-    void waterType(string name, int damage);
+    bool attack(string &message) override;
 
-    void heal(string name, int healAmount);
+    void heal(int healAmount);
 
-    void displayMoves(string* moveNames, int movePower);
+    bool displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, bool mouseDown, string &message) override;
 private:
     int mineralValue;
 };
 
 class GrassType : public Pokemon{
 public:
-    GrassType(string name, SDL_Surface* pokeImage, int health);
+    GrassType(string name, int level, int health, SDL_Surface *pokeImage, float waterEfficiency);
 
-    void grassAttack(string name, int damage);
+    bool attack(string &message) override;
 
-    void displayMoves(string* moveNames, int movePower);
+    bool displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, bool mouseDown, string &message) override;
 private:
     float percentDriedUp;
+    float waterEfficiency;
 };
 
 class IceType : public Pokemon{
 public:
-    IceType(string name, SDL_Surface* pokeImage, int health);
+    IceType(string name, int level, int health, SDL_Surface *pokeImage, float inchesOfIceDefense);
 
-    void iceAttack(string name, int damage);
+    bool attack(string &message) override;
 
-    void displayMoves(string* moveNames, int movePower);
+    bool displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, bool mouseDown, string &message) override;
 private:
     float inchesOfIceDefense;
 };

@@ -2,12 +2,14 @@
 #define _USE_MATH_DEFINES
 #include <iostream>
 #include <algorithm>
+#include <random>
 
 using namespace std;
 
 #include "screenSizeChange.h"
 #include "player.h"
 #include "handlePlayerMovement.h"
+#include "pokemon.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -17,6 +19,11 @@ using namespace std;
 #define SCREEN_WIDTH    1440
 #define SCREEN_HEIGHT   810
 
+void showMessage(string messageToSend, TTF_Font* font, SDL_Surface* windowSurf){
+    SDL_Surface *textSurf = TTF_RenderText_Solid(font, messageToSend.c_str(), {255, 255, 255});
+    SDL_Rect dest = {100, 600, 0, 0};
+    SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
+}
 int main(int argc, char* argv[]) {
 
     //--------------------------------------\\
@@ -158,6 +165,9 @@ int main(int argc, char* argv[]) {
     //To quit the game
     bool quit = false;
 
+    //For if the mouse button is pressed or held down
+    bool mouseDown = false;
+
     //Current time for time tracking
     Uint32 currTime;
 
@@ -174,6 +184,32 @@ int main(int argc, char* argv[]) {
 
     //Creates Rect for windowSurf surface so that its dimensions can be rescaled and repositioned
     SDL_Rect windowTextureSize = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+
+    Pokemon* wildPokemon;
+
+    float encounterChance = 0.2;
+
+    int encounterCheckTime = 1;
+
+    bool choseMove = false;
+
+    bool hasAttacked = false;
+
+    bool sendMessage = false;
+
+    bool noSkip = false;
+
+    string message;
+
+    Uint32 currEncounterTime;
+    Uint32 prevEncounterTime = 0;
+
+    random_device random;
+
+    mt19937 mt(random());
+    uniform_real_distribution<double> dist(0, 1.0);
+
+    bool inBattle = false;
 
     //-------------------------------------\\
     //------------- Game Loop -------------\\
@@ -207,12 +243,12 @@ int main(int argc, char* argv[]) {
 
                 //Presses mouse button
                 case SDL_MOUSEBUTTONDOWN:
-                    cout << "Mouse button down\n";
+                    mouseDown = true;
                     break;
 
                 //User lets go of the mouse button
                 case SDL_MOUSEBUTTONUP:
-                    cout << "Mouse button up\n";
+                    mouseDown = false;
                     break;
 
                 //User changes the screen size
@@ -230,21 +266,64 @@ int main(int argc, char* argv[]) {
                     // sprinting check to not call this every frame that the user is not pressing the sprint button)
                     player->setWakling();
             }
-            if (typeid(*player) == typeid(Player)){
+            //if (typeid(*player) == typeid(Player)){
 
-                cout << typeid(*player).name() << endl;
+            //    cout << typeid(*player).name() << endl;
+            //}
+
+            if (!inBattle){
+                //Handles movement inputs
+                handlePlayerMovement(player, bgPos, SCREEN_WIDTH, SCREEN_HEIGHT, keystates);
+
+                placeHolderRect = bgPos;
+                SDL_BlitSurface(background, nullptr, windowSurf, &placeHolderRect);
+
+                player->displayPlayer(windowSurf);
+
+                currEncounterTime = SDL_GetTicks();
+                if (currEncounterTime > prevEncounterTime + encounterCheckTime * 1000){
+                    prevEncounterTime = currEncounterTime;
+                    if (dist(mt) <= encounterChance) {
+                        inBattle = true;
+                        wildPokemon = new FireType("Poki", 1, 100, background, 100);
+                    }
+                }
             }
-            //Handles movement inputs
-            handlePlayerMovement(player, bgPos, SCREEN_WIDTH, SCREEN_HEIGHT, keystates);
+            else {
+                if (!sendMessage) {
+                    if (choseMove) {
+                        if (!hasAttacked) {
+                            hasAttacked = wildPokemon->attack(message);
+                            if (hasAttacked){
+                                choseMove = false;
+                                hasAttacked = false;
 
-            placeHolderRect = bgPos;
-            SDL_BlitSurface(background, nullptr, windowSurf, &placeHolderRect);
+                                if (!message.empty()){
+                                    sendMessage = true;
+                                    noSkip = true;
+                                }
+                            }
+                        }
+                    } else {
+                        choseMove = wildPokemon->displayAndChooseMoves(font, windowSurf, mouseDown, message);
 
-            player->displayPlayer(windowSurf);
-
-            SDL_Rect dest = {10, 10, 1000, 1000};
-            textSurf = TTF_RenderText_Solid(font, "Woooooo!!", textColor);
-            SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
+                        if (!message.empty()){
+                            sendMessage = true;
+                            noSkip = true;
+                        }
+                    }
+                }
+                else {
+                    showMessage(message, font, windowSurf);
+                    if (keystates[SDL_SCANCODE_N] && !noSkip){
+                        message = "";
+                        sendMessage = false;
+                    }
+                    else if (!keystates[SDL_SCANCODE_N]){
+                        noSkip = false;
+                    }
+                }
+            }
 
             //Updates windowTexture, so it can be rendered with new blit info
             SDL_UpdateTexture(windowTexture, nullptr, windowSurf->pixels, windowSurf->pitch);
@@ -270,6 +349,8 @@ int main(int argc, char* argv[]) {
 
     //Deletes player
     delete player;
+
+    delete wildPokemon;
 
     //Close the font that was used
     TTF_CloseFont(font);
