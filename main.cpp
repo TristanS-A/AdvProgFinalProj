@@ -230,7 +230,10 @@ int main(int argc, char* argv[]) {
                     // sprinting check to not call this every frame that the user is not pressing the sprint button)
                     player->setWakling();
             }
+            if (typeid(*player) == typeid(Player)){
 
+                cout << typeid(*player).name() << endl;
+            }
             //Handles movement inputs
             handlePlayerMovement(player, bgPos, SCREEN_WIDTH, SCREEN_HEIGHT, keystates);
 

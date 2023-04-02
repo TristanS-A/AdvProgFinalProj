@@ -24,6 +24,7 @@ public:
     SDL_Rect getPlayerRect();
 
     void displayPlayer(SDL_Surface* windowSurf);
+
 private:
     SDL_Rect playerPos;
     SDL_Surface* playerImage;
