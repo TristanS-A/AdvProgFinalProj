@@ -14,7 +14,6 @@ Pokemon::Pokemon(string name, int level, int health, SDL_Surface *pokeImage) {
 bool Pokemon::attack(string &message) {
     message = "Wooo";
     currAttack = 0;
-    return true;
 }
 
 bool Pokemon::displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, bool mouseDown, string &message) {
@@ -59,6 +58,7 @@ FireType::FireType(string name, int level, int health, SDL_Surface *pokeImage, i
 
 bool FireType::attack(string &message) {
     Pokemon::attack(message);
+    return true;
 }
 
 bool FireType::displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, bool mouseDown, string &message) {
@@ -70,7 +70,13 @@ WaterType::WaterType(string name, int level, int health, SDL_Surface *pokeImage,
 }
 
 bool WaterType::attack(string &message) {
-    Pokemon::attack(message);
+    if (moveNames[currAttack] != "Heal") {
+        Pokemon::attack(message);
+    }
+    else {
+        heal(movePower[currAttack]);
+    }
+    return true;
 }
 
 void WaterType::heal(int healAmount) {
@@ -87,6 +93,7 @@ GrassType::GrassType(string name, int level, int health, SDL_Surface *pokeImage,
 
 bool GrassType::attack(string &message) {
     Pokemon::attack(message);
+    return true;
 }
 
 bool GrassType::displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, bool mouseDown, string &message) {
@@ -99,6 +106,7 @@ IceType::IceType(string name, int level, int health, SDL_Surface *pokeImage, flo
 
 bool IceType::attack(string &message) {
     Pokemon::attack(message);
+    return true;
 }
 
 bool IceType::displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, bool mouseDown, string &message) {
