@@ -6,6 +6,8 @@
 #define ADVPROGFINPROJ_PLAYER_H
 
 #include "SDL.h"
+#include "pokemon.h"
+#include <vector>
 
 class Player{
 public:
@@ -17,20 +19,29 @@ public:
 
     void setSprinting();
 
-    void setWakling();
+    void setWalking();
 
-    int getPlayerSpeed();
+    int getPlayerSpeed() const;
 
     SDL_Rect getPlayerRect();
 
     void displayPlayer(SDL_Surface* windowSurf);
 
+    void addToPlayersPokemon(Pokemon* pokemon);
+
+    void removeFromPlayersPokemon(Pokemon* pokemon);
+
+    Pokemon* getCurrPokemon();
+
 private:
     SDL_Rect playerPos;
     SDL_Surface* playerImage;
-    const int walkSpeed = 5;
-    const int sprintSpeed = 10;
+    const int WALK_SPEED = 5;
+    const int SPRINT_SPEED = 10;
     int playerSpeed;
+    const int MAX_POKEMON = 20;
+    vector<Pokemon*> playersPokemon;
+    int currPokemon;
 };
 
 #endif //ADVPROGFINPROJ_PLAYER_H

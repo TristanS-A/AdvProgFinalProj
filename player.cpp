@@ -5,6 +5,8 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include <iostream>
+#include <vector>
+#include <bits/stdc++.h>
 
 Player::Player(SDL_Rect playerPos) {
     playerImage = IMG_Load("images/p.png");
@@ -16,7 +18,7 @@ Player::Player(SDL_Rect playerPos) {
     this->playerPos = {playerPos.x - playerImage->w / 2, playerPos.y - playerImage->h / 2, playerImage->w,
                        playerImage->h};
 
-    playerSpeed = walkSpeed;
+    playerSpeed = WALK_SPEED;
 }
 
 void Player::movePlayer(int xUnits, int yUnits) {
@@ -30,14 +32,14 @@ void Player::setPlayerPos(int x, int y) {
 }
 
 void Player::setSprinting() {
-    playerSpeed = sprintSpeed;
+    playerSpeed = SPRINT_SPEED;
 }
 
-void Player::setWakling() {
-playerSpeed = walkSpeed;
+void Player::setWalking() {
+playerSpeed = WALK_SPEED;
 }
 
-int Player::getPlayerSpeed() {
+int Player::getPlayerSpeed() const {
     return playerSpeed;
 }
 
@@ -47,4 +49,16 @@ SDL_Rect Player::getPlayerRect() {
 
 void Player::displayPlayer(SDL_Surface* windowSurf) {
     SDL_BlitSurface(playerImage, nullptr, windowSurf, &playerPos);
+}
+
+void Player::addToPlayersPokemon(Pokemon* pokemon) {
+    playersPokemon.push_back(pokemon);
+}
+
+void Player::removeFromPlayersPokemon(Pokemon *pokemon) {
+    playersPokemon.erase(find(playersPokemon.begin(), playersPokemon.end(), pokemon));
+}
+
+Pokemon *Player::getCurrPokemon() {
+    return playersPokemon[currPokemon];
 }

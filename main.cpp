@@ -19,7 +19,7 @@ using namespace std;
 #define SCREEN_WIDTH    1440
 #define SCREEN_HEIGHT   810
 
-void showMessage(string messageToSend, TTF_Font* font, SDL_Surface* windowSurf){
+void showMessages(string messageToSend, TTF_Font* font, SDL_Surface* windowSurf){
     SDL_Surface *textSurf = TTF_RenderText_Solid(font, messageToSend.c_str(), {255, 255, 255});
     SDL_Rect dest = {100, 600, 0, 0};
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
@@ -147,10 +147,12 @@ int main(int argc, char* argv[]) {
     //Sets up key presses
     const Uint8 *keystates = SDL_GetKeyboardState(nullptr);
 
-    Player* player = new Player({SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2, 0, 0});
-
     SDL_Surface* background = IMG_Load("images/background.png");
     SDL_Rect bgPos = {-background->w / 2 + SCREEN_WIDTH / 2, -background->h / 2 + SCREEN_HEIGHT / 2, background->w, background->h};
+
+    Player* player = new Player({SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2, 0, 0});
+    Pokemon* p1 = new FireType("Poki", 1, 100, background, 100);
+    player->addToPlayersPokemon(p1);
 
     //This exists because SDL's blitting function changes the destination rect's position when blitting, if the
     // position is offscreen
@@ -185,7 +187,7 @@ int main(int argc, char* argv[]) {
     //Creates Rect for windowSurf surface so that its dimensions can be rescaled and repositioned
     SDL_Rect windowTextureSize = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 
-    Pokemon* wildPokemon;
+    Pokemon* wildPokemon = nullptr;
 
     float encounterChance = 0.2;
 
@@ -195,11 +197,17 @@ int main(int argc, char* argv[]) {
 
     bool hasAttacked = false;
 
-    bool sendMessage = false;
+    bool playersTurn = true;
 
-    bool noSkip = false;
+    bool battleHasBegun = false;
 
-    string message;
+    bool battleIsOver = false;
+
+    bool noSkip = true;
+
+    vector<string> messages;
+
+    int currMessage = 0;
 
     Uint32 currEncounterTime;
     Uint32 prevEncounterTime = 0;
@@ -264,7 +272,7 @@ int main(int argc, char* argv[]) {
 
                     //Sets player speed back to walk speed (This is done here instead of an else statement after the
                     // sprinting check to not call this every frame that the user is not pressing the sprint button)
-                    player->setWakling();
+                    player->setWalking();
             }
             //if (typeid(*player) == typeid(Player)){
 
@@ -285,42 +293,88 @@ int main(int argc, char* argv[]) {
                     prevEncounterTime = currEncounterTime;
                     if (dist(mt) <= encounterChance) {
                         inBattle = true;
-                        wildPokemon = new FireType("Poki", 1, 100, background, 100);
+
+                        //////////////////Check with Professor if ok to delete like this
+                        //Checks for if wildPokemon is pointing to another wild pokemon and deletes it
+                        if (wildPokemon != nullptr){
+                            ////////////////////Ask professor about this warning
+                            delete wildPokemon;
+                        }
+
+                        wildPokemon = new FireType("Wild Lad", 1, 100, background, 100);
                     }
                 }
             }
             else {
-                if (!sendMessage) {
-                    if (choseMove) {
-                        if (!hasAttacked) {
-                            hasAttacked = wildPokemon->attack(message);
-                            if (hasAttacked){
-                                choseMove = false;
-                                hasAttacked = false;
+                if (messages.empty()) {
+                    if (battleHasBegun && !battleIsOver) {
+                        if (playersTurn) {
+                            if (choseMove) {
+                                if (!hasAttacked) {
+                                    hasAttacked = player->getCurrPokemon()->attack(wildPokemon, messages);
+                                    if (hasAttacked) {
+                                        choseMove = false;
+                                        hasAttacked = false;
+                                        playersTurn = false;
 
-                                if (!message.empty()){
-                                    sendMessage = true;
-                                    noSkip = true;
+                                        if (wildPokemon->getHealth() <= 0){
+                                            battleIsOver = true;
+                                            ///////////////////////////////////////////Calculate experience
+                                            messages.emplace_back("You won!");
+                                        }
+                                    }
                                 }
+                            } else {
+                                choseMove = player->getCurrPokemon()->displayAndChooseMoves(font, windowSurf, mouseDown,
+                                                                                            messages);
+                            }
+                        } else {
+                            if (choseMove) {
+                                if (!hasAttacked) {
+                                    hasAttacked = wildPokemon->attack(player->getCurrPokemon(), messages);
+                                    if (hasAttacked) {
+                                        choseMove = false;
+                                        hasAttacked = false;
+                                        playersTurn = true;
+
+                                        if (player->getCurrPokemon()->getHealth() <= 0){
+                                            battleIsOver = true;
+                                            //////////////////////////////////////////////Calculate experience
+                                            messages.emplace_back("You lost...");
+                                        }
+                                    }
+                                }
+                            } else {
+                                wildPokemon->pickRandomMove(messages);
+                                choseMove = true;
                             }
                         }
+                    } else if (!battleHasBegun) {
+                        ///////////////////////////////////////////////////////Play enter battle animation
+                        messages.emplace_back("You encountered a wild pokemon!");
+                        battleHasBegun = true;
+                        battleIsOver = false;
                     } else {
-                        choseMove = wildPokemon->displayAndChooseMoves(font, windowSurf, mouseDown, message);
-
-                        if (!message.empty()){
-                            sendMessage = true;
-                            noSkip = true;
-                        }
+                        ////////////////////////////////////////////////////////Play exit battle animation
+                        inBattle = false;
+                        battleHasBegun = false;
                     }
                 }
                 else {
-                    showMessage(message, font, windowSurf);
-                    if (keystates[SDL_SCANCODE_N] && !noSkip){
-                        message = "";
-                        sendMessage = false;
+                    if (currMessage < messages.size()) {
+                        showMessages(messages[currMessage], font, windowSurf);
+
+                        if (keystates[SDL_SCANCODE_N] && !noSkip) {
+                            currMessage++;
+                            noSkip = true;
+                        } else if (!keystates[SDL_SCANCODE_N]) {
+                            noSkip = false;
+                        }
                     }
-                    else if (!keystates[SDL_SCANCODE_N]){
-                        noSkip = false;
+                    else {
+                        noSkip = true;
+                        currMessage = 0;
+                        messages.clear();
                     }
                 }
             }
@@ -350,7 +404,10 @@ int main(int argc, char* argv[]) {
     //Deletes player
     delete player;
 
-    delete wildPokemon;
+    //Checks if wildPokemon is still pointing to a Pokemon and deletes it
+    if (wildPokemon != nullptr){
+        delete wildPokemon;
+    }
 
     //Close the font that was used
     TTF_CloseFont(font);
