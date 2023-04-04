@@ -18,6 +18,8 @@ class Player{
 public:
     Player(SDL_Rect playerPos);
 
+    ~Player();
+
     void movePlayer(int xUnits, int yUnits);
 
     void setPlayerPos(int x, int y);
@@ -40,6 +42,10 @@ public:
 
     void removeFromPlayersItems(Item* item);
 
+    Item* getCurrItem();
+
+    void useItem();
+
     Pokemon* getCurrPokemon();
 
     playerAction displayBattleMenu(TTF_Font* font, SDL_Surface* windowSurf, vector<string> &messages);
@@ -58,6 +64,7 @@ private:
     playerAction chosenAction;
     const int MAX_ITEMS = 20;
     vector<Item*> playersItems;
+    int currItem = 0;
 };
 
 #endif //ADVPROGFINPROJ_PLAYER_H

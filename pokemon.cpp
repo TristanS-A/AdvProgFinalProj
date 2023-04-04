@@ -11,13 +11,14 @@ Pokemon::Pokemon(string name, int level, int health, SDL_Surface *pokeImage) {
     this->name = name;
     this->level = level;
     this->health = health;
+    this->maxHealth = health;
     this->pokeImage = pokeImage;
     pokeRect = {0, 0, this->pokeImage->w, this->pokeImage->h};
     currAttack = -1;
 }
 
 bool Pokemon::attack(Pokemon* pokemonToAttack, vector<string> &messages) {
-    pokemonToAttack->dealDamage(movePower[currAttack]);
+    pokemonToAttack->addToHealth(-movePower[currAttack]);
     messages.push_back("Damage delt: " + to_string(movePower[currAttack]));
     currAttack = -1;
     return true;
@@ -54,7 +55,7 @@ void Pokemon::pickRandomMove(vector<string> &messages) {
     int movesCount = 0;
     random_device random;
 
-    mt19937 mt(random());
+    mt19937 outputNum(random());
 
     for (const string& moveName : moveNames){
         if (!moveName.empty()){
@@ -62,16 +63,22 @@ void Pokemon::pickRandomMove(vector<string> &messages) {
         }
     }
 
-    uniform_real_distribution<double> dist(0, movesCount - 1.01);
+    uniform_real_distribution<double> randomRange(0, movesCount - 1.01);
 
-    currAttack = static_cast<int>(dist(mt));
+    currAttack = static_cast<int>(randomRange(outputNum));
 
     messages.push_back(to_string(currAttack + 1));
 
 }
 
-void Pokemon::dealDamage(int damage) {
-    health -= damage;
+void Pokemon::addToHealth(int amount) {
+    health += amount;
+    if (health > maxHealth){
+        health = maxHealth;
+    }
+    else if (health < 0){
+        health = 0;
+    }
 }
 
 int Pokemon::getHealth() const {

@@ -10,6 +10,7 @@ using namespace std;
 #include "player.h"
 #include "handlePlayerMovement.h"
 #include "pokemon.h"
+#include "items.h"
 #include "globalVariables.h"
 
 #include <SDL.h>
@@ -187,7 +188,14 @@ int main(int argc, char* argv[]) {
 
     Pokemon* wildPokemon = nullptr;
 
+    Item* collectedItem = new HealthItem("Herb", 10, IMG_Load("images/m.png"));
+    player->addToPlayersItems(collectedItem);
+    player->addToPlayersItems(collectedItem);
+    collectedItem = nullptr;
+
     float encounterChance = 1.0;
+
+    float runSuccessRate = 0.5;
 
     int encounterCheckTime = 1;
 
@@ -212,8 +220,8 @@ int main(int argc, char* argv[]) {
 
     random_device random;
 
-    mt19937 mt(random());
-    uniform_real_distribution<double> dist(0, 1.0);
+    mt19937 outputNum(random());
+    uniform_real_distribution<double> randomRange(0, 1.0);
 
     bool inBattle = false;
 
@@ -289,7 +297,7 @@ int main(int argc, char* argv[]) {
                 currEncounterTime = SDL_GetTicks();
                 if (currEncounterTime > prevEncounterTime + encounterCheckTime * 1000){
                     prevEncounterTime = currEncounterTime;
-                    if (dist(mt) <= encounterChance) {
+                    if (randomRange(outputNum) <= encounterChance) {
                         inBattle = true;
 
                         //////////////////Check with Professor if ok to delete like this
@@ -323,6 +331,27 @@ int main(int argc, char* argv[]) {
                                             }
                                         }
                                     }
+                                }
+                                else if (chosenAction == USE_ITEM){
+                                    player->getCurrItem()->use(player->getCurrPokemon());
+                                    chosenAction = NOT_CHOSEN;
+                                    playersTurn = false;
+                                }
+                                else if (chosenAction == CATCH){
+                                    //////////////////////////////////////Implement catching mechanic
+                                }
+                                else if (chosenAction == RUN){
+                                    if (randomRange(outputNum) < runSuccessRate){
+                                        messages.push_back("You got away.");
+                                        battleIsOver = true;
+                                    }
+                                    else {
+                                        messages.push_back("You didn't away in time...");
+                                    }
+                                    playersTurn = false;
+                                    chosenAction = NOT_CHOSEN;
+                                    //////////////////////////////////////Put this somewhere else maybe if menu is reset every turn
+                                    player->resetBattleMenu();
                                 }
                             } else {
                                 chosenAction = player->displayBattleMenu(font, windowSurf, messages);
@@ -403,9 +432,14 @@ int main(int argc, char* argv[]) {
         SDL_RenderPresent(renderer);
     }
 
+    //////////////////////////////////////Investigate exit code not zero because of this sometimes
+    ////////////////////////////////////////////Also check for other surfaces that don't get freed like the item surfs
     //Frees surfaces
     SDL_FreeSurface(windowSurf);
     SDL_FreeSurface(textSurf);
+
+    //Destroys textures
+    SDL_DestroyTexture(windowTexture);
 
     //Deletes player
     delete player;

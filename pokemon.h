@@ -23,13 +23,14 @@ public:
 
     virtual void pickRandomMove(vector<string> &messages);
 
-    virtual void dealDamage(int damage);
+    virtual void addToHealth(int amount);
 
     int getHealth() const;
 
 protected:
     string name;
     int health;
+    int maxHealth;
     int level;
     SDL_Surface* pokeImage;
     SDL_Rect pokeRect;
