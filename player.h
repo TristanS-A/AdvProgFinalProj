@@ -9,6 +9,10 @@
 #include "pokemon.h"
 #include <vector>
 
+enum playerAction {
+    NOT_CHOSEN, ATTACKING, USE_ITEM, CATCH, RUN
+};
+
 class Player{
 public:
     Player(SDL_Rect playerPos);
@@ -33,6 +37,10 @@ public:
 
     Pokemon* getCurrPokemon();
 
+    playerAction displayBattleMenu(TTF_Font* font, SDL_Surface* windowSurf, bool mouseDown, vector<string> &messages);
+
+    void resetBattleMenu();
+
 private:
     SDL_Rect playerPos;
     SDL_Surface* playerImage;
@@ -42,6 +50,7 @@ private:
     const int MAX_POKEMON = 20;
     vector<Pokemon*> playersPokemon;
     int currPokemon;
+    playerAction chosenAction;
 };
 
 #endif //ADVPROGFINPROJ_PLAYER_H

@@ -62,3 +62,31 @@ void Player::removeFromPlayersPokemon(Pokemon *pokemon) {
 Pokemon *Player::getCurrPokemon() {
     return playersPokemon[currPokemon];
 }
+
+playerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, bool mouseDown, vector<string> &messages) {
+    switch (chosenAction){
+        case NOT_CHOSEN:
+            if (mouseDown){
+                chosenAction = ATTACKING;
+            }
+            break;
+        case ATTACKING:
+            if (this->getCurrPokemon()->displayAndChooseMoves(font, windowSurf, mouseDown,
+                                                             messages)){
+                return chosenAction;
+            }
+            break;
+        case USE_ITEM:
+            break;
+        case CATCH:
+            break;
+        case RUN:
+            break;
+    }
+
+    return NOT_CHOSEN;
+}
+
+void Player::resetBattleMenu() {
+    chosenAction = NOT_CHOSEN;
+}

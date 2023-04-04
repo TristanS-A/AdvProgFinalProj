@@ -193,7 +193,7 @@ int main(int argc, char* argv[]) {
 
     int encounterCheckTime = 1;
 
-    bool choseMove = false;
+    int chosenAction = 0;
 
     bool hasAttacked = false;
 
@@ -309,31 +309,38 @@ int main(int argc, char* argv[]) {
                 if (messages.empty()) {
                     if (battleHasBegun && !battleIsOver) {
                         if (playersTurn) {
-                            if (choseMove) {
-                                if (!hasAttacked) {
-                                    hasAttacked = player->getCurrPokemon()->attack(wildPokemon, messages);
-                                    if (hasAttacked) {
-                                        choseMove = false;
-                                        hasAttacked = false;
-                                        playersTurn = false;
+                            if (chosenAction != NOT_CHOSEN) {
+                                if (chosenAction == ATTACKING) {
+                                    if (!hasAttacked) {
+                                        hasAttacked = player->getCurrPokemon()->attack(wildPokemon, messages);
+                                        if (hasAttacked) {
+                                            chosenAction = NOT_CHOSEN;
+                                            hasAttacked = false;
+                                            playersTurn = false;
 
-                                        if (wildPokemon->getHealth() <= 0){
-                                            battleIsOver = true;
-                                            ///////////////////////////////////////////Calculate experience
-                                            messages.emplace_back("You won!");
+                                            if (wildPokemon->getHealth() <= 0) {
+                                                battleIsOver = true;
+                                                ///////////////////////////////////////////Calculate experience
+                                                messages.emplace_back("You won!");
+                                            }
                                         }
                                     }
                                 }
                             } else {
-                                choseMove = player->getCurrPokemon()->displayAndChooseMoves(font, windowSurf, mouseDown,
+                                chosenAction = player->displayBattleMenu(font, windowSurf, mouseDown,
                                                                                             messages);
+
+                                ////////////////////////////////////////////////Reset menu or no?
+//                                if (chosenAction != NOT_CHOSEN){
+//                                    player->resetBattleMenu();
+//                                }
                             }
                         } else {
-                            if (choseMove) {
+                            if (chosenAction != NOT_CHOSEN) {
                                 if (!hasAttacked) {
                                     hasAttacked = wildPokemon->attack(player->getCurrPokemon(), messages);
                                     if (hasAttacked) {
-                                        choseMove = false;
+                                        chosenAction = NOT_CHOSEN;
                                         hasAttacked = false;
                                         playersTurn = true;
 
@@ -345,8 +352,9 @@ int main(int argc, char* argv[]) {
                                     }
                                 }
                             } else {
+                                ///////////////////////////////////////////Impliment random chance to run or other
                                 wildPokemon->pickRandomMove(messages);
-                                choseMove = true;
+                                chosenAction = 1;
                             }
                         }
                     } else if (!battleHasBegun) {
