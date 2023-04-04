@@ -10,6 +10,7 @@ using namespace std;
 #include "player.h"
 #include "handlePlayerMovement.h"
 #include "pokemon.h"
+#include "globalVariables.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -167,9 +168,6 @@ int main(int argc, char* argv[]) {
     //To quit the game
     bool quit = false;
 
-    //For if the mouse button is pressed or held down
-    bool mouseDown = false;
-
     //Current time for time tracking
     Uint32 currTime;
 
@@ -189,7 +187,7 @@ int main(int argc, char* argv[]) {
 
     Pokemon* wildPokemon = nullptr;
 
-    float encounterChance = 0.2;
+    float encounterChance = 1.0;
 
     int encounterCheckTime = 1;
 
@@ -327,8 +325,7 @@ int main(int argc, char* argv[]) {
                                     }
                                 }
                             } else {
-                                chosenAction = player->displayBattleMenu(font, windowSurf, mouseDown,
-                                                                                            messages);
+                                chosenAction = player->displayBattleMenu(font, windowSurf, messages);
 
                                 ////////////////////////////////////////////////Reset menu or no?
 //                                if (chosenAction != NOT_CHOSEN){
@@ -360,6 +357,7 @@ int main(int argc, char* argv[]) {
                     } else if (!battleHasBegun) {
                         ///////////////////////////////////////////////////////Play enter battle animation
                         messages.emplace_back("You encountered a wild pokemon!");
+                        player->resetBattleMenu();
                         battleHasBegun = true;
                         battleIsOver = false;
                     } else {

@@ -7,6 +7,7 @@
 
 #include "SDL.h"
 #include "pokemon.h"
+#include "items.h"
 #include <vector>
 
 enum playerAction {
@@ -35,9 +36,13 @@ public:
 
     void removeFromPlayersPokemon(Pokemon* pokemon);
 
+    void addToPlayersItems(Item* item);
+
+    void removeFromPlayersItems(Item* item);
+
     Pokemon* getCurrPokemon();
 
-    playerAction displayBattleMenu(TTF_Font* font, SDL_Surface* windowSurf, bool mouseDown, vector<string> &messages);
+    playerAction displayBattleMenu(TTF_Font* font, SDL_Surface* windowSurf, vector<string> &messages);
 
     void resetBattleMenu();
 
@@ -49,8 +54,10 @@ private:
     int playerSpeed;
     const int MAX_POKEMON = 20;
     vector<Pokemon*> playersPokemon;
-    int currPokemon;
+    int currPokemon = 0;
     playerAction chosenAction;
+    const int MAX_ITEMS = 20;
+    vector<Item*> playersItems;
 };
 
 #endif //ADVPROGFINPROJ_PLAYER_H

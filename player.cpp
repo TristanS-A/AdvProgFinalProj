@@ -4,6 +4,7 @@
 #include "player.h"
 #include "SDL.h"
 #include "SDL_image.h"
+#include "globalVariables.h"
 #include <iostream>
 #include <vector>
 #include <bits/stdc++.h>
@@ -59,11 +60,19 @@ void Player::removeFromPlayersPokemon(Pokemon *pokemon) {
     playersPokemon.erase(find(playersPokemon.begin(), playersPokemon.end(), pokemon));
 }
 
-Pokemon *Player::getCurrPokemon() {
+void Player::addToPlayersItems(Item *item) {
+    playersItems.push_back(item);
+}
+
+void Player::removeFromPlayersItems(Item *item) {
+    playersItems.erase(find(playersItems.begin(), playersItems.end(), item));
+}
+
+Pokemon* Player::getCurrPokemon() {
     return playersPokemon[currPokemon];
 }
 
-playerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, bool mouseDown, vector<string> &messages) {
+playerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, vector<string> &messages) {
     switch (chosenAction){
         case NOT_CHOSEN:
             if (mouseDown){
@@ -71,8 +80,7 @@ playerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, 
             }
             break;
         case ATTACKING:
-            if (this->getCurrPokemon()->displayAndChooseMoves(font, windowSurf, mouseDown,
-                                                             messages)){
+            if (getCurrPokemon()->displayAndChooseMoves(font, windowSurf, messages)){
                 return chosenAction;
             }
             break;
