@@ -225,6 +225,11 @@ int main(int argc, char* argv[]) {
     mt19937 outputNum(random());
     uniform_real_distribution<double> randomRange(0, 1.0);
 
+    Pokeball* p = new Pokeball("Pokeball", 1, IMG_Load("images/m.png"));
+    Pokeball* pe = new Pokeball("Pokeball 2", 1, IMG_Load("images/m.png"));
+    player->addToPlayersPokeballs(p);
+    player->addToPlayersPokeballs(pe);
+
     bool inBattle = false;
 
     //-------------------------------------\\
@@ -336,12 +341,14 @@ int main(int argc, char* argv[]) {
                                     }
                                 }
                                 else if (chosenAction == USE_ITEM){
+                                    //////////////////////////////////////////Make animation for using item
                                     player->getCurrItem()->use(player->getCurrPokemon());
                                     chosenAction = NOT_CHOSEN;
                                     playersTurn = false;
                                 }
                                 else if (chosenAction == CATCH){
                                     //////////////////////////////////////Make set rect pos func for pokemon to move off and on screen
+                                    /////////////////////////////////////////Also make animation for catching pokemon
                                     catchState = player->tryCatchingPokemon(wildPokemon);
 
                                     if (catchState != ANIMATION_NOT_FINISHED) {
@@ -395,7 +402,7 @@ int main(int argc, char* argv[]) {
                             } else {
                                 ///////////////////////////////////////////Impliment random chance to run or other
                                 wildPokemon->pickRandomMove(messages);
-                                chosenAction = 1;
+                                chosenAction = ATTACKING;
                             }
                         }
                     } else if (!battleHasBegun) {

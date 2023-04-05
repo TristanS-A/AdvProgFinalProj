@@ -48,6 +48,10 @@ public:
 
     void removeFromPlayersItems(Item* item);
 
+    void addToPlayersPokeballs(Item* pokeball);
+
+    void removeFromPlayersPokeballs(Item* pokeball);
+
     Item* getCurrItem();
 
     void useItem();
@@ -66,12 +70,14 @@ private:
     int playerSpeed;
     const int MAX_POKEMON = 1;
     vector<Pokemon*> playersPokemon;
+    /////////////////////////////////////////Look into making the curr variables into class pointers like currPokeball
     int currPokemon = 0;
-    int playersPokeballs[3] = {1, 0, 0};
+    vector<vector<Item*>> playersPokeballs;
     bool canCatch = false;
     int catchingChancesCount = 0;
     const int TOTAL_CATCHING_CHANCES = 3;
     float catchProbability;
+    Item* currPokeball;
     playerAction chosenAction;
     const int MAX_ITEMS = 20;
     vector<Item*> playersItems;

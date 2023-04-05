@@ -49,3 +49,23 @@ EffectType BoostItem::getEffectType() {
 void BoostItem::use(Pokemon* pokemonToEffect) {
     ///////////////////////////////////////////////Impliment boost functionality (perhaps with base multiplier variable on a pokemon
 }
+
+void BoostItem::displayItem(SDL_Surface *windowSurf, SDL_Rect destRect) {
+    Item::displayItem(windowSurf, destRect);
+}
+
+Pokeball::Pokeball(string name, float catchBooster, SDL_Surface *itemImage) : Item(name, itemImage){
+    this->catchBooster = catchBooster;
+}
+
+float Pokeball::getCatchBooster() const {
+    return catchBooster;
+}
+
+void Pokeball::use(Pokemon *pokemonToEffect) {
+    return;
+}
+
+void Pokeball::displayItem(SDL_Surface *windowSurf, SDL_Rect destRect) {
+    Item::displayItem(windowSurf, destRect);
+}

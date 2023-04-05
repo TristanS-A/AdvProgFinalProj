@@ -48,10 +48,25 @@ public:
     EffectType getEffectType();
 
     void use(Pokemon* pokemonToEffect) override;
+
+    void displayItem(SDL_Surface* windowSurf, SDL_Rect destRect) override;
 private:
     float boostAmount;
     EffectType itemEffectType;
 
+};
+
+class Pokeball : public Item{
+public:
+    Pokeball(string name, float catchBooster, SDL_Surface* itemImage);
+
+    float getCatchBooster() const;
+
+    void use(Pokemon* pokemonToEffect) override;
+
+    void displayItem(SDL_Surface* windowSurf, SDL_Rect destRect) override;
+private:
+    float catchBooster;
 };
 
 ////////////////////////////////////////////Passably an effect nullified item

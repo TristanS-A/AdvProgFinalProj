@@ -28,6 +28,12 @@ Player::~Player() {
         delete item;
     }
 
+    for (vector<Item*> vectorOfPokeballs: playersPokeballs){
+        for (Item* pokeball : vectorOfPokeballs){
+            delete pokeball;
+        }
+    }
+
     for (Pokemon* pokemon : playersPokemon){
         delete pokemon;
     }
@@ -77,15 +83,25 @@ catchingState Player::tryCatchingPokemon(Pokemon* pokemonToCatch) {
         cout << catchProbability << endl;
         if (randomRange(outputNum) < catchProbability){
             addToPlayersPokemon(pokemonToCatch);
-            resetBattleMenu();
             catchingChancesCount = 0;
             return CAUGHT;
         }
         catchingChancesCount++;
     }
     else {
+        removeFromPlayersPokeballs(currPokeball);
+
+        //This is that if the player used their last pokeball the menu would reset
+        bool outOfPokeballs = true;
+        for (vector<Item*> vectorOfPokeballs : playersPokeballs){
+            if (!vectorOfPokeballs.empty()){
+                outOfPokeballs = false;
+            }
+        }
+        if (outOfPokeballs){
+            resetBattleMenu();
+        }
         catchingChancesCount = 0;
-        resetBattleMenu();
         return NOT_CAUGHT;
     }
 
@@ -159,27 +175,42 @@ playerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, 
                 else if (checkForClickAndDisplayButton({0, 0, 100, 100}, font, windowSurf)){
                     resetBattleMenu();
                 }
+            } else {
+                messages.push_back("You don't have any items to use!");
+                resetBattleMenu();
             }
             break;
         case CATCH:
             if (!canCatch) {
                 if (playersPokemon.size() >= MAX_POKEMON) {
-                    for (int playersPokeballCount: playersPokeballs) {
-                        if (playersPokeballCount > 0) {
+                    for (vector<Item*> vectorOfPokeballs: playersPokeballs) {
+                        if (!vectorOfPokeballs.empty()) {
                             canCatch = true;
                         }
                     }
                     if (!canCatch) {
                         messages.push_back("You don't have any pokeballs...");
+                        resetBattleMenu();
                     }
                 } else {
                     messages.push_back("You can't carry any more pokemon...");
+                    resetBattleMenu();
                 }
-                resetBattleMenu();
             } else {
-                //////////////////////////////////Display pokeball options like items
-                canCatch = false;
-                return CATCH;
+                for (int i = playersPokeballs.size() - 1; i >= 0; i--){
+                    if (!playersPokeballs[i].empty()) {
+                        playersPokeballs[i][0]->displayItem(windowSurf, {700 - 100 * i, 600, 0, 0});
+                        if (checkForClickAndDisplayButton({700 - 100 * i, 600, 100, 100}, font, windowSurf)){
+                            currPokeball = playersPokeballs[i][0];
+                            canCatch = false;
+                            return CATCH;
+                        }
+                    }
+                }
+                if (checkForClickAndDisplayButton({0, 0, 100, 100}, font, windowSurf)){
+                    canCatch = false;
+                    resetBattleMenu();
+                }
             }
             break;
         case RUN:
@@ -196,4 +227,26 @@ Item* Player::getCurrItem() {
 
 void Player::resetBattleMenu() {
     chosenAction = NOT_CHOSEN;
+}
+
+void Player::addToPlayersPokeballs(Item* pokeball) {
+    for (vector<Item*> vectorOfPokeballs : playersPokeballs){
+        if (vectorOfPokeballs[0]->getName() == pokeball->getName()){
+            vectorOfPokeballs.push_back(pokeball);
+            return;
+        }
+    }
+
+    playersPokeballs.push_back({});
+    playersPokeballs[playersPokeballs.size() - 1].push_back(pokeball);
+}
+
+void Player::removeFromPlayersPokeballs(Item* pokeball) {
+    for (vector<Item*> &vectorOfPokeballs : playersPokeballs){
+        if (vectorOfPokeballs[0]->getName() == pokeball->getName()){
+            vectorOfPokeballs.erase(find(vectorOfPokeballs.begin(), vectorOfPokeballs.end(), pokeball));
+            delete pokeball;
+            return;
+        }
+    }
 }
