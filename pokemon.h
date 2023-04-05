@@ -27,6 +27,12 @@ public:
 
     int getHealth() const;
 
+    float getHealthPercent() const;
+
+    string getName() const;
+
+    int getLevel() const;
+
 protected:
     string name;
     int health;

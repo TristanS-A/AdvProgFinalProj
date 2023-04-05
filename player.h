@@ -10,9 +10,13 @@
 #include "items.h"
 #include <vector>
 
+///////////////////////////////Maybe capitalize the enums
+
 enum playerAction {
     NOT_CHOSEN, ATTACKING, USE_ITEM, CATCH, RUN
 };
+
+enum catchingState {CAUGHT, NOT_CAUGHT, ANIMATION_NOT_FINISHED};
 
 class Player{
 public:
@@ -33,6 +37,8 @@ public:
     SDL_Rect getPlayerRect();
 
     void displayPlayer(SDL_Surface* windowSurf);
+
+    catchingState tryCatchingPokemon(Pokemon* pokemonToCatch);
 
     void addToPlayersPokemon(Pokemon* pokemon);
 
@@ -58,9 +64,14 @@ private:
     const int WALK_SPEED = 5;
     const int SPRINT_SPEED = 10;
     int playerSpeed;
-    const int MAX_POKEMON = 20;
+    const int MAX_POKEMON = 1;
     vector<Pokemon*> playersPokemon;
     int currPokemon = 0;
+    int playersPokeballs[3] = {1, 0, 0};
+    bool canCatch = false;
+    int catchingChancesCount = 0;
+    const int TOTAL_CATCHING_CHANCES = 3;
+    float catchProbability;
     playerAction chosenAction;
     const int MAX_ITEMS = 20;
     vector<Item*> playersItems;

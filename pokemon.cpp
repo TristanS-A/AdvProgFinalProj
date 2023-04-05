@@ -82,7 +82,19 @@ void Pokemon::addToHealth(int amount) {
 }
 
 int Pokemon::getHealth() const {
-    return  health;
+    return health;
+}
+
+float Pokemon::getHealthPercent() const {
+    return static_cast<float>(health) / static_cast<float>(maxHealth);
+}
+
+string Pokemon::getName() const {
+    return name;
+}
+
+int Pokemon::getLevel() const {
+    return level;
 }
 
 FireType::FireType(string name, int level, int health, SDL_Surface *pokeImage, int fireTemperature) : Pokemon(name, level, health, pokeImage){

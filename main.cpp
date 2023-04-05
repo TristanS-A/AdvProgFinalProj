@@ -203,6 +203,8 @@ int main(int argc, char* argv[]) {
 
     bool hasAttacked = false;
 
+    catchingState catchState = ANIMATION_NOT_FINISHED;
+
     bool playersTurn = true;
 
     bool battleHasBegun = false;
@@ -326,6 +328,7 @@ int main(int argc, char* argv[]) {
 
                                             if (wildPokemon->getHealth() <= 0) {
                                                 battleIsOver = true;
+                                                playersTurn = true;
                                                 ///////////////////////////////////////////Calculate experience
                                                 messages.emplace_back("You won!");
                                             }
@@ -338,7 +341,19 @@ int main(int argc, char* argv[]) {
                                     playersTurn = false;
                                 }
                                 else if (chosenAction == CATCH){
-                                    //////////////////////////////////////Implement catching mechanic
+                                    //////////////////////////////////////Make set rect pos func for pokemon to move off and on screen
+                                    catchState = player->tryCatchingPokemon(wildPokemon);
+
+                                    if (catchState != ANIMATION_NOT_FINISHED) {
+                                        chosenAction = NOT_CHOSEN;
+                                        if (catchState == CAUGHT) {
+                                            messages.push_back("You caught the " + wildPokemon->getName() + "!");
+                                            battleIsOver = true;
+                                        } else if (catchState == NOT_CAUGHT) {
+                                            messages.push_back("The " + wildPokemon->getName() + " escaped!");
+                                            playersTurn = false;
+                                        }
+                                    }
                                 }
                                 else if (chosenAction == RUN){
                                     if (randomRange(outputNum) < runSuccessRate){
@@ -348,8 +363,8 @@ int main(int argc, char* argv[]) {
                                     else {
                                         messages.push_back("You didn't away in time...");
                                     }
-                                    playersTurn = false;
                                     chosenAction = NOT_CHOSEN;
+                                    playersTurn = false;
                                     //////////////////////////////////////Put this somewhere else maybe if menu is reset every turn
                                     player->resetBattleMenu();
                                 }
@@ -386,6 +401,8 @@ int main(int argc, char* argv[]) {
                     } else if (!battleHasBegun) {
                         ///////////////////////////////////////////////////////Play enter battle animation
                         messages.emplace_back("You encountered a wild pokemon!");
+                        ///////////////////////////////Check all NOT_CHOSEN things to see if this one here is necessary
+                        chosenAction = NOT_CHOSEN;
                         player->resetBattleMenu();
                         battleHasBegun = true;
                         battleIsOver = false;
