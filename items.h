@@ -16,6 +16,8 @@ public:
 
     Item(string name, SDL_Surface* itemImage);
 
+    virtual ~Item();
+
     string getName();
 
     virtual void use(Pokemon* pokemonToEffect) = 0;

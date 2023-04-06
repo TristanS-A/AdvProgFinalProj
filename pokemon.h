@@ -17,7 +17,11 @@ public:
 
     Pokemon(string name, int level, int health, SDL_Surface* pokeImage);
 
+    virtual ~Pokemon();
+
     virtual bool attack(Pokemon* pokemonToAttack, vector<string> &messages) = 0;
+
+    virtual void displayPokemonInfoButton(SDL_Surface* windowSurf, SDL_Rect destRect);
 
     virtual bool displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, vector<string> &messages);
 
@@ -40,6 +44,7 @@ protected:
     int level;
     SDL_Surface* pokeImage;
     SDL_Rect pokeRect;
+    ////////////////////////////////////////////////////Maybe make a limit to how many times you can use a move
     string moveNames[4] = {"attak", "double", "eat", "goooo"};
     int movePower[4] = {1, 5,  20, 50};
     int currAttack;

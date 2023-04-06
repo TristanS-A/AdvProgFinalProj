@@ -24,8 +24,10 @@ Player::Player(SDL_Rect playerPos) {
 }
 
 Player::~Player() {
-    for (Item* item : playersItems){
-        delete item;
+    for (vector<Item*> vectorOfItems: playersItems){
+        for (Item* item : vectorOfItems){
+            delete item;
+        }
     }
 
     for (vector<Item*> vectorOfPokeballs: playersPokeballs){
@@ -72,14 +74,14 @@ void Player::displayPlayer(SDL_Surface* windowSurf) {
     SDL_BlitSurface(playerImage, nullptr, windowSurf, &playerPos);
 }
 
-catchingState Player::tryCatchingPokemon(Pokemon* pokemonToCatch) {
+CatchingState Player::tryCatchingPokemon(Pokemon* pokemonToCatch) {
     random_device random;
 
     mt19937 outputNum(random());
     uniform_real_distribution<double> randomRange(0, 1.0);
 
     if (catchingChancesCount != TOTAL_CATCHING_CHANCES){
-        catchProbability = float(0.5 - pokemonToCatch->getHealthPercent()) + float(0.1 * (float(playersPokemon[currPokemon]->getLevel()) / float(pokemonToCatch->getLevel())));
+        catchProbability = float(0.5 - pokemonToCatch->getHealthPercent()) + float(0.1 * (float(currPokemon->getLevel()) / float(pokemonToCatch->getLevel())));
         cout << catchProbability << endl;
         if (randomRange(outputNum) < catchProbability){
             addToPlayersPokemon(pokemonToCatch);
@@ -110,42 +112,103 @@ catchingState Player::tryCatchingPokemon(Pokemon* pokemonToCatch) {
 
 void Player::addToPlayersPokemon(Pokemon* pokemon) {
     playersPokemon.push_back(pokemon);
+
+    ///////////////////////////////////////Maybe place this in main when starter pokemon are given
+    if (playersPokemon.size() == 1){
+        currPokemon = pokemon;
+    }
 }
 
 void Player::removeFromPlayersPokemon(Pokemon *pokemon) {
+    //////////////////////////////////////////////////////////////Decide on boxes storage or delete
+    if (currPokemon == pokemon){
+        if (playersPokemon[0] == pokemon){
+            currPokemon = playersPokemon[1];
+        }
+        else if (playersPokemon[playersPokemon.size() - 1] == pokemon){
+            currPokemon = playersPokemon[playersPokemon.size() - 2];
+        }
+        else {
+            for (int i = 0; i < playersPokemon.size(); i++){
+                if (playersPokemon[i] == pokemon){
+                    currPokemon = playersPokemon[i - 1];
+                    break;
+                }
+            }
+        }
+    }
+
     playersPokemon.erase(find(playersPokemon.begin(), playersPokemon.end(), pokemon));
 }
 
 void Player::addToPlayersItems(Item *item) {
-    playersItems.push_back(item);
+    for (vector<Item*> &vectorOfItems : playersItems){
+        if (vectorOfItems[0]->getName() == item->getName()){
+            vectorOfItems.push_back(item);
+            return;
+        }
+    }
+
+    playersItems.push_back({});
+    playersItems[playersItems.size() - 1].push_back(item);
 }
 
+///////////////////////////////////////////////////Maybe make a template for this and pokeball deletion and adding
 void Player::removeFromPlayersItems(Item *item) {
-    playersItems.erase(find(playersItems.begin(), playersItems.end(), item));
+    for (vector<Item*> &vectorOfItems : playersItems){
+        if (vectorOfItems[0]->getName() == item->getName()){
+            vectorOfItems.erase(find(vectorOfItems.begin(), vectorOfItems.end(), item));
+            if (vectorOfItems.empty()){
+                playersItems.erase(find(playersItems.begin(), playersItems.end(), vectorOfItems));
+            }
+            delete item;
+            return;
+        }
+    }
 }
 
 void Player::useItem() {
-    playersItems[currItem];
+    playersItems[currItem][0]->use(currPokemon);
+    removeFromPlayersItems(playersItems[currItem][0]);
+    currItem = 0;
+    resetBattleMenu();
+    if (playersItems.empty()){
+        resetBattleMenu();
+    }
 }
 
 Pokemon* Player::getCurrPokemon() {
-    return playersPokemon[currPokemon];
+    return currPokemon;
 }
 
-playerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, vector<string> &messages) {
+bool Player::noOtherHealthyPokemon() {
+    bool noMorePokemon = true;
+    for (Pokemon* pokemon : playersPokemon){
+        if (pokemon->getHealth() > 0 && pokemon != currPokemon){
+            noMorePokemon = false;
+        }
+    }
+
+    return noMorePokemon;
+}
+
+PlayerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, vector<string> &messages) {
     ///////////////////////////////////////////////////////////Add switch pokemon option
     switch (chosenAction){
         case NOT_CHOSEN:
-            if (checkForClickAndDisplayButton({0, 0, 100, 100}, font, windowSurf)){
+            if (checkForClickAndDisplayButton({0, 0, 100, 100}, font, windowSurf) && currPokemon->getHealth() > 0){
                 chosenAction = ATTACKING;
             }
-            else if (checkForClickAndDisplayButton({200, 0, 100, 100}, font, windowSurf)){
+            else if (checkForClickAndDisplayButton({200, 0, 100, 100}, font, windowSurf) && currPokemon->getHealth() > 0){
                 chosenAction = USE_ITEM;
             }
-            else if (checkForClickAndDisplayButton({300, 0, 100, 100}, font, windowSurf)){
+            else if (checkForClickAndDisplayButton({300, 0, 100, 100}, font, windowSurf) && currPokemon->getHealth() > 0){
                 chosenAction = CATCH;
             }
-            else if (checkForClickAndDisplayButton({400, 0, 100, 100}, font, windowSurf)){
+            else if (checkForClickAndDisplayButton({400, 0, 100, 100}, font, windowSurf) || currPokemon->getHealth() <= 0){
+                chosenAction = SWITCH_POKEMON;
+            }
+            else if (checkForClickAndDisplayButton({500, 0, 100, 100}, font, windowSurf) && currPokemon->getHealth() > 0){
                 chosenAction = RUN;
             }
             break;
@@ -160,7 +223,7 @@ playerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, 
         case USE_ITEM:
             if (!playersItems.empty()){
                 cout << currItem << endl;
-                playersItems[currItem]->displayItem(windowSurf, {200, 200, 0, 0});
+                playersItems[currItem][0]->displayItem(windowSurf, {200, 200, 0, 0});
                 if (currItem < playersItems.size() - 1 && checkForClickAndDisplayButton({300, 200, 90, 100}, font, windowSurf)){
                     currItem++;
                 }
@@ -168,8 +231,7 @@ playerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, 
                     currItem--;
                 }
                 else if (checkForClickAndDisplayButton({200, 200, 100, 100}, font, windowSurf)){
-                    playersItems[currItem]->use(playersPokemon[currPokemon]);
-                    messages.push_back("You used " + playersItems[currItem]->getName());
+                    messages.push_back("You used " + playersItems[currItem][0]->getName());
                     return chosenAction;
                 }
                 else if (checkForClickAndDisplayButton({0, 0, 100, 100}, font, windowSurf)){
@@ -181,18 +243,16 @@ playerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, 
             }
             break;
         case CATCH:
-            if (!canCatch) {
+            if (!canDoAction) {
+                canDoAction = true;
                 if (playersPokemon.size() >= MAX_POKEMON) {
-                    for (vector<Item*> vectorOfPokeballs: playersPokeballs) {
-                        if (!vectorOfPokeballs.empty()) {
-                            canCatch = true;
-                        }
-                    }
-                    if (!canCatch) {
+                    if (playersPokeballs.empty()) {
+                        canDoAction = false;
                         messages.push_back("You don't have any pokeballs...");
                         resetBattleMenu();
                     }
                 } else {
+                    canDoAction = false;
                     messages.push_back("You can't carry any more pokemon...");
                     resetBattleMenu();
                 }
@@ -202,13 +262,45 @@ playerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, 
                         playersPokeballs[i][0]->displayItem(windowSurf, {700 - 100 * i, 600, 0, 0});
                         if (checkForClickAndDisplayButton({700 - 100 * i, 600, 100, 100}, font, windowSurf)){
                             currPokeball = playersPokeballs[i][0];
-                            canCatch = false;
+                            canDoAction = false;
                             return CATCH;
                         }
                     }
                 }
                 if (checkForClickAndDisplayButton({0, 0, 100, 100}, font, windowSurf)){
-                    canCatch = false;
+                    canDoAction = false;
+                    resetBattleMenu();
+                }
+            }
+            break;
+        case SWITCH_POKEMON:
+            if (!canDoAction){
+                if (!noOtherHealthyPokemon()){
+                    canDoAction = true;
+                }
+                else {
+                    messages.push_back("You don't have any other pokemon you can bring out!");
+                    resetBattleMenu();
+                }
+            }
+            else {
+                int spacing = 0;
+                for (int i = playersPokemon.size() - 1; i >= 0; i--) {
+                    if (playersPokemon[i] != currPokemon && playersPokemon[i]->getHealth() > 0) {
+                        playersPokemon[i]->displayPokemonInfoButton(windowSurf, {100, 100 + spacing, 0, 0});
+                        if (checkForClickAndDisplayButton({100, 100 + spacing, 100, 100}, font, windowSurf)) {
+                            pokemonToSwapTo = playersPokemon[i];
+                            messages.push_back(
+                                    "You swapped out " + currPokemon->getName() + " and brought out " +
+                                    pokemonToSwapTo->getName() + ".");
+                            canDoAction = false;
+                            return SWITCH_POKEMON;
+                        }
+                        spacing += 100;
+                    }
+                }
+                if (checkForClickAndDisplayButton({0, 0, 100, 100}, font, windowSurf) && currPokemon->getHealth() > 0) {
+                    canDoAction = false;
                     resetBattleMenu();
                 }
             }
@@ -222,7 +314,7 @@ playerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, 
 }
 
 Item* Player::getCurrItem() {
-    return playersItems[currItem];
+    return playersItems[currItem][0];
 }
 
 void Player::resetBattleMenu() {
@@ -245,8 +337,17 @@ void Player::removeFromPlayersPokeballs(Item* pokeball) {
     for (vector<Item*> &vectorOfPokeballs : playersPokeballs){
         if (vectorOfPokeballs[0]->getName() == pokeball->getName()){
             vectorOfPokeballs.erase(find(vectorOfPokeballs.begin(), vectorOfPokeballs.end(), pokeball));
+            if (vectorOfPokeballs.empty()){
+                playersPokeballs.erase(find(playersPokeballs.begin(), playersPokeballs.end(), vectorOfPokeballs));
+            }
             delete pokeball;
             return;
         }
     }
+}
+
+bool Player::switchingPokemon() {
+    currPokemon = pokemonToSwapTo;
+    resetBattleMenu();
+    return false;
 }

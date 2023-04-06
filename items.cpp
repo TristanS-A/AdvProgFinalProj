@@ -17,6 +17,10 @@ void Item::displayItem(SDL_Surface* windowSurf, SDL_Rect destRect) {
     SDL_BlitSurface(itemImage, nullptr, windowSurf, &destRect);
 }
 
+Item::~Item() {
+    SDL_FreeSurface(itemImage);
+}
+
 HealthItem::HealthItem(string name, int amount, SDL_Surface *itemImage) : Item(name, itemImage){
     this->amount = amount;
 }

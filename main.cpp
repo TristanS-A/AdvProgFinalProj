@@ -153,8 +153,10 @@ int main(int argc, char* argv[]) {
     SDL_Rect bgPos = {-background->w / 2 + SCREEN_WIDTH / 2, -background->h / 2 + SCREEN_HEIGHT / 2, background->w, background->h};
 
     Player* player = new Player({SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2, 0, 0});
-    Pokemon* p1 = new FireType("Poki", 1, 100, background, 100);
+    Pokemon* p1 = new FireType("Poki", 1, 100, IMG_Load("images/p.png"), 100);
+    Pokemon* p2 = new FireType("Poki2", 1, 100, IMG_Load("images/p.png"), 100);
     player->addToPlayersPokemon(p1);
+    player->addToPlayersPokemon(p2);
 
     //This exists because SDL's blitting function changes the destination rect's position when blitting, if the
     // position is offscreen
@@ -189,8 +191,11 @@ int main(int argc, char* argv[]) {
     Pokemon* wildPokemon = nullptr;
 
     Item* collectedItem = new HealthItem("Herb", 10, IMG_Load("images/m.png"));
+    Item* collectedItem2 = new HealthItem("Herb2", 10, IMG_Load("images/m.png"));
+    Item* collectedItem3 = new HealthItem("Herb3", 10, IMG_Load("images/m.png"));
     player->addToPlayersItems(collectedItem);
-    player->addToPlayersItems(collectedItem);
+    player->addToPlayersItems(collectedItem2);
+    player->addToPlayersItems(collectedItem3);
     collectedItem = nullptr;
 
     float encounterChance = 1.0;
@@ -203,7 +208,7 @@ int main(int argc, char* argv[]) {
 
     bool hasAttacked = false;
 
-    catchingState catchState = ANIMATION_NOT_FINISHED;
+    CatchingState catchState = ANIMATION_NOT_FINISHED;
 
     bool playersTurn = true;
 
@@ -307,14 +312,10 @@ int main(int argc, char* argv[]) {
                     if (randomRange(outputNum) <= encounterChance) {
                         inBattle = true;
 
-                        //////////////////Check with Professor if ok to delete like this
-                        //Checks for if wildPokemon is pointing to another wild pokemon and deletes it
-                        if (wildPokemon != nullptr){
-                            ////////////////////Ask professor about this warning
-                            delete wildPokemon;
-                        }
+                        //Deletes in case wild pokemon points to an existing pokemon
+                        delete wildPokemon;
 
-                        wildPokemon = new FireType("Wild Lad", 1, 100, background, 100);
+                        wildPokemon = new FireType("Wild Lad", 1, 100, IMG_Load("images/p.png"), 100);
                     }
                 }
             }
@@ -342,7 +343,7 @@ int main(int argc, char* argv[]) {
                                 }
                                 else if (chosenAction == USE_ITEM){
                                     //////////////////////////////////////////Make animation for using item
-                                    player->getCurrItem()->use(player->getCurrPokemon());
+                                    player->useItem();
                                     chosenAction = NOT_CHOSEN;
                                     playersTurn = false;
                                 }
@@ -355,11 +356,18 @@ int main(int argc, char* argv[]) {
                                         chosenAction = NOT_CHOSEN;
                                         if (catchState == CAUGHT) {
                                             messages.push_back("You caught the " + wildPokemon->getName() + "!");
+                                            wildPokemon = nullptr;
                                             battleIsOver = true;
                                         } else if (catchState == NOT_CAUGHT) {
                                             messages.push_back("The " + wildPokemon->getName() + " escaped!");
                                             playersTurn = false;
                                         }
+                                    }
+                                }
+                                else if (chosenAction == SWITCH_POKEMON){
+                                    if (!player->switchingPokemon()){
+                                        chosenAction = NOT_CHOSEN;
+                                        playersTurn = false;
                                     }
                                 }
                                 else if (chosenAction == RUN){
@@ -393,9 +401,15 @@ int main(int argc, char* argv[]) {
                                         playersTurn = true;
 
                                         if (player->getCurrPokemon()->getHealth() <= 0){
-                                            battleIsOver = true;
-                                            //////////////////////////////////////////////Calculate experience
-                                            messages.emplace_back("You lost...");
+                                            messages.push_back(player->getCurrPokemon()->getName() + " fainted!");
+                                            if (player->noOtherHealthyPokemon()) {
+                                                battleIsOver = true;
+                                                //////////////////////////////////////////////Calculate experience
+                                                messages.push_back("You lost...");
+                                            }
+                                            else {
+                                                player->resetBattleMenu();
+                                            }
                                         }
                                     }
                                 }

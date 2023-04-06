@@ -17,6 +17,10 @@ Pokemon::Pokemon(string name, int level, int health, SDL_Surface *pokeImage) {
     currAttack = -1;
 }
 
+Pokemon::~Pokemon() {
+    SDL_FreeSurface(pokeImage);
+}
+
 bool Pokemon::attack(Pokemon* pokemonToAttack, vector<string> &messages) {
     pokemonToAttack->addToHealth(-movePower[currAttack]);
     messages.push_back("Damage delt: " + to_string(movePower[currAttack]));
@@ -63,7 +67,7 @@ void Pokemon::pickRandomMove(vector<string> &messages) {
         }
     }
 
-    uniform_real_distribution<double> randomRange(0, movesCount - 1.01);
+    uniform_real_distribution<double> randomRange(0, movesCount - 0.01);
 
     currAttack = static_cast<int>(randomRange(outputNum));
 
@@ -95,6 +99,10 @@ string Pokemon::getName() const {
 
 int Pokemon::getLevel() const {
     return level;
+}
+
+void Pokemon::displayPokemonInfoButton(SDL_Surface* windowSurf, SDL_Rect destRect) {
+    SDL_BlitSurface(pokeImage, nullptr, windowSurf, &destRect);
 }
 
 FireType::FireType(string name, int level, int health, SDL_Surface *pokeImage, int fireTemperature) : Pokemon(name, level, health, pokeImage){
