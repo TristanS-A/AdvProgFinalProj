@@ -23,7 +23,7 @@ using namespace std;
 
 void showMessages(string messageToSend, TTF_Font* font, SDL_Surface* windowSurf){
     SDL_Surface *textSurf = TTF_RenderText_Solid(font, messageToSend.c_str(), {255, 255, 255});
-    SDL_Rect dest = {100, 600, 0, 0};
+    SDL_Rect dest = {100, 650, 0, 0};
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
 }
 int main(int argc, char* argv[]) {
@@ -151,6 +151,9 @@ int main(int argc, char* argv[]) {
 
     SDL_Surface* background = IMG_Load("images/background.png");
     SDL_Rect bgPos = {-background->w / 2 + SCREEN_WIDTH / 2, -background->h / 2 + SCREEN_HEIGHT / 2, background->w, background->h};
+
+    SDL_Surface* textboxIMG = IMG_Load("images/textbox.png");
+    SDL_Rect textboxPos = {0, SCREEN_HEIGHT - textboxIMG->h, 0, 0};
 
     Player* player = new Player({SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2, 0, 0});
     Pokemon* p1 = new FireType("Poki", 1, 100, IMG_Load("images/p.png"), 100);
@@ -315,11 +318,17 @@ int main(int argc, char* argv[]) {
                         //Deletes in case wild pokemon points to an existing pokemon
                         delete wildPokemon;
 
-                        wildPokemon = new FireType("Wild Lad", 1, 100, IMG_Load("images/p.png"), 100);
+                        wildPokemon = new IceType("Wild Lad", 1, 100, IMG_Load("images/p.png"), 1.5);
                     }
                 }
             }
             else {
+                SDL_BlitSurface(textboxIMG, nullptr, windowSurf, &textboxPos);
+                player->getCurrPokemon()->displayPokemonAndInfo(font, windowSurf);
+                //Check for if the player catches the wild pokemon and wildPokemon gets set to null
+                if (wildPokemon != nullptr) {
+                    wildPokemon->displayPokemonAndInfo(font, windowSurf);
+                }
                 if (messages.empty()) {
                     if (battleHasBegun && !battleIsOver) {
                         if (playersTurn) {
@@ -420,6 +429,10 @@ int main(int argc, char* argv[]) {
                             }
                         }
                     } else if (!battleHasBegun) {
+                        player->getCurrPokemon()->setImagePos(100, 500);
+                        player->getCurrPokemon()->setInfoPos(300, 500);
+                        wildPokemon->setImagePos(1100, 100);
+                        wildPokemon->setInfoPos(400, 100);
                         ///////////////////////////////////////////////////////Play enter battle animation
                         messages.emplace_back("You encountered a wild pokemon!");
                         ///////////////////////////////Check all NOT_CHOSEN things to see if this one here is necessary

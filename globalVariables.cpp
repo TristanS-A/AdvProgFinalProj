@@ -4,4 +4,8 @@
 
 #include "globalVariables.h"
 
+//To keep track of if the mouse is pressed
 bool mouseDown = false;
+
+//To keep track of if the mouse button is being held down
+bool mouseHeldDown = false;

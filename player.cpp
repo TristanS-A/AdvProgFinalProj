@@ -193,22 +193,22 @@ bool Player::noOtherHealthyPokemon() {
 }
 
 PlayerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, vector<string> &messages) {
-    ///////////////////////////////////////////////////////////Add switch pokemon option
+    ///////////////////////////////////////////////////////////Maybe make buttons with a global variable for the texboxPos
     switch (chosenAction){
         case NOT_CHOSEN:
-            if (checkForClickAndDisplayButton({0, 0, 100, 100}, font, windowSurf) && currPokemon->getHealth() > 0){
+            if (checkForClickAndDisplayButton({100, 650, 100, 100}, font, windowSurf) && currPokemon->getHealth() > 0){
                 chosenAction = ATTACKING;
             }
-            else if (checkForClickAndDisplayButton({200, 0, 100, 100}, font, windowSurf) && currPokemon->getHealth() > 0){
+            else if (checkForClickAndDisplayButton({200, 650, 100, 100}, font, windowSurf) && currPokemon->getHealth() > 0){
                 chosenAction = USE_ITEM;
             }
-            else if (checkForClickAndDisplayButton({300, 0, 100, 100}, font, windowSurf) && currPokemon->getHealth() > 0){
+            else if (checkForClickAndDisplayButton({300, 650, 100, 100}, font, windowSurf) && currPokemon->getHealth() > 0){
                 chosenAction = CATCH;
             }
-            else if (checkForClickAndDisplayButton({400, 0, 100, 100}, font, windowSurf) || currPokemon->getHealth() <= 0){
+            else if (checkForClickAndDisplayButton({400, 650, 100, 100}, font, windowSurf) || currPokemon->getHealth() <= 0){
                 chosenAction = SWITCH_POKEMON;
             }
-            else if (checkForClickAndDisplayButton({500, 0, 100, 100}, font, windowSurf) && currPokemon->getHealth() > 0){
+            else if (checkForClickAndDisplayButton({500, 650, 100, 100}, font, windowSurf) && currPokemon->getHealth() > 0){
                 chosenAction = RUN;
             }
             break;
@@ -223,14 +223,14 @@ PlayerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, 
         case USE_ITEM:
             if (!playersItems.empty()){
                 cout << currItem << endl;
-                playersItems[currItem][0]->displayItem(windowSurf, {200, 200, 0, 0});
-                if (currItem < playersItems.size() - 1 && checkForClickAndDisplayButton({300, 200, 90, 100}, font, windowSurf)){
+                playersItems[currItem][0]->displayItem(windowSurf, {1100, 650, 0, 0});
+                if (currItem < playersItems.size() - 1 && checkForClickAndDisplayButton({1200, 650, 90, 100}, font, windowSurf)){
                     currItem++;
                 }
-                else if (currItem > 0 && checkForClickAndDisplayButton({100, 200, 90, 100}, font, windowSurf)){
+                else if (currItem > 0 && checkForClickAndDisplayButton({1000, 650, 90, 100}, font, windowSurf)){
                     currItem--;
                 }
-                else if (checkForClickAndDisplayButton({200, 200, 100, 100}, font, windowSurf)){
+                else if (checkForClickAndDisplayButton({1100, 650, 100, 100}, font, windowSurf)){
                     messages.push_back("You used " + playersItems[currItem][0]->getName());
                     return chosenAction;
                 }
@@ -259,8 +259,8 @@ PlayerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, 
             } else {
                 for (int i = playersPokeballs.size() - 1; i >= 0; i--){
                     if (!playersPokeballs[i].empty()) {
-                        playersPokeballs[i][0]->displayItem(windowSurf, {700 - 100 * i, 600, 0, 0});
-                        if (checkForClickAndDisplayButton({700 - 100 * i, 600, 100, 100}, font, windowSurf)){
+                        playersPokeballs[i][0]->displayItem(windowSurf, {1200 - 100 * i, 650, 0, 0});
+                        if (checkForClickAndDisplayButton({1200 - 100 * i, 650, 100, 100}, font, windowSurf)){
                             currPokeball = playersPokeballs[i][0];
                             canDoAction = false;
                             return CATCH;
@@ -287,9 +287,11 @@ PlayerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, 
                 int spacing = 0;
                 for (int i = playersPokemon.size() - 1; i >= 0; i--) {
                     if (playersPokemon[i] != currPokemon && playersPokemon[i]->getHealth() > 0) {
-                        playersPokemon[i]->displayPokemonInfoButton(windowSurf, {100, 100 + spacing, 0, 0});
-                        if (checkForClickAndDisplayButton({100, 100 + spacing, 100, 100}, font, windowSurf)) {
+                        playersPokemon[i]->displayPokemonInfoButton(windowSurf, {1200 - spacing, 650, 100, 100});
+                        if (checkForClickAndDisplayButton({1200 - spacing, 650, 100, 100}, font, windowSurf)) {
                             pokemonToSwapTo = playersPokemon[i];
+                            pokemonToSwapTo->setImagePos(currPokemon->getImagePos().x, currPokemon->getImagePos().y);
+                            pokemonToSwapTo->setInfoPos(currPokemon->getInfoPos().x, currPokemon->getInfoPos().y);
                             messages.push_back(
                                     "You swapped out " + currPokemon->getName() + " and brought out " +
                                     pokemonToSwapTo->getName() + ".");
