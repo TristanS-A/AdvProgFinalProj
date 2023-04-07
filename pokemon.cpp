@@ -4,6 +4,7 @@
 
 #include "pokemon.h"
 #include "button.h"
+#include "globalVariables.h"
 #include <iostream>
 #include <iomanip>
 #include <random>
@@ -33,13 +34,22 @@ bool Pokemon::attack(Pokemon* pokemonToAttack, vector<string> &messages) {
 bool Pokemon::displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, vector<string> &messages) {
     int spacing = 0;
     for (int i = 0; i < sizeof(moveNames) / sizeof(moveNames[0]); i++) {
-        SDL_Surface *textSurf = TTF_RenderText_Solid(font, moveNames[i].c_str(), {255, 255, 255});
-        SDL_Rect dest = {100 + spacing, 650, 0, 0};
-        SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
-
-        if (checkForClickAndDisplayButton({100 + spacing, 650, 100, 100}, font, windowSurf)){
+        SDL_Surface *textSurf;
+        int buttonLength = (moveNames[i].size() - 1) * 26;
+        int buttonOffset = 50;
+        ButtonState movesButton = checkForClickAndDisplayButton({150 + spacing - buttonOffset, 650, buttonLength + buttonOffset * 2, int(buttonOffset * 1.5)}, font, windowSurf, buttonIMG, buttonHoverIMG);
+        if (movesButton == PRESSED){
             currAttack = i;
         }
+        else if (movesButton == HOVER){
+            textSurf = TTF_RenderText_Solid(font, moveDescriptions[i].c_str(), {255, 255, 255});
+            SDL_Rect dest = {100, 750, 0, 0};
+            SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
+        }
+
+        textSurf = TTF_RenderText_Solid(font, moveNames[i].c_str(), {255, 255, 255});
+        SDL_Rect dest = {150 + spacing, 650, 0, 0};
+        SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
 
         spacing += (moveNames[i].size() + 4) * 26;
     }

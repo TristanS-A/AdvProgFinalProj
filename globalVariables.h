@@ -5,10 +5,16 @@
 #ifndef ADVPROGFINPROJ_GLOBALVARIABLES_H
 #define ADVPROGFINPROJ_GLOBALVARIABLES_H
 
+#include "SDL.h"
+
 //To keep track of if the mouse is pressed
 extern bool mouseDown;
 
 //To keep track of if the mouse button is being held down
 extern bool mouseHeldDown;
+
+extern SDL_Surface* buttonIMG;
+
+extern SDL_Surface* buttonHoverIMG;
 
 #endif //ADVPROGFINPROJ_GLOBALVARIABLES_H

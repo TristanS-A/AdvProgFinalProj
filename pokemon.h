@@ -58,6 +58,7 @@ protected:
     ////////////////////////////////////////////////////Maybe make a limit to how many times you can use a move
     string moveNames[4] = {"attak", "double", "eat", "goooo"};
     int movePower[4] = {1, 5,  20, 50};
+    string moveDescriptions[4] = {"Does an attack.", "Does like double the attack 1.", "A move where the pokemon tries to eat the other pokemon.", "Heckin overdrive woooooooooooo!!!!"};
     SDL_Rect infoDestination;
     int currAttack;
 };
