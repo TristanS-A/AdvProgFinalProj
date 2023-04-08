@@ -138,6 +138,16 @@ int main(int argc, char* argv[]) {
     //------------- Variable initialization -------------\\
     //---------------------------------------------------\\
 
+    //TODO: Pressing:
+    //      Make attacks also do things like heal
+    //      Apply type bonuses like more damage for fire types
+    //      Calculate and give experience to players pokemon
+    //
+    //TODO: Later
+    //      Add pokecenter to heal all pokemon and go when all the player's pokemon faint
+    //      Make Art for buttons, pokemon, and battle areas.
+    //      Add music and sound effects.
+
     //Initialize fonts
     smallFont = TTF_OpenFont("fonts/font.ttf", SMALL_FONT_SIZE);
     mediumFont = TTF_OpenFont("fonts/font.ttf", MEDIUM_FONT_SIZE);
@@ -170,13 +180,11 @@ int main(int argc, char* argv[]) {
     Pokemon* p3 = new FireType("Poki3", 1, 100, IMG_Load("images/p.png"), 100);
     Pokemon* p4 = new FireType("Poki4", 1, 100, IMG_Load("images/p.png"), 100);
     Pokemon* p5 = new FireType("Poki5", 1, 100, IMG_Load("images/p.png"), 100);
-    Pokemon* p6 = new FireType("Poki6", 1, 100, IMG_Load("images/p.png"), 100);
     player->addToPlayersPokemon(p1);
     player->addToPlayersPokemon(p2);
     player->addToPlayersPokemon(p3);
     player->addToPlayersPokemon(p4);
     player->addToPlayersPokemon(p5);
-    player->addToPlayersPokemon(p6);
 
     //This exists because SDL's blitting function changes the destination rect's position when blitting, if the
     // position is offscreen

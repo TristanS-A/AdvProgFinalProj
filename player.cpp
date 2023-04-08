@@ -85,6 +85,7 @@ CatchingState Player::tryCatchingPokemon(Pokemon* pokemonToCatch) {
         cout << catchProbability << endl;
         if (randomRange(outputNum) < catchProbability){
             addToPlayersPokemon(pokemonToCatch);
+            removeFromPlayersPokeballs(currPokeball);
             catchingChancesCount = 0;
             return CAUGHT;
         }
@@ -193,22 +194,22 @@ bool Player::noOtherHealthyPokemon() {
 }
 
 PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf, vector<string> &messages) {
-    ///////////////////////////////////////////////////////////Maybe make buttons with a global variable for the texboxPos
+    ///////////////////////////////////////////////////////////Maybe add random text for how the currPokemon is doing
     switch (chosenAction){
         case NOT_CHOSEN:
-            if (checkForClickAndDisplayButton({100, 650, 100, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
+            if (checkForClickAndDisplayButton({120, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
                 chosenAction = ATTACKING;
             }
-            else if (checkForClickAndDisplayButton({200, 650, 100, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
+            else if (checkForClickAndDisplayButton({370, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
                 chosenAction = USE_ITEM;
             }
-            else if (checkForClickAndDisplayButton({300, 650, 100, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
+            else if (checkForClickAndDisplayButton({620, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
                 chosenAction = CATCH;
             }
-            else if (checkForClickAndDisplayButton({400, 650, 100, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED || currPokemon->getHealth() <= 0){
+            else if (checkForClickAndDisplayButton({870, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED || currPokemon->getHealth() <= 0){
                 chosenAction = SWITCH_POKEMON;
             }
-            else if (checkForClickAndDisplayButton({500, 650, 100, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
+            else if (checkForClickAndDisplayButton({1120, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
                 chosenAction = RUN;
             }
             break;
@@ -250,15 +251,15 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf, vector<string> &
             if (!canDoAction) {
                 canDoAction = true;
                 if (playersPokemon.size() >= MAX_POKEMON) {
+                    canDoAction = false;
+                    messages.push_back("You can't carry any more pokemon...");
+                    resetBattleMenu();
+                } else {
                     if (playersPokeballs.empty()) {
                         canDoAction = false;
                         messages.push_back("You don't have any pokeballs...");
                         resetBattleMenu();
                     }
-                } else {
-                    canDoAction = false;
-                    messages.push_back("You can't carry any more pokemon...");
-                    resetBattleMenu();
                 }
             } else {
                 for (int i = playersPokeballs.size() - 1; i >= 0; i--){

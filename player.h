@@ -74,7 +74,7 @@ private:
     const int WALK_SPEED = 5;
     const int SPRINT_SPEED = 10;
     int playerSpeed;
-    const int MAX_POKEMON = 1;
+    const int MAX_POKEMON = 6;
     vector<Pokemon*> playersPokemon;
     Pokemon* currPokemon;
     Pokemon* pokemonToSwapTo;
