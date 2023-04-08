@@ -14,6 +14,6 @@ enum ButtonState {
     NOT_PRESSED, PRESSED, HOVER
 };
 
-ButtonState checkForClickAndDisplayButton(SDL_Rect buttonRect, TTF_Font *font, SDL_Surface *windowSurf, SDL_Surface *buttonIMG, SDL_Surface * hoveredIMG);
+ButtonState checkForClickAndDisplayButton(SDL_Rect buttonRect, SDL_Surface *windowSurf, SDL_Surface *buttonIMG, SDL_Surface * hoveredIMG);
 
 #endif //ADVPROGFINPROJ_BUTTON_H

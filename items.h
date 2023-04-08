@@ -14,11 +14,13 @@ enum EffectType {OFFENSE, DEFENSE};
 class Item{
 public:
 
-    Item(string name, SDL_Surface* itemImage);
+    Item(string name, SDL_Surface* itemImage, string desciption);
 
     virtual ~Item();
 
     string getName();
+
+    void displayDescription(SDL_Surface* windowSurf);
 
     virtual void use(Pokemon* pokemonToEffect) = 0;
 
@@ -26,11 +28,12 @@ public:
 private:
     string name;
     SDL_Surface* itemImage;
+    string description;
 };
 
 class HealthItem : public Item{
 public:
-    HealthItem(string name, int amount, SDL_Surface* itemImage);
+    HealthItem(string name, int amount, SDL_Surface* itemImage, string description);
 
     int getAmount();
 
@@ -43,7 +46,7 @@ private:
 
 class BoostItem : public Item{
 public:
-    BoostItem(string name, EffectType itemEffectType, float boostAmount, SDL_Surface* itemImage);
+    BoostItem(string name, EffectType itemEffectType, float boostAmount, SDL_Surface* itemImage, string description);
 
     float getBoostAmount();
 
@@ -60,7 +63,7 @@ private:
 
 class Pokeball : public Item{
 public:
-    Pokeball(string name, float catchBooster, SDL_Surface* itemImage);
+    Pokeball(string name, float catchBooster, SDL_Surface* itemImage, string description);
 
     float getCatchBooster() const;
 

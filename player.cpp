@@ -192,31 +192,31 @@ bool Player::noOtherHealthyPokemon() {
     return noMorePokemon;
 }
 
-PlayerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, vector<string> &messages) {
+PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf, vector<string> &messages) {
     ///////////////////////////////////////////////////////////Maybe make buttons with a global variable for the texboxPos
     switch (chosenAction){
         case NOT_CHOSEN:
-            if (checkForClickAndDisplayButton({100, 650, 100, 100}, font, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
+            if (checkForClickAndDisplayButton({100, 650, 100, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
                 chosenAction = ATTACKING;
             }
-            else if (checkForClickAndDisplayButton({200, 650, 100, 100}, font, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
+            else if (checkForClickAndDisplayButton({200, 650, 100, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
                 chosenAction = USE_ITEM;
             }
-            else if (checkForClickAndDisplayButton({300, 650, 100, 100}, font, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
+            else if (checkForClickAndDisplayButton({300, 650, 100, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
                 chosenAction = CATCH;
             }
-            else if (checkForClickAndDisplayButton({400, 650, 100, 100}, font, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED || currPokemon->getHealth() <= 0){
+            else if (checkForClickAndDisplayButton({400, 650, 100, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED || currPokemon->getHealth() <= 0){
                 chosenAction = SWITCH_POKEMON;
             }
-            else if (checkForClickAndDisplayButton({500, 650, 100, 100}, font, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
+            else if (checkForClickAndDisplayButton({500, 650, 100, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
                 chosenAction = RUN;
             }
             break;
         case ATTACKING:
-            if (getCurrPokemon()->displayAndChooseMoves(font, windowSurf, messages)){
+            if (getCurrPokemon()->displayAndChooseMoves(windowSurf, messages)){
                 return chosenAction;
             }
-            else if (checkForClickAndDisplayButton({0, 0, 100, 100}, font, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
+            else if (checkForClickAndDisplayButton({1230, 745, 120, 50}, windowSurf, backButtonIMG, backButtonHoverIMG) == PRESSED){
                 resetBattleMenu();
             }
             break;
@@ -224,21 +224,23 @@ PlayerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, 
             //////////////////////////////////////////////////////Display item descriptions
             if (!playersItems.empty()){
                 cout << currItem << endl;
+                playersItems[currItem][0]->displayDescription(windowSurf);
+
                 //Not if else statements because the other button images would dispensary if another one was pressed
-                if (currItem < playersItems.size() - 1 && checkForClickAndDisplayButton({1200, 650, 90, 100}, font, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
+                if (currItem < playersItems.size() - 1 && checkForClickAndDisplayButton({1280, 655, 50, 50}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
                     currItem++;
                 }
-                if (currItem > 0 && checkForClickAndDisplayButton({1000, 650, 90, 100}, font, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
+                if (currItem > 0 && checkForClickAndDisplayButton({1110, 655, 50, 50}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
                     currItem--;
                 }
-                if (checkForClickAndDisplayButton({1100, 650, 100, 100}, font, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
+                if (checkForClickAndDisplayButton({1170, 630, 100, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
                     messages.push_back("You used " + playersItems[currItem][0]->getName());
                     return chosenAction;
                 }
-                if (checkForClickAndDisplayButton({0, 0, 100, 100}, font, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
+                if (checkForClickAndDisplayButton({1210, 740, 120, 50}, windowSurf, backButtonIMG, backButtonHoverIMG) == PRESSED){
                     resetBattleMenu();
                 }
-                playersItems[currItem][0]->displayItem(windowSurf, {1100, 650, 0, 0});
+                playersItems[currItem][0]->displayItem(windowSurf, {1170, 630, 0, 0});
             } else {
                 messages.push_back("You don't have any items to use!");
                 resetBattleMenu();
@@ -261,15 +263,20 @@ PlayerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, 
             } else {
                 for (int i = playersPokeballs.size() - 1; i >= 0; i--){
                     if (!playersPokeballs[i].empty()) {
-                        if (checkForClickAndDisplayButton({1200 - 100 * i, 650, 100, 100}, font, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
+                        SDL_Rect displayPos = {1230 - 120 * i, 635, 100, 100};
+                        ButtonState selectButton = checkForClickAndDisplayButton(displayPos, windowSurf, buttonIMG, buttonHoverIMG);
+                        if (selectButton == PRESSED){
                             currPokeball = playersPokeballs[i][0];
                             canDoAction = false;
                             return CATCH;
                         }
-                        playersPokeballs[i][0]->displayItem(windowSurf, {1200 - 100 * i, 650, 0, 0});
+                        else if (selectButton == HOVER){
+                            playersPokeballs[i][0]->displayDescription(windowSurf);
+                        }
+                        playersPokeballs[i][0]->displayItem(windowSurf, displayPos);
                     }
                 }
-                if (checkForClickAndDisplayButton({0, 0, 100, 100}, font, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
+                if (checkForClickAndDisplayButton({1210, 745, 120, 50}, windowSurf, backButtonIMG, backButtonHoverIMG) == PRESSED){
                     canDoAction = false;
                     resetBattleMenu();
                 }
@@ -289,7 +296,8 @@ PlayerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, 
                 int spacing = 0;
                 for (int i = playersPokemon.size() - 1; i >= 0; i--) {
                     if (playersPokemon[i] != currPokemon && playersPokemon[i]->getHealth() > 0) {
-                        if (checkForClickAndDisplayButton({1200 - spacing, 650, 100, 100}, font, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED) {
+                        SDL_Rect displayPos = {1150 - spacing, 630, 100, 100};
+                        if (checkForClickAndDisplayButton(displayPos, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED) {
                             pokemonToSwapTo = playersPokemon[i];
                             pokemonToSwapTo->setImagePos(currPokemon->getImagePos().x, currPokemon->getImagePos().y);
                             pokemonToSwapTo->setInfoPos(currPokemon->getInfoPos().x, currPokemon->getInfoPos().y);
@@ -300,11 +308,11 @@ PlayerAction Player::displayBattleMenu(TTF_Font *font, SDL_Surface *windowSurf, 
                             return SWITCH_POKEMON;
                         }
 
-                        playersPokemon[i]->displayPokemonInfoButton(windowSurf, {1200 - spacing, 650, 100, 100});
-                        spacing += 100;
+                        playersPokemon[i]->displayPokemonInfoButton(windowSurf, displayPos);
+                        spacing += 250;
                     }
                 }
-                if (checkForClickAndDisplayButton({0, 0, 100, 100}, font, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0) {
+                if (checkForClickAndDisplayButton({1260, 630, 90, 40}, windowSurf, backButtonIMG, backButtonHoverIMG) == PRESSED && currPokemon->getHealth() > 0) {
                     canDoAction = false;
                     resetBattleMenu();
                 }

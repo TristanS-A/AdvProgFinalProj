@@ -21,8 +21,8 @@ using namespace std;
 #define SCREEN_WIDTH    1440
 #define SCREEN_HEIGHT   810
 
-void showMessages(string messageToSend, TTF_Font* font, SDL_Surface* windowSurf){
-    SDL_Surface *textSurf = TTF_RenderText_Solid(font, messageToSend.c_str(), {255, 255, 255});
+void showMessages(string messageToSend, SDL_Surface* windowSurf){
+    SDL_Surface *textSurf = TTF_RenderText_Solid(mediumFont, messageToSend.c_str(), {255, 255, 255});
     SDL_Rect dest = {100, 650, 0, 0};
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
 }
@@ -138,13 +138,22 @@ int main(int argc, char* argv[]) {
     //------------- Variable initialization -------------\\
     //---------------------------------------------------\\
 
-    //Font for game
-    TTF_Font *font = TTF_OpenFont("fonts/font.ttf", 28);
+    //Initialize fonts
+    smallFont = TTF_OpenFont("fonts/font.ttf", SMALL_FONT_SIZE);
+    mediumFont = TTF_OpenFont("fonts/font.ttf", MEDIUM_FONT_SIZE);
+    largeFont = TTF_OpenFont("fonts/font.ttf", LARGE_FONT_SIZE);
 
     //Check for if font was correctly opened
-    if (!font){
-        cout << "Font could not be opened\n";
+    if (!smallFont){
+        cout << "Small font could not be opened\n";
     }
+    if (!mediumFont){
+        cout << "Medium font could not be opened\n";
+    }
+    if (!largeFont){
+        cout << "Large font could not be opened\n";
+    }
+
 
     //Sets up key presses
     const Uint8 *keystates = SDL_GetKeyboardState(nullptr);
@@ -158,8 +167,16 @@ int main(int argc, char* argv[]) {
     Player* player = new Player({SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2, 0, 0});
     Pokemon* p1 = new FireType("Poki", 1, 100, IMG_Load("images/p.png"), 100);
     Pokemon* p2 = new FireType("Poki2", 1, 100, IMG_Load("images/p.png"), 100);
+    Pokemon* p3 = new FireType("Poki3", 1, 100, IMG_Load("images/p.png"), 100);
+    Pokemon* p4 = new FireType("Poki4", 1, 100, IMG_Load("images/p.png"), 100);
+    Pokemon* p5 = new FireType("Poki5", 1, 100, IMG_Load("images/p.png"), 100);
+    Pokemon* p6 = new FireType("Poki6", 1, 100, IMG_Load("images/p.png"), 100);
     player->addToPlayersPokemon(p1);
     player->addToPlayersPokemon(p2);
+    player->addToPlayersPokemon(p3);
+    player->addToPlayersPokemon(p4);
+    player->addToPlayersPokemon(p5);
+    player->addToPlayersPokemon(p6);
 
     //This exists because SDL's blitting function changes the destination rect's position when blitting, if the
     // position is offscreen
@@ -193,9 +210,9 @@ int main(int argc, char* argv[]) {
 
     Pokemon* wildPokemon = nullptr;
 
-    Item* collectedItem = new HealthItem("Herb", 10, IMG_Load("images/m.png"));
-    Item* collectedItem2 = new HealthItem("Herb2", 10, IMG_Load("images/m.png"));
-    Item* collectedItem3 = new HealthItem("Herb3", 10, IMG_Load("images/m.png"));
+    Item* collectedItem = new HealthItem("Herb", 10, IMG_Load("images/m.png"), "Heals 10 HP and i guess does stuff.");
+    Item* collectedItem2 = new HealthItem("Herb2", 10, IMG_Load("images/m.png"), "Heals 10 HPP.");
+    Item* collectedItem3 = new HealthItem("Herb3", 10, IMG_Load("images/m.png"), "Heals 10 HPPP.");
     player->addToPlayersItems(collectedItem);
     player->addToPlayersItems(collectedItem2);
     player->addToPlayersItems(collectedItem3);
@@ -233,8 +250,8 @@ int main(int argc, char* argv[]) {
     mt19937 outputNum(random());
     uniform_real_distribution<double> randomRange(0, 1.0);
 
-    Pokeball* p = new Pokeball("Pokeball", 1, IMG_Load("images/m.png"));
-    Pokeball* pe = new Pokeball("Pokeball 2", 1, IMG_Load("images/m.png"));
+    Pokeball* p = new Pokeball("Pokeball", 1, IMG_Load("images/m.png"), "A normal Pokebal to catch pokemon");
+    Pokeball* pe = new Pokeball("Pokeball 2", 1, IMG_Load("images/m.png"), "More likely to successfully catch a Pokmeon");
     player->addToPlayersPokeballs(p);
     player->addToPlayersPokeballs(pe);
 
@@ -324,10 +341,10 @@ int main(int argc, char* argv[]) {
             }
             else {
                 SDL_BlitSurface(textboxIMG, nullptr, windowSurf, &textboxPos);
-                player->getCurrPokemon()->displayPokemonAndInfo(font, windowSurf);
+                player->getCurrPokemon()->displayPokemonAndInfo(windowSurf);
                 //Check for if the player catches the wild pokemon and wildPokemon gets set to null
                 if (wildPokemon != nullptr) {
-                    wildPokemon->displayPokemonAndInfo(font, windowSurf);
+                    wildPokemon->displayPokemonAndInfo(windowSurf);
                 }
                 if (messages.empty()) {
                     if (battleHasBegun && !battleIsOver) {
@@ -393,7 +410,7 @@ int main(int argc, char* argv[]) {
                                     player->resetBattleMenu();
                                 }
                             } else {
-                                chosenAction = player->displayBattleMenu(font, windowSurf, messages);
+                                chosenAction = player->displayBattleMenu(windowSurf, messages);
 
                                 ////////////////////////////////////////////////Reset menu or no?
 //                                if (chosenAction != NOT_CHOSEN){
@@ -448,7 +465,7 @@ int main(int argc, char* argv[]) {
                 }
                 else {
                     if (currMessage < messages.size()) {
-                        showMessages(messages[currMessage], font, windowSurf);
+                        showMessages(messages[currMessage], windowSurf);
 
                         if (keystates[SDL_SCANCODE_N] && !noSkip) {
                             currMessage++;
@@ -501,7 +518,9 @@ int main(int argc, char* argv[]) {
     }
 
     //Close the font that was used
-    TTF_CloseFont(font);
+    TTF_CloseFont(smallFont);
+    TTF_CloseFont(mediumFont);
+    TTF_CloseFont(largeFont);
 
     //Quit SDL_ttf
     TTF_Quit();

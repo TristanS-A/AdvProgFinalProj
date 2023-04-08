@@ -6,7 +6,7 @@
 #include "globalVariables.h"
 #include "iostream"
 
-ButtonState checkForClickAndDisplayButton(SDL_Rect buttonRect, TTF_Font *font, SDL_Surface *windowSurf, SDL_Surface *buttonIMG, SDL_Surface * hoveredIMG){
+ButtonState checkForClickAndDisplayButton(SDL_Rect buttonRect, SDL_Surface *windowSurf, SDL_Surface *buttonIMG, SDL_Surface * hoveredIMG){
 
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);

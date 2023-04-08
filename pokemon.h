@@ -21,11 +21,11 @@ public:
 
     virtual bool attack(Pokemon* pokemonToAttack, vector<string> &messages) = 0;
 
-    virtual void displayPokemonAndInfo(TTF_Font* font, SDL_Surface* windowSurf);
+    virtual void displayPokemonAndInfo(SDL_Surface* windowSurf);
 
     virtual void displayPokemonInfoButton(SDL_Surface* windowSurf, SDL_Rect destRect);
 
-    virtual bool displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, vector<string> &messages);
+    virtual bool displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages);
 
     virtual void pickRandomMove(vector<string> &messages);
 
@@ -56,9 +56,9 @@ protected:
     SDL_Surface* pokeImage;
     SDL_Rect pokeRect;
     ////////////////////////////////////////////////////Maybe make a limit to how many times you can use a move
-    string moveNames[4] = {"attak", "double", "eat", "goooo"};
+    string moveNames[4] = {"Spark", "Explosion", "Fire Fang", "Giga Impact"};
     int movePower[4] = {1, 5,  20, 50};
-    string moveDescriptions[4] = {"Does an attack.", "Does like double the attack 1.", "A move where the pokemon tries to eat the other pokemon.", "Heckin overdrive woooooooooooo!!!!"};
+    string moveDescriptions[4] = {"Does an attack.", "Does like double the attack 1.", "A move where the pokemon tries to eat the other pokemon.", "Slams the enemie with all its might (Recoil Damage)."};
     SDL_Rect infoDestination;
     int currAttack;
 };
@@ -69,9 +69,9 @@ public:
 
     bool attack(Pokemon* pokemonToAttack, vector<string> &messages) override;
 
-    void displayPokemonAndInfo(TTF_Font* font, SDL_Surface* windowSurf) override;
+    void displayPokemonAndInfo(SDL_Surface* windowSurf) override;
 
-    bool displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, vector<string> &messages) override;
+    bool displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages) override;
 private:
     int fireTemperature;
 };
@@ -84,9 +84,9 @@ public:
 
     void heal(int healAmount);
 
-    void displayPokemonAndInfo(TTF_Font* font, SDL_Surface* windowSurf) override;
+    void displayPokemonAndInfo(SDL_Surface* windowSurf) override;
 
-    bool displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, vector<string> &messages) override;
+    bool displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages) override;
 private:
     int mineralValue;
 };
@@ -97,9 +97,9 @@ public:
 
     bool attack(Pokemon* pokemonToAttack, vector<string> &messages) override;
 
-    void displayPokemonAndInfo(TTF_Font* font, SDL_Surface* windowSurf) override;
+    void displayPokemonAndInfo(SDL_Surface* windowSurf) override;
 
-    bool displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, vector<string> &messages) override;
+    bool displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages) override;
 private:
     float percentDriedUp;
     float waterEfficiency;
@@ -111,9 +111,9 @@ public:
 
     bool attack(Pokemon* pokemonToAttack, vector<string> &messages) override;
 
-    void displayPokemonAndInfo(TTF_Font* font, SDL_Surface* windowSurf) override;
+    void displayPokemonAndInfo(SDL_Surface* windowSurf) override;
 
-    bool displayAndChooseMoves(TTF_Font* font, SDL_Surface* windowSurf, vector<string> &messages) override;
+    bool displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages) override;
 private:
     float inchesOfIceDefense;
 };
