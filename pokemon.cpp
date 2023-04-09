@@ -9,14 +9,18 @@
 #include <iomanip>
 #include <random>
 
-Pokemon::Pokemon(string name, int level, int health, SDL_Surface *pokeImage) {
+Pokemon::Pokemon(string name, int level, int healthOffset, SDL_Surface *pokeImage) {
     this->name = name;
     this->level = level;
-    this->health = health;
+    this->health = 20 + 10 * level + healthOffset;
     this->maxHealth = health;
     this->pokeImage = pokeImage;
     pokeRect = {0, 0, this->pokeImage->w, this->pokeImage->h};
     infoDestination = {0, 0, 0, 0};
+    baseAttackPower = 1 + ((level - 1) / 10.0);
+    baseDefensePower = 1 + ((level - 1) / 10.0);
+    experience = 50 * (level - 1) * (level - 1);
+    experienceUntilNextLevel = 50 * (level) * (level);
 }
 
 Pokemon::~Pokemon() {
@@ -24,7 +28,7 @@ Pokemon::~Pokemon() {
 }
 
 bool Pokemon::attack(Pokemon* pokemonToAttack) {
-    pokemonToAttack->addToHealth(-movePower[currAttack]);
+    pokemonToAttack->addToHealth(-movePower[currAttack] / pokemonToAttack->getBaseDefense());
     return true;
 }
 
@@ -169,14 +173,18 @@ SDL_Rect Pokemon::getInfoPos() {
     return infoDestination;
 }
 
-FireType::FireType(string name, int level, int health, SDL_Surface *pokeImage, int fireTemperature) : Pokemon(name, level, health, pokeImage){
+float Pokemon::getBaseDefense() {
+    return baseDefensePower;
+}
+
+FireType::FireType(string name, int level, int healthOffset, SDL_Surface *pokeImage, int fireTemperature) : Pokemon(name, level, healthOffset, pokeImage){
     this->fireTemperature = fireTemperature;
 }
 
 bool FireType::attack(Pokemon* pokemonToAttack) {
     ////////////////////////////Add change to movePower[currAttack] based on heat here
     int temp = movePower[currAttack];
-    movePower[currAttack] *= fireTemperature / 100;
+    movePower[currAttack] *= baseAttackPower * fireTemperature / 100;
 
     if (typeid(*pokemonToAttack) == typeid(GrassType)){
         movePower[currAttack] *= 1.5;
@@ -210,13 +218,14 @@ void FireType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
 }
 
-WaterType::WaterType(string name, int level, int health, SDL_Surface *pokeImage, float mineralValue) : Pokemon(name, level, health, pokeImage) {
+WaterType::WaterType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float mineralValue) : Pokemon(name, level, healthOffset, pokeImage) {
     this->mineralValue = mineralValue;
 }
 
 bool WaterType::attack(Pokemon* pokemonToAttack) {
     if (moveNames[currAttack] != "Heal") {
         int temp = movePower[currAttack];
+        movePower[currAttack] *= baseAttackPower;
         if (typeid(*pokemonToAttack) == typeid(FireType)){
             movePower[currAttack] *= 1.5;
             messageList.push_back("It was super effective!");
@@ -252,7 +261,7 @@ void WaterType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
 }
 
-GrassType::GrassType(string name, int level, int health, SDL_Surface *pokeImage, int waterEfficiency) : Pokemon(name, level, health, pokeImage) {
+GrassType::GrassType(string name, int level, int healthOffset, SDL_Surface *pokeImage, int waterEfficiency) : Pokemon(name, level, healthOffset, pokeImage) {
     this->waterEfficiency = waterEfficiency;
     percentDriedUp = 100;
 }
@@ -261,7 +270,7 @@ bool GrassType::attack(Pokemon* pokemonToAttack) {
     if (moveNames[currAttack] != "Rehydrate") {
         if (percentDriedUp > 0) {
             int temp = movePower[currAttack];
-
+            movePower[currAttack] *= baseAttackPower;
             if (typeid(*pokemonToAttack) == typeid(IceType)) {
                 movePower[currAttack] *= 1.5;
                 messageList.push_back("It was super effective!");
@@ -314,13 +323,14 @@ void GrassType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
 }
 
-IceType::IceType(string name, int level, int health, SDL_Surface *pokeImage, float inchesOfIceDefense) : Pokemon(name, level, health, pokeImage) {
+IceType::IceType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float inchesOfIceDefense) : Pokemon(name, level, healthOffset, pokeImage) {
     this->inchesOfIceDefense = inchesOfIceDefense;
 }
 
 bool IceType::attack(Pokemon* pokemonToAttack) {
     int temp = movePower[currAttack];
 
+    movePower[currAttack] *= baseAttackPower;
     if (typeid(*pokemonToAttack) == typeid(FireType)) {
         movePower[currAttack] *= 1.5;
         messageList.push_back("It was super effective!");

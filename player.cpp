@@ -81,7 +81,7 @@ CatchingState Player::tryCatchingPokemon(Pokemon* pokemonToCatch) {
     uniform_real_distribution<double> randomRange(0, 1.0);
 
     if (catchingChancesCount != TOTAL_CATCHING_CHANCES){
-        catchProbability = float(0.5 - pokemonToCatch->getHealthPercent()) + float(0.1 * (float(currPokemon->getLevel()) / float(pokemonToCatch->getLevel())));
+        catchProbability = float(0.5 - pokemonToCatch->getHealthPercent()) + float(0.1 * (float(getTeamAverageLevel()) / float(pokemonToCatch->getLevel())));
         cout << catchProbability << endl;
         if (randomRange(outputNum) < catchProbability){
             addToPlayersPokemon(pokemonToCatch);
@@ -364,4 +364,13 @@ bool Player::switchingPokemon() {
     currPokemon = pokemonToSwapTo;
     resetBattleMenu();
     return false;
+}
+
+int Player::getTeamAverageLevel() {
+    int total = 0;
+    for (Pokemon* pokemon : playersPokemon){
+        total += pokemon->getLevel();
+    }
+
+    return total / playersPokemon.size();
 }

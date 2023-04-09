@@ -139,15 +139,19 @@ int main(int argc, char* argv[]) {
     //---------------------------------------------------\\
 
     //TODO: Pressing:
-    //      Make level system
-    //      Calculate and give experience to players pokemon
+    //      Make level up system and calculate experience
+    //      Make random enemy types appear
     //
     //TODO: Later
+    //      Make death animation (make pokemon go offscreen)
     //      Make attacks also do things like heal (Review and modify)
     //      Modify and review type amplifiers like fire temp to attacking
     //      Add pokecenter to heal all pokemon and go when all the player's pokemon faint
     //      Make Art for buttons, pokemon, and battle areas.
     //      Add music and sound effects.
+    //      Make Attack animation
+    //      Make healing animations
+    //      Make battle enter/exit animation
     //      Make title screen
     //      Refactoring
 
@@ -178,11 +182,11 @@ int main(int argc, char* argv[]) {
     SDL_Rect textboxPos = {0, SCREEN_HEIGHT - textboxIMG->h, 0, 0};
 
     Player* player = new Player({SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2, 0, 0});
-    Pokemon* p1 = new FireType("Poki", 1, 100, IMG_Load("images/p.png"), 100);
-    Pokemon* p2 = new FireType("Poki2", 1, 100, IMG_Load("images/p.png"), 100);
-    Pokemon* p3 = new FireType("Poki3", 1, 100, IMG_Load("images/p.png"), 100);
-    Pokemon* p4 = new FireType("Poki4", 1, 100, IMG_Load("images/p.png"), 100);
-    Pokemon* p5 = new FireType("Poki5", 1, 100, IMG_Load("images/p.png"), 100);
+    Pokemon* p1 = new FireType("Poki", 1, 0, IMG_Load("images/p.png"), 100);
+    Pokemon* p2 = new FireType("Poki2", 1, 0, IMG_Load("images/p.png"), 100);
+    Pokemon* p3 = new FireType("Poki3", 1, 0, IMG_Load("images/p.png"), 100);
+    Pokemon* p4 = new FireType("Poki4", 1, 0, IMG_Load("images/p.png"), 100);
+    Pokemon* p5 = new FireType("Poki5", 1, 0, IMG_Load("images/p.png"), 100);
     player->addToPlayersPokemon(p1);
     player->addToPlayersPokemon(p2);
     player->addToPlayersPokemon(p3);
@@ -257,7 +261,8 @@ int main(int argc, char* argv[]) {
     random_device random;
 
     mt19937 outputNum(random());
-    uniform_real_distribution<double> randomRange(0, 1.0);
+    uniform_real_distribution<double> randomChanceRange(0, 1.0);
+    uniform_real_distribution<double> randomLevelRange(-5.0, 5.0);
 
     Pokeball* p = new Pokeball("Pokeball", 1, IMG_Load("images/m.png"), "A normal Pokebal to catch pokemon");
     Pokeball* pe = new Pokeball("Pokeball 2", 1, IMG_Load("images/m.png"), "More likely to successfully catch a Pokmeon");
@@ -334,13 +339,16 @@ int main(int argc, char* argv[]) {
                 currEncounterTime = SDL_GetTicks();
                 if (currEncounterTime > prevEncounterTime + encounterCheckTime * 1000){
                     prevEncounterTime = currEncounterTime;
-                    if (randomRange(outputNum) <= encounterChance) {
+                    if (randomChanceRange(outputNum) <= encounterChance) {
                         inBattle = true;
 
                         //Deletes in case wild pokemon points to an existing pokemon
                         delete wildPokemon;
-
-                        wildPokemon = new IceType("Wild Lad", 1, 100, IMG_Load("images/p.png"), 1);
+                        int wildPokemonLevel = static_cast<int>(player->getTeamAverageLevel() + randomLevelRange(outputNum));
+                        if (wildPokemonLevel <= 0){
+                            wildPokemonLevel = 1;
+                        }
+                        wildPokemon = new FireType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 100);
                     }
                 }
             }
@@ -367,7 +375,8 @@ int main(int argc, char* argv[]) {
                                                 battleIsOver = true;
                                                 playersTurn = true;
                                                 ///////////////////////////////////////////Calculate experience
-                                                messageList.emplace_back("You won!");
+                                                messageList.push_back(wildPokemon->getName() + " fainted!");
+                                                messageList.push_back("You won!");
                                                 //////////////////////////////////////////If both pokemon die make sure to go to send person to pokeecnter or make player lose instead
                                             }
                                         }
@@ -403,7 +412,7 @@ int main(int argc, char* argv[]) {
                                     }
                                 }
                                 else if (chosenAction == RUN){
-                                    if (randomRange(outputNum) < runSuccessRate){
+                                    if (randomChanceRange(outputNum) < runSuccessRate){
                                         messageList.push_back("You got away.");
                                         battleIsOver = true;
                                     }

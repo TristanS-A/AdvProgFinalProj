@@ -68,6 +68,8 @@ public:
 
     void resetBattleMenu();
 
+    int getTeamAverageLevel();
+
 private:
     SDL_Rect playerPos;
     SDL_Surface* playerImage;

@@ -15,7 +15,7 @@ using namespace std;
 class Pokemon{
 public:
 
-    Pokemon(string name, int level, int health, SDL_Surface* pokeImage);
+    Pokemon(string name, int level, int healthOffset, SDL_Surface* pokeImage);
 
     virtual ~Pokemon();
 
@@ -47,12 +47,18 @@ public:
 
     SDL_Rect getInfoPos();
 
+    float getBaseDefense();
+
     /////////////////////////////Review protected and stuff
 protected:
     string name;
     int health;
     int maxHealth;
     int level;
+    int experience;
+    int experienceUntilNextLevel;
+    float baseAttackPower;
+    float baseDefensePower;
     SDL_Surface* pokeImage;
     SDL_Rect pokeRect;
     ////////////////////////////////////////////////////Maybe make a limit to how many times you can use a move
@@ -65,7 +71,7 @@ protected:
 
 class FireType : public Pokemon{
 public:
-    FireType(string name, int level, int health, SDL_Surface *pokeImage, int fireTemperature);
+    FireType(string name, int level, int healthOffset, SDL_Surface *pokeImage, int fireTemperature);
 
     bool attack(Pokemon* pokemonToAttack) override;
 
@@ -78,7 +84,7 @@ private:
 
 class WaterType : public Pokemon{
 public:
-    WaterType(string name, int level, int health, SDL_Surface *pokeImage, float mineralValue);
+    WaterType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float mineralValue);
 
     bool attack(Pokemon* pokemonToAttack) override;
 
@@ -91,7 +97,7 @@ private:
 
 class GrassType : public Pokemon{
 public:
-    GrassType(string name, int level, int health, SDL_Surface *pokeImage, int waterEfficiency);
+    GrassType(string name, int level, int healthOffset, SDL_Surface *pokeImage, int waterEfficiency);
 
     bool attack(Pokemon* pokemonToAttack) override;
 
@@ -107,7 +113,7 @@ private:
 
 class IceType : public Pokemon{
 public:
-    IceType(string name, int level, int health, SDL_Surface *pokeImage, float inchesOfIceDefense);
+    IceType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float inchesOfIceDefense);
 
     bool attack(Pokemon* pokemonToAttack) override;
 
