@@ -64,7 +64,7 @@ public:
 
     bool switchingPokemon();
 
-    PlayerAction displayBattleMenu(SDL_Surface* windowSurf, vector<string> &messages);
+    PlayerAction displayBattleMenu(SDL_Surface* windowSurf);
 
     void resetBattleMenu();
 

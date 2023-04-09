@@ -7,6 +7,10 @@
 
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include <string>
+#include <vector>
+
+using namespace std;
 
 //Small font for game
 extern TTF_Font *smallFont;
@@ -30,6 +34,9 @@ extern bool mouseDown;
 
 //To keep track of if the mouse button is being held down
 extern bool mouseHeldDown;
+
+//To send messages in battle;
+extern vector<string> messageList;
 
 extern SDL_Surface* buttonIMG;
 

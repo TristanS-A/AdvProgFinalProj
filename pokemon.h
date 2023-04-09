@@ -19,15 +19,15 @@ public:
 
     virtual ~Pokemon();
 
-    virtual bool attack(Pokemon* pokemonToAttack, vector<string> &messages) = 0;
+    virtual bool attack(Pokemon* pokemonToAttack) = 0;
 
     virtual void displayPokemonAndInfo(SDL_Surface* windowSurf);
 
     virtual void displayPokemonInfoButton(SDL_Surface* windowSurf, SDL_Rect destRect);
 
-    virtual bool displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages);
+    virtual bool displayAndChooseMoves(SDL_Surface* windowSurf);
 
-    virtual void pickRandomMove(vector<string> &messages);
+    virtual void pickRandomMove();
 
     virtual void addToHealth(int amount);
 
@@ -56,9 +56,9 @@ protected:
     SDL_Surface* pokeImage;
     SDL_Rect pokeRect;
     ////////////////////////////////////////////////////Maybe make a limit to how many times you can use a move
-    string moveNames[4] = {"Spark", "Explosion", "Fire Fang", "Giga Impact"};
+    string moveNames[4] = {"Heal", "Rehydrate", "Fire Fang", "Giga Impact"};
     int movePower[4] = {1, 5,  20, 50};
-    string moveDescriptions[4] = {"Does an attack.", "Does like double the attack 1.", "A move where the pokemon tries to eat the other pokemon.", "Slams the enemie with all its might (Recoil Damage)."};
+    string moveDescriptions[4] = {"Heals the user.", "Rehydrates the pokemon.", "A move where the pokemon tries to eat the other pokemon.", "Slams the enemie with all its might (Recoil Damage)."};
     SDL_Rect infoDestination;
     int currAttack;
 };
@@ -67,41 +67,41 @@ class FireType : public Pokemon{
 public:
     FireType(string name, int level, int health, SDL_Surface *pokeImage, int fireTemperature);
 
-    bool attack(Pokemon* pokemonToAttack, vector<string> &messages) override;
+    bool attack(Pokemon* pokemonToAttack) override;
 
     void displayPokemonAndInfo(SDL_Surface* windowSurf) override;
 
-    bool displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages) override;
+    bool displayAndChooseMoves(SDL_Surface* windowSurf) override;
 private:
     int fireTemperature;
 };
 
 class WaterType : public Pokemon{
 public:
-    WaterType(string name, int level, int health, SDL_Surface *pokeImage, int mineralValue);
+    WaterType(string name, int level, int health, SDL_Surface *pokeImage, float mineralValue);
 
-    bool attack(Pokemon* pokemonToAttack, vector<string> &messages) override;
-
-    void heal(int healAmount);
+    bool attack(Pokemon* pokemonToAttack) override;
 
     void displayPokemonAndInfo(SDL_Surface* windowSurf) override;
 
-    bool displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages) override;
+    bool displayAndChooseMoves(SDL_Surface* windowSurf) override;
 private:
-    int mineralValue;
+    float mineralValue;
 };
 
 class GrassType : public Pokemon{
 public:
-    GrassType(string name, int level, int health, SDL_Surface *pokeImage, float waterEfficiency);
+    GrassType(string name, int level, int health, SDL_Surface *pokeImage, int waterEfficiency);
 
-    bool attack(Pokemon* pokemonToAttack, vector<string> &messages) override;
+    bool attack(Pokemon* pokemonToAttack) override;
+
+    void setDriedUpPercent(int newPercent);
 
     void displayPokemonAndInfo(SDL_Surface* windowSurf) override;
 
-    bool displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages) override;
+    bool displayAndChooseMoves(SDL_Surface* windowSurf) override;
 private:
-    float percentDriedUp;
+    int percentDriedUp;
     float waterEfficiency;
 };
 
@@ -109,11 +109,13 @@ class IceType : public Pokemon{
 public:
     IceType(string name, int level, int health, SDL_Surface *pokeImage, float inchesOfIceDefense);
 
-    bool attack(Pokemon* pokemonToAttack, vector<string> &messages) override;
+    bool attack(Pokemon* pokemonToAttack) override;
+
+    void addToHealth(int amount) override;
 
     void displayPokemonAndInfo(SDL_Surface* windowSurf) override;
 
-    bool displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages) override;
+    bool displayAndChooseMoves(SDL_Surface* windowSurf) override;
 private:
     float inchesOfIceDefense;
 };

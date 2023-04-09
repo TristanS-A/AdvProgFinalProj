@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <random>
 
-using namespace std;
-
 #include "screenSizeChange.h"
 #include "player.h"
 #include "handlePlayerMovement.h"
@@ -17,6 +15,8 @@ using namespace std;
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 #include <SDL_ttf.h>
+
+using namespace std;
 
 #define SCREEN_WIDTH    1440
 #define SCREEN_HEIGHT   810
@@ -139,14 +139,17 @@ int main(int argc, char* argv[]) {
     //---------------------------------------------------\\
 
     //TODO: Pressing:
-    //      Make attacks also do things like heal
-    //      Apply type bonuses like more damage for fire types
+    //      Make level system
     //      Calculate and give experience to players pokemon
     //
     //TODO: Later
+    //      Make attacks also do things like heal (Review and modify)
+    //      Modify and review type amplifiers like fire temp to attacking
     //      Add pokecenter to heal all pokemon and go when all the player's pokemon faint
     //      Make Art for buttons, pokemon, and battle areas.
     //      Add music and sound effects.
+    //      Make title screen
+    //      Refactoring
 
     //Initialize fonts
     smallFont = TTF_OpenFont("fonts/font.ttf", SMALL_FONT_SIZE);
@@ -246,8 +249,6 @@ int main(int argc, char* argv[]) {
 
     bool noSkip = true;
 
-    vector<string> messages;
-
     int currMessage = 0;
 
     Uint32 currEncounterTime;
@@ -320,10 +321,6 @@ int main(int argc, char* argv[]) {
                     // sprinting check to not call this every frame that the user is not pressing the sprint button)
                     player->setWalking();
             }
-            //if (typeid(*player) == typeid(Player)){
-
-            //    cout << typeid(*player).name() << endl;
-            //}
 
             if (!inBattle){
                 //Handles movement inputs
@@ -343,7 +340,7 @@ int main(int argc, char* argv[]) {
                         //Deletes in case wild pokemon points to an existing pokemon
                         delete wildPokemon;
 
-                        wildPokemon = new IceType("Wild Lad", 1, 100, IMG_Load("images/p.png"), 1.5);
+                        wildPokemon = new IceType("Wild Lad", 1, 100, IMG_Load("images/p.png"), 1);
                     }
                 }
             }
@@ -354,13 +351,13 @@ int main(int argc, char* argv[]) {
                 if (wildPokemon != nullptr) {
                     wildPokemon->displayPokemonAndInfo(windowSurf);
                 }
-                if (messages.empty()) {
+                if (messageList.empty()) {
                     if (battleHasBegun && !battleIsOver) {
                         if (playersTurn) {
                             if (chosenAction != NOT_CHOSEN) {
                                 if (chosenAction == ATTACKING) {
                                     if (!hasAttacked) {
-                                        hasAttacked = player->getCurrPokemon()->attack(wildPokemon, messages);
+                                        hasAttacked = player->getCurrPokemon()->attack(wildPokemon);
                                         if (hasAttacked) {
                                             chosenAction = NOT_CHOSEN;
                                             hasAttacked = false;
@@ -370,7 +367,8 @@ int main(int argc, char* argv[]) {
                                                 battleIsOver = true;
                                                 playersTurn = true;
                                                 ///////////////////////////////////////////Calculate experience
-                                                messages.emplace_back("You won!");
+                                                messageList.emplace_back("You won!");
+                                                //////////////////////////////////////////If both pokemon die make sure to go to send person to pokeecnter or make player lose instead
                                             }
                                         }
                                     }
@@ -389,11 +387,11 @@ int main(int argc, char* argv[]) {
                                     if (catchState != ANIMATION_NOT_FINISHED) {
                                         chosenAction = NOT_CHOSEN;
                                         if (catchState == CAUGHT) {
-                                            messages.push_back("You caught the " + wildPokemon->getName() + "!");
+                                            messageList.push_back("You caught the " + wildPokemon->getName() + "!");
                                             wildPokemon = nullptr;
                                             battleIsOver = true;
                                         } else if (catchState == NOT_CAUGHT) {
-                                            messages.push_back("The " + wildPokemon->getName() + " escaped!");
+                                            messageList.push_back("The " + wildPokemon->getName() + " escaped!");
                                             playersTurn = false;
                                         }
                                     }
@@ -406,11 +404,11 @@ int main(int argc, char* argv[]) {
                                 }
                                 else if (chosenAction == RUN){
                                     if (randomRange(outputNum) < runSuccessRate){
-                                        messages.push_back("You got away.");
+                                        messageList.push_back("You got away.");
                                         battleIsOver = true;
                                     }
                                     else {
-                                        messages.push_back("You didn't away in time...");
+                                        messageList.push_back("You didn't away in time...");
                                     }
                                     chosenAction = NOT_CHOSEN;
                                     playersTurn = false;
@@ -418,7 +416,7 @@ int main(int argc, char* argv[]) {
                                     player->resetBattleMenu();
                                 }
                             } else {
-                                chosenAction = player->displayBattleMenu(windowSurf, messages);
+                                chosenAction = player->displayBattleMenu(windowSurf);
 
                                 ////////////////////////////////////////////////Reset menu or no?
 //                                if (chosenAction != NOT_CHOSEN){
@@ -428,18 +426,18 @@ int main(int argc, char* argv[]) {
                         } else {
                             if (chosenAction != NOT_CHOSEN) {
                                 if (!hasAttacked) {
-                                    hasAttacked = wildPokemon->attack(player->getCurrPokemon(), messages);
+                                    hasAttacked = wildPokemon->attack(player->getCurrPokemon());
                                     if (hasAttacked) {
                                         chosenAction = NOT_CHOSEN;
                                         hasAttacked = false;
                                         playersTurn = true;
 
                                         if (player->getCurrPokemon()->getHealth() <= 0){
-                                            messages.push_back(player->getCurrPokemon()->getName() + " fainted!");
+                                            messageList.push_back(player->getCurrPokemon()->getName() + " fainted!");
                                             if (player->noOtherHealthyPokemon()) {
                                                 battleIsOver = true;
                                                 //////////////////////////////////////////////Calculate experience
-                                                messages.push_back("You lost...");
+                                                messageList.push_back("You lost...");
                                             }
                                             else {
                                                 player->resetBattleMenu();
@@ -449,7 +447,7 @@ int main(int argc, char* argv[]) {
                                 }
                             } else {
                                 ///////////////////////////////////////////Impliment random chance to run or other
-                                wildPokemon->pickRandomMove(messages);
+                                wildPokemon->pickRandomMove();
                                 chosenAction = ATTACKING;
                             }
                         }
@@ -459,7 +457,7 @@ int main(int argc, char* argv[]) {
                         wildPokemon->setImagePos(1100, 100);
                         wildPokemon->setInfoPos(400, 100);
                         ///////////////////////////////////////////////////////Play enter battle animation
-                        messages.emplace_back("You encountered a wild pokemon!");
+                        messageList.emplace_back("You encountered a wild pokemon!");
                         ///////////////////////////////Check all NOT_CHOSEN things to see if this one here is necessary
                         chosenAction = NOT_CHOSEN;
                         player->resetBattleMenu();
@@ -472,8 +470,8 @@ int main(int argc, char* argv[]) {
                     }
                 }
                 else {
-                    if (currMessage < messages.size()) {
-                        showMessages(messages[currMessage], windowSurf);
+                    if (currMessage < messageList.size()) {
+                        showMessages(messageList[currMessage], windowSurf);
 
                         if (keystates[SDL_SCANCODE_N] && !noSkip) {
                             currMessage++;
@@ -485,7 +483,7 @@ int main(int argc, char* argv[]) {
                     else {
                         noSkip = true;
                         currMessage = 0;
-                        messages.clear();
+                        messageList.clear();
                     }
                 }
             }

@@ -193,28 +193,28 @@ bool Player::noOtherHealthyPokemon() {
     return noMorePokemon;
 }
 
-PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf, vector<string> &messages) {
+PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
     ///////////////////////////////////////////////////////////Maybe add random text for how the currPokemon is doing
     switch (chosenAction){
         case NOT_CHOSEN:
-            if (checkForClickAndDisplayButton({120, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
+            if (currPokemon->getHealth() > 0 && checkForClickAndDisplayButton({120, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
                 chosenAction = ATTACKING;
             }
-            else if (checkForClickAndDisplayButton({370, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
+            else if (currPokemon->getHealth() > 0 && checkForClickAndDisplayButton({370, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
                 chosenAction = USE_ITEM;
             }
-            else if (checkForClickAndDisplayButton({620, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
+            else if (currPokemon->getHealth() > 0 && checkForClickAndDisplayButton({620, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
                 chosenAction = CATCH;
             }
             else if (checkForClickAndDisplayButton({870, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED || currPokemon->getHealth() <= 0){
                 chosenAction = SWITCH_POKEMON;
             }
-            else if (checkForClickAndDisplayButton({1120, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED && currPokemon->getHealth() > 0){
+            else if (currPokemon->getHealth() > 0 && checkForClickAndDisplayButton({1120, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
                 chosenAction = RUN;
             }
             break;
         case ATTACKING:
-            if (getCurrPokemon()->displayAndChooseMoves(windowSurf, messages)){
+            if (getCurrPokemon()->displayAndChooseMoves(windowSurf)){
                 return chosenAction;
             }
             else if (checkForClickAndDisplayButton({1230, 745, 120, 50}, windowSurf, backButtonIMG, backButtonHoverIMG) == PRESSED){
@@ -235,7 +235,7 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf, vector<string> &
                     currItem--;
                 }
                 if (checkForClickAndDisplayButton({1170, 630, 100, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
-                    messages.push_back("You used " + playersItems[currItem][0]->getName());
+                    messageList.push_back("You used " + playersItems[currItem][0]->getName());
                     return chosenAction;
                 }
                 if (checkForClickAndDisplayButton({1210, 740, 120, 50}, windowSurf, backButtonIMG, backButtonHoverIMG) == PRESSED){
@@ -243,7 +243,7 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf, vector<string> &
                 }
                 playersItems[currItem][0]->displayItem(windowSurf, {1170, 630, 0, 0});
             } else {
-                messages.push_back("You don't have any items to use!");
+                messageList.push_back("You don't have any items to use!");
                 resetBattleMenu();
             }
             break;
@@ -252,12 +252,12 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf, vector<string> &
                 canDoAction = true;
                 if (playersPokemon.size() >= MAX_POKEMON) {
                     canDoAction = false;
-                    messages.push_back("You can't carry any more pokemon...");
+                    messageList.push_back("You can't carry any more pokemon...");
                     resetBattleMenu();
                 } else {
                     if (playersPokeballs.empty()) {
                         canDoAction = false;
-                        messages.push_back("You don't have any pokeballs...");
+                        messageList.push_back("You don't have any pokeballs...");
                         resetBattleMenu();
                     }
                 }
@@ -289,7 +289,7 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf, vector<string> &
                     canDoAction = true;
                 }
                 else {
-                    messages.push_back("You don't have any other pokemon you can bring out!");
+                    messageList.push_back("You don't have any other pokemon you can bring out!");
                     resetBattleMenu();
                 }
             }
@@ -302,7 +302,7 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf, vector<string> &
                             pokemonToSwapTo = playersPokemon[i];
                             pokemonToSwapTo->setImagePos(currPokemon->getImagePos().x, currPokemon->getImagePos().y);
                             pokemonToSwapTo->setInfoPos(currPokemon->getInfoPos().x, currPokemon->getInfoPos().y);
-                            messages.push_back(
+                            messageList.push_back(
                                     "You swapped out " + currPokemon->getName() + " and brought out " +
                                     pokemonToSwapTo->getName() + ".");
                             canDoAction = false;
@@ -313,7 +313,7 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf, vector<string> &
                         spacing += 250;
                     }
                 }
-                if (checkForClickAndDisplayButton({1260, 630, 90, 40}, windowSurf, backButtonIMG, backButtonHoverIMG) == PRESSED && currPokemon->getHealth() > 0) {
+                if (currPokemon->getHealth() > 0 && checkForClickAndDisplayButton({1260, 630, 90, 40}, windowSurf, backButtonIMG, backButtonHoverIMG) == PRESSED && currPokemon->getHealth() > 0) {
                     canDoAction = false;
                     resetBattleMenu();
                 }

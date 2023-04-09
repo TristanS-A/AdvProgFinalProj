@@ -17,21 +17,18 @@ Pokemon::Pokemon(string name, int level, int health, SDL_Surface *pokeImage) {
     this->pokeImage = pokeImage;
     pokeRect = {0, 0, this->pokeImage->w, this->pokeImage->h};
     infoDestination = {0, 0, 0, 0};
-    currAttack = -1;
 }
 
 Pokemon::~Pokemon() {
     SDL_FreeSurface(pokeImage);
 }
 
-bool Pokemon::attack(Pokemon* pokemonToAttack, vector<string> &messages) {
+bool Pokemon::attack(Pokemon* pokemonToAttack) {
     pokemonToAttack->addToHealth(-movePower[currAttack]);
-    messages.push_back("Damage delt: " + to_string(movePower[currAttack]));
-    currAttack = -1;
     return true;
 }
 
-bool Pokemon::displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages) {
+bool Pokemon::displayAndChooseMoves(SDL_Surface* windowSurf) {
     int spacing = 0;
     for (int i = 0; i < sizeof(moveNames) / sizeof(moveNames[0]); i++) {
         SDL_Surface *textSurf;
@@ -55,7 +52,7 @@ bool Pokemon::displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &mes
     }
 
     if (currAttack >= 0 && currAttack < 4){
-        messages.push_back(to_string(currAttack + 1));
+        messageList.push_back(name + " used " + moveNames[currAttack] + "!");
         return true;
     }
     else{
@@ -64,7 +61,7 @@ bool Pokemon::displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &mes
 
 }
 
-void Pokemon::pickRandomMove(vector<string> &messages) {
+void Pokemon::pickRandomMove() {
     int movesCount = 0;
     random_device random;
 
@@ -80,17 +77,28 @@ void Pokemon::pickRandomMove(vector<string> &messages) {
 
     currAttack = static_cast<int>(randomRange(outputNum));
 
-    messages.push_back(to_string(currAttack + 1));
+    messageList.push_back(name + " used " + moveNames[currAttack]);
 
 }
 
 void Pokemon::addToHealth(int amount) {
+    //////////////////////////////////////////Add things like water lowers fire temp or something.
     health += amount;
-    if (health > maxHealth){
-        health = maxHealth;
+    if (amount > 0) {
+        if (health > maxHealth) {
+            messageList.push_back(name + " restored " + to_string(amount - (health - maxHealth)) + " HP.");
+            health = maxHealth;
+        } else {
+            messageList.push_back(name + " restored " + to_string(amount) + " HP.");
+        }
     }
-    else if (health < 0){
-        health = 0;
+    else {
+        if (health < 0) {
+            messageList.push_back(name + " took " + to_string(-amount + health) + " damage.");
+            health = 0;
+        } else {
+            messageList.push_back(name + " took " + to_string(-amount) + " damage.");
+        }
     }
 }
 
@@ -165,15 +173,30 @@ FireType::FireType(string name, int level, int health, SDL_Surface *pokeImage, i
     this->fireTemperature = fireTemperature;
 }
 
-bool FireType::attack(Pokemon* pokemonToAttack, vector<string> &messages) {
+bool FireType::attack(Pokemon* pokemonToAttack) {
     ////////////////////////////Add change to movePower[currAttack] based on heat here
-    Pokemon::attack(pokemonToAttack, messages);
+    int temp = movePower[currAttack];
+    movePower[currAttack] *= fireTemperature / 100;
+
+    if (typeid(*pokemonToAttack) == typeid(GrassType)){
+        movePower[currAttack] *= 1.5;
+        messageList.push_back("It was super effective!");
+    }
+    else if (typeid(*pokemonToAttack) == typeid(WaterType)){
+        movePower[currAttack] *= 0.5;
+        messageList.push_back("It wasn't very effective...");
+    }
+
+    Pokemon::attack(pokemonToAttack);
+
+    movePower[currAttack] = temp;
+    currAttack = -1;
     ////////////////////////////////////////Add message that is was super effective or not here
     return true;
 }
 
-bool FireType::displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages) {
-    return Pokemon::displayAndChooseMoves(windowSurf, messages);
+bool FireType::displayAndChooseMoves(SDL_Surface* windowSurf) {
+    return Pokemon::displayAndChooseMoves(windowSurf);
 }
 
 void FireType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
@@ -187,26 +210,35 @@ void FireType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
 }
 
-WaterType::WaterType(string name, int level, int health, SDL_Surface *pokeImage, int mineralValue) : Pokemon(name, level, health, pokeImage) {
+WaterType::WaterType(string name, int level, int health, SDL_Surface *pokeImage, float mineralValue) : Pokemon(name, level, health, pokeImage) {
     this->mineralValue = mineralValue;
 }
 
-bool WaterType::attack(Pokemon* pokemonToAttack, vector<string> &messages) {
+bool WaterType::attack(Pokemon* pokemonToAttack) {
     if (moveNames[currAttack] != "Heal") {
-        Pokemon::attack(pokemonToAttack, messages);
+        int temp = movePower[currAttack];
+        if (typeid(*pokemonToAttack) == typeid(FireType)){
+            movePower[currAttack] *= 1.5;
+            messageList.push_back("It was super effective!");
+        }
+        else if (typeid(*pokemonToAttack) == typeid(GrassType)){
+            movePower[currAttack] *= 0.5;
+            messageList.push_back("It wasn't very effective...");
+        }
+
+        Pokemon::attack(pokemonToAttack);
+        movePower[currAttack] = temp;
     }
     else {
-        heal(movePower[currAttack]);
+        addToHealth(movePower[currAttack] * mineralValue / 20.0);
     }
+
+    currAttack = -1;
     return true;
 }
 
-void WaterType::heal(int healAmount) {
-
-}
-
-bool WaterType::displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages) {
-    return Pokemon::displayAndChooseMoves(windowSurf, messages);
+bool WaterType::displayAndChooseMoves(SDL_Surface* windowSurf) {
+    return Pokemon::displayAndChooseMoves(windowSurf);
 }
 
 void WaterType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
@@ -216,22 +248,59 @@ void WaterType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
     int spacingY = 50;
     int spacingX = 200 + to_string(level).size() * MEDIUM_FONT_SIZE;
     SDL_Rect nextLine = {infoDestination.x + spacingX, infoDestination.y + spacingY, 0, 0};
-    SDL_Surface* textSurf = TTF_RenderText_Solid(mediumFont, ("Healing Power: " + to_string(mineralValue)).c_str(), {255, 255, 255});
+    SDL_Surface* textSurf = TTF_RenderText_Solid(mediumFont, ("Mineral Value: " + to_string(mineralValue)).c_str(), {255, 255, 255});
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
 }
 
-GrassType::GrassType(string name, int level, int health, SDL_Surface *pokeImage, float waterEfficiency) : Pokemon(name, level, health, pokeImage) {
+GrassType::GrassType(string name, int level, int health, SDL_Surface *pokeImage, int waterEfficiency) : Pokemon(name, level, health, pokeImage) {
     this->waterEfficiency = waterEfficiency;
     percentDriedUp = 100;
 }
 
-bool GrassType::attack(Pokemon* pokemonToAttack, vector<string> &messages) {
-    Pokemon::attack(pokemonToAttack, messages);
+bool GrassType::attack(Pokemon* pokemonToAttack) {
+    if (moveNames[currAttack] != "Rehydrate") {
+        if (percentDriedUp > 0) {
+            int temp = movePower[currAttack];
+
+            if (typeid(*pokemonToAttack) == typeid(IceType)) {
+                movePower[currAttack] *= 1.5;
+                messageList.push_back("It was super effective!");
+            } else if (typeid(*pokemonToAttack) == typeid(FireType)) {
+                movePower[currAttack] *= 0.5;
+                messageList.push_back("It wasn't very effective...");
+            };
+
+            Pokemon::attack(pokemonToAttack);
+
+            movePower[currAttack] = temp;
+            setDriedUpPercent(percentDriedUp - movePower[currAttack] * waterEfficiency);
+        } else {
+            messageList.push_back(name + " is all dried up and can't attack!");
+        }
+    }
+    else {
+        setDriedUpPercent(percentDriedUp + movePower[currAttack] * waterEfficiency);
+    }
+
+    currAttack = -1;
     return true;
 }
 
-bool GrassType::displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages) {
-    return Pokemon::displayAndChooseMoves(windowSurf, messages);
+void GrassType::setDriedUpPercent(int newPercent) {
+    if (newPercent < 0){
+        addToHealth(newPercent);
+        messageList.push_back(name + " used too much water and overexerted itself!");
+        percentDriedUp = 0;
+    }
+    else if (newPercent > 100){
+        percentDriedUp = 100;
+    } else {
+        percentDriedUp = newPercent;
+    }
+}
+
+bool GrassType::displayAndChooseMoves(SDL_Surface* windowSurf) {
+    return Pokemon::displayAndChooseMoves(windowSurf);
 }
 
 void GrassType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
@@ -249,13 +318,25 @@ IceType::IceType(string name, int level, int health, SDL_Surface *pokeImage, flo
     this->inchesOfIceDefense = inchesOfIceDefense;
 }
 
-bool IceType::attack(Pokemon* pokemonToAttack, vector<string> &messages) {
-    Pokemon::attack(pokemonToAttack, messages);
+bool IceType::attack(Pokemon* pokemonToAttack) {
+    int temp = movePower[currAttack];
+
+    if (typeid(*pokemonToAttack) == typeid(FireType)) {
+        movePower[currAttack] *= 1.5;
+        messageList.push_back("It was super effective!");
+    } else if (typeid(*pokemonToAttack) == typeid(GrassType)) {
+        movePower[currAttack] *= 0.5;
+        messageList.push_back("It wasn't very effective...");
+    };
+
+    Pokemon::attack(pokemonToAttack);
+
+    movePower[currAttack] = temp;
     return true;
 }
 
-bool IceType::displayAndChooseMoves(SDL_Surface* windowSurf, vector<string> &messages) {
-    return Pokemon::displayAndChooseMoves(windowSurf, messages);
+bool IceType::displayAndChooseMoves(SDL_Surface* windowSurf) {
+    return Pokemon::displayAndChooseMoves(windowSurf);
 }
 
 void IceType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
@@ -268,4 +349,11 @@ void IceType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
     SDL_Surface* textSurf = TTF_RenderText_Solid(mediumFont, ("Ice Defense: " + to_string(int(inchesOfIceDefense)) + "." +
             to_string(int(inchesOfIceDefense * 10) % 10) + "``").c_str(), {255, 255, 255});
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
+}
+
+void IceType::addToHealth(int amount) {
+    if (amount < 0) {
+        amount /= inchesOfIceDefense + 1;
+    }
+    Pokemon::addToHealth(amount);
 }
