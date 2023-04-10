@@ -39,6 +39,14 @@ public:
 
     int getLevel() const;
 
+    int getExperience();
+
+    bool checkForLevelUp();
+
+    void addToExperience(int amount);
+
+    void levelUp();
+
     void setImagePos(int x, int y);
 
     void setInfoPos(int x, int y);
@@ -57,6 +65,8 @@ protected:
     int level;
     int experience;
     int experienceUntilNextLevel;
+    const float LEVEL_BOOST = 10.0;
+    const int BASE_EXPERIENCE = 50;
     float baseAttackPower;
     float baseDefensePower;
     SDL_Surface* pokeImage;

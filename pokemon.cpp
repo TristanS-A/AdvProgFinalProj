@@ -17,10 +17,10 @@ Pokemon::Pokemon(string name, int level, int healthOffset, SDL_Surface *pokeImag
     this->pokeImage = pokeImage;
     pokeRect = {0, 0, this->pokeImage->w, this->pokeImage->h};
     infoDestination = {0, 0, 0, 0};
-    baseAttackPower = 1 + ((level - 1) / 10.0);
-    baseDefensePower = 1 + ((level - 1) / 10.0);
-    experience = 50 * (level - 1) * (level - 1);
-    experienceUntilNextLevel = 50 * (level) * (level);
+    baseAttackPower = 1 + ((level - 1.0) / LEVEL_BOOST);
+    baseDefensePower = 1 + ((level - 1.0) / LEVEL_BOOST);
+    experience = BASE_EXPERIENCE * (level - 1) * (level - 1);
+    experienceUntilNextLevel = BASE_EXPERIENCE * (level) * (level);
 }
 
 Pokemon::~Pokemon() {
@@ -175,6 +175,31 @@ SDL_Rect Pokemon::getInfoPos() {
 
 float Pokemon::getBaseDefense() {
     return baseDefensePower;
+}
+
+int Pokemon::getExperience() {
+    return experience;
+}
+
+bool Pokemon::checkForLevelUp() {
+    if (experience >= experienceUntilNextLevel){
+        return true;
+    }
+
+    return false;
+}
+
+void Pokemon::addToExperience(int amount) {
+    experience += amount;
+}
+
+void Pokemon::levelUp() {
+    level++;
+    health += static_cast<int>(LEVEL_BOOST);
+    baseAttackPower += LEVEL_BOOST / 100;
+    baseDefensePower += LEVEL_BOOST / 100;
+    experienceUntilNextLevel = BASE_EXPERIENCE * (level) * (level);
+
 }
 
 FireType::FireType(string name, int level, int healthOffset, SDL_Surface *pokeImage, int fireTemperature) : Pokemon(name, level, healthOffset, pokeImage){

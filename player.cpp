@@ -374,3 +374,23 @@ int Player::getTeamAverageLevel() {
 
     return total / playersPokemon.size();
 }
+
+void Player::calculateTeamExperience(Pokemon* pokemonDefeated) {
+    /////////////////////////////Check if currPokemon hurts itself and faints
+    int experienceToAdd = pokemonDefeated->getExperience();
+    messageList.push_back(currPokemon->getName() + " got " + to_string(pokemonDefeated->getExperience() + 15) + " EXP!");
+    if (playersPokemon.size() > 1) {
+        messageList.push_back("Everyone else got " + to_string((pokemonDefeated->getExperience() + 15) / 2) + " EXP.");
+    }
+
+    for (Pokemon* pokemon : playersPokemon){
+        if (pokemon->getHealth() > 0){
+            if (pokemon != currPokemon){
+                pokemon->addToExperience((pokemonDefeated->getExperience() + 15) / 2);
+            }
+            else {
+                pokemon->addToExperience(pokemonDefeated->getExperience() + 15);
+            }
+        }
+    }
+}

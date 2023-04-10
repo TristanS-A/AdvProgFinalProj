@@ -376,6 +376,7 @@ int main(int argc, char* argv[]) {
                                                 playersTurn = true;
                                                 ///////////////////////////////////////////Calculate experience
                                                 messageList.push_back(wildPokemon->getName() + " fainted!");
+                                                player->calculateTeamExperience(wildPokemon);
                                                 messageList.push_back("You won!");
                                                 //////////////////////////////////////////If both pokemon die make sure to go to send person to pokeecnter or make player lose instead
                                             }

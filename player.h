@@ -70,6 +70,8 @@ public:
 
     int getTeamAverageLevel();
 
+    void calculateTeamExperience(Pokemon* pokemonDefeated);
+
 private:
     SDL_Rect playerPos;
     SDL_Surface* playerImage;
