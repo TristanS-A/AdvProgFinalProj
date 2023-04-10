@@ -139,8 +139,7 @@ int main(int argc, char* argv[]) {
     //---------------------------------------------------\\
 
     //TODO: Pressing:
-    //      Make level up system and calculate experience
-    //      Make random enemy types appear
+    //      Make random pokemon have random moves and an offset for type specifics so they are not all the same
     //
     //TODO: Later
     //      Make death animation (make pokemon go offscreen)
@@ -153,6 +152,7 @@ int main(int argc, char* argv[]) {
     //      Make healing animations
     //      Make battle enter/exit animation
     //      Make title screen
+    //      Review levelup system and experience stuff;
     //      Refactoring
 
     //Initialize fonts
@@ -261,7 +261,7 @@ int main(int argc, char* argv[]) {
     random_device random;
 
     mt19937 outputNum(random());
-    uniform_real_distribution<double> randomChanceRange(0, 1.0);
+    uniform_real_distribution<double> randomChanceRange(0, 0.9999);
     uniform_real_distribution<double> randomLevelRange(-5.0, 5.0);
 
     Pokeball* p = new Pokeball("Pokeball", 1, IMG_Load("images/m.png"), "A normal Pokebal to catch pokemon");
@@ -348,7 +348,21 @@ int main(int argc, char* argv[]) {
                         if (wildPokemonLevel <= 0){
                             wildPokemonLevel = 1;
                         }
-                        wildPokemon = new FireType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 100);
+
+                        ////////////////////Change this to be based on where the player is on the map
+                        switch (static_cast<int>(randomChanceRange(outputNum) * 4)) {
+                            case 0:
+                                wildPokemon = new FireType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 100);
+                                break;
+                            case 1:
+                                wildPokemon = new WaterType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 1.2);
+                                break;
+                            case 2:
+                                wildPokemon = new GrassType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 0.5);
+                                break;
+                            case 3:
+                                wildPokemon = new IceType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 0.6);
+                        }
                     }
                 }
             }
@@ -374,9 +388,10 @@ int main(int argc, char* argv[]) {
                                             if (wildPokemon->getHealth() <= 0) {
                                                 battleIsOver = true;
                                                 playersTurn = true;
-                                                ///////////////////////////////////////////Calculate experience
                                                 messageList.push_back(wildPokemon->getName() + " fainted!");
+                                                ///////////////////////////////////////////Prob put this after battle has ended
                                                 player->calculateTeamExperience(wildPokemon);
+
                                                 messageList.push_back("You won!");
                                                 //////////////////////////////////////////If both pokemon die make sure to go to send person to pokeecnter or make player lose instead
                                             }

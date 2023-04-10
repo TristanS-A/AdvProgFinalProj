@@ -377,20 +377,34 @@ int Player::getTeamAverageLevel() {
 
 void Player::calculateTeamExperience(Pokemon* pokemonDefeated) {
     /////////////////////////////Check if currPokemon hurts itself and faints
-    int experienceToAdd = pokemonDefeated->getExperience();
-    messageList.push_back(currPokemon->getName() + " got " + to_string(pokemonDefeated->getExperience() + 15) + " EXP!");
+    int experienceToAdd = pokemonDefeated->getExperience() + 10;
+    messageList.push_back(currPokemon->getName() + " got " + to_string(experienceToAdd) + " EXP!");
     if (playersPokemon.size() > 1) {
-        messageList.push_back("Everyone else got " + to_string((pokemonDefeated->getExperience() + 15) / 2) + " EXP.");
+        messageList.push_back("Everyone else got " + to_string((experienceToAdd) / 2) + " EXP.");
     }
 
     for (Pokemon* pokemon : playersPokemon){
         if (pokemon->getHealth() > 0){
             if (pokemon != currPokemon){
-                pokemon->addToExperience((pokemonDefeated->getExperience() + 15) / 2);
+                pokemon->addToExperience((experienceToAdd) / 2);
             }
             else {
-                pokemon->addToExperience(pokemonDefeated->getExperience() + 15);
+                pokemon->addToExperience(experienceToAdd);
             }
+        }
+    }
+
+    checkForLevelUps();
+}
+
+void Player::checkForLevelUps() {
+    for (Pokemon* pokemon : playersPokemon){
+        if (pokemon->checkForLevelUp()){
+            while (pokemon->checkForLevelUp()) {
+                pokemon->levelUp();
+            }
+            messageList.push_back(pokemon->getName() + " leveled up to level " + to_string(pokemon->getLevel()) + "!");
+            messageList.push_back(pokemon->getName() + "'s health, attack, and defense power rose!");
         }
     }
 }

@@ -107,7 +107,7 @@ private:
 
 class GrassType : public Pokemon{
 public:
-    GrassType(string name, int level, int healthOffset, SDL_Surface *pokeImage, int waterEfficiency);
+    GrassType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float waterEfficiency);
 
     bool attack(Pokemon* pokemonToAttack) override;
 

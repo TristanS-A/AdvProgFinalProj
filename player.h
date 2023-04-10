@@ -72,6 +72,8 @@ public:
 
     void calculateTeamExperience(Pokemon* pokemonDefeated);
 
+    void checkForLevelUps();
+
 private:
     SDL_Rect playerPos;
     SDL_Surface* playerImage;

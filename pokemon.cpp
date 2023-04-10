@@ -195,7 +195,8 @@ void Pokemon::addToExperience(int amount) {
 
 void Pokemon::levelUp() {
     level++;
-    health += static_cast<int>(LEVEL_BOOST);
+    maxHealth += static_cast<int>(LEVEL_BOOST);
+    health = maxHealth;
     baseAttackPower += LEVEL_BOOST / 100;
     baseDefensePower += LEVEL_BOOST / 100;
     experienceUntilNextLevel = BASE_EXPERIENCE * (level) * (level);
@@ -264,7 +265,7 @@ bool WaterType::attack(Pokemon* pokemonToAttack) {
         movePower[currAttack] = temp;
     }
     else {
-        addToHealth(movePower[currAttack] * mineralValue / 20.0);
+        addToHealth(movePower[currAttack] * mineralValue);
     }
 
     currAttack = -1;
@@ -282,11 +283,12 @@ void WaterType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
     int spacingY = 50;
     int spacingX = 200 + to_string(level).size() * MEDIUM_FONT_SIZE;
     SDL_Rect nextLine = {infoDestination.x + spacingX, infoDestination.y + spacingY, 0, 0};
-    SDL_Surface* textSurf = TTF_RenderText_Solid(mediumFont, ("Mineral Value: " + to_string(mineralValue)).c_str(), {255, 255, 255});
+    SDL_Surface* textSurf = TTF_RenderText_Solid(mediumFont, ("Mineral Value: " + to_string(int(mineralValue)) + "." +
+                                                                                  to_string(int(mineralValue * 10) % 10)).c_str(), {255, 255, 255});
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
 }
 
-GrassType::GrassType(string name, int level, int healthOffset, SDL_Surface *pokeImage, int waterEfficiency) : Pokemon(name, level, healthOffset, pokeImage) {
+GrassType::GrassType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float waterEfficiency) : Pokemon(name, level, healthOffset, pokeImage) {
     this->waterEfficiency = waterEfficiency;
     percentDriedUp = 100;
 }
