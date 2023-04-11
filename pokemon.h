@@ -9,6 +9,7 @@
 #include "SDL_ttf.h"
 #include <string>
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -57,6 +58,8 @@ public:
 
     float getBaseDefense();
 
+    void addRandomMove(string typeID);
+
     /////////////////////////////Review protected and stuff
 protected:
     string name;
@@ -72,9 +75,10 @@ protected:
     SDL_Surface* pokeImage;
     SDL_Rect pokeRect;
     ////////////////////////////////////////////////////Maybe make a limit to how many times you can use a move
-    string moveNames[4] = {"Heal", "Rehydrate", "Fire Fang", "Giga Impact"};
-    int movePower[4] = {1, 5,  20, 50};
-    string moveDescriptions[4] = {"Heals the user.", "Rehydrates the pokemon.", "A move where the pokemon tries to eat the other pokemon.", "Slams the enemie with all its might (Recoil Damage)."};
+    vector<string> moveNames;
+    vector<int> movePower;
+    vector<string> moveDescriptions;
+    const int MAX_MOVE_AMOUNT = 4;
     SDL_Rect infoDestination;
     int currAttack;
 };

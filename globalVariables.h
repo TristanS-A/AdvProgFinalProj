@@ -38,6 +38,8 @@ extern bool mouseHeldDown;
 //To send messages in battle;
 extern vector<string> messageList;
 
+extern int amountOfMovesPerType;
+
 extern SDL_Surface* buttonIMG;
 
 extern SDL_Surface* buttonHoverIMG;

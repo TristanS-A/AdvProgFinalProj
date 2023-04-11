@@ -28,16 +28,19 @@ Pokemon::~Pokemon() {
 }
 
 bool Pokemon::attack(Pokemon* pokemonToAttack) {
+    cout << -movePower[currAttack] << " dfghjk" << endl;
     pokemonToAttack->addToHealth(-movePower[currAttack] / pokemonToAttack->getBaseDefense());
     return true;
 }
 
 bool Pokemon::displayAndChooseMoves(SDL_Surface* windowSurf) {
+    /////////////////////////////////////Check over this with currAttack = -1 placement;
     int spacing = 0;
-    for (int i = 0; i < sizeof(moveNames) / sizeof(moveNames[0]); i++) {
+    currAttack = -1;
+    for (int i = 0; i < moveNames.size(); i++) {
         SDL_Surface *textSurf;
         int buttonOffset = 50;
-        int buttonLength = (moveNames[i].size()) * MEDIUM_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH + buttonOffset * 2;
+        int buttonLength = moveNames[i].size() * MEDIUM_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH + buttonOffset * 2;
         ButtonState movesButton = checkForClickAndDisplayButton({150 + spacing - buttonOffset, 650, buttonLength, int(buttonOffset * 1.5)}, windowSurf, buttonIMG, buttonHoverIMG);
         if (movesButton == PRESSED){
             currAttack = i;
@@ -203,8 +206,121 @@ void Pokemon::levelUp() {
 
 }
 
+void Pokemon::addRandomMove(string typeID) {
+    random_device random;
+
+    mt19937 outputNum(random());
+    uniform_real_distribution<double> randomChanceRange(0, amountOfMovesPerType - 0.001);
+    int fileLine;
+    bool noDuplicates = false;
+    int count;
+    char ch;
+    string fullInfo;
+    string temp;
+    bool foundType;
+
+    string tempName;
+    int tempPower;
+    string tempDescription;
+
+    moveNames.push_back("");
+    movePower.push_back(0);
+    moveDescriptions.push_back("");
+
+    fileLine = randomChanceRange(outputNum);
+
+    while (!noDuplicates) {
+        fstream fin("moveInfo.txt");
+        fullInfo = "";
+        temp = "";
+        ch = '\0';
+        count = 0;
+        tempName = "";
+        tempPower = 0;
+        tempDescription = "";
+        foundType = false;
+        noDuplicates = true;
+        while (!fin.eof()) {
+            if (foundType && count == fileLine) {
+                if (fullInfo == "Name: ") {
+                    if (ch != ';') {
+                        tempName += ch;
+                    } else {
+                        cout << fileLine << endl;
+                        fullInfo = "";
+                    }
+                }
+                else if (fullInfo == "Power: "){
+                    if (ch != ';') {
+                        temp += ch;
+                    } else {
+                        tempPower = stoi(temp);
+                        fullInfo = "";
+                    }
+                }
+                else if (fullInfo == "Description: "){
+                    if (ch != ';') {
+                        tempDescription += ch;
+                    } else {
+                        break;
+                    }
+                } else {
+                    if (ch && (ch != ' ' || !fullInfo.empty())) {
+                        fullInfo += ch;
+                    }
+                }
+            }
+
+            if (ch == '\n') {
+                if (fullInfo != "FireType\n" && fullInfo != "IceType\n" && fullInfo != "GrassType\n" && fullInfo != "WaterType\n") {
+                    count++;
+                }
+                else {
+                    count = 0;
+                    if (fullInfo.substr(0, fullInfo.length() - 1) == typeID.substr(1, typeID.length())) {
+                        foundType = true;
+                    }
+                    else {
+                        foundType = false;
+                    }
+                }
+
+                fullInfo = "";
+            }
+
+            fin >> noskipws >> ch;
+
+            if (!foundType) {
+                fullInfo += ch;
+            }
+        }
+
+        fin.close();
+
+        for (string name: moveNames) {
+            if (name == tempName) {
+                noDuplicates = false;
+            }
+        }
+
+        if (!noDuplicates){
+            if (fileLine == amountOfMovesPerType - 1){
+                fileLine = 0;
+            } else {
+                fileLine++;
+            }
+        }
+    }
+
+    moveNames[moveNames.size() - 1] = tempName;
+    movePower[movePower.size() - 1] = tempPower;
+    moveDescriptions[moveDescriptions.size() - 1] = tempDescription;
+}
+
 FireType::FireType(string name, int level, int healthOffset, SDL_Surface *pokeImage, int fireTemperature) : Pokemon(name, level, healthOffset, pokeImage){
     this->fireTemperature = fireTemperature;
+    addRandomMove(typeid(*this).name());
+    addRandomMove(typeid(*this).name());
 }
 
 bool FireType::attack(Pokemon* pokemonToAttack) {
@@ -246,6 +362,8 @@ void FireType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
 
 WaterType::WaterType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float mineralValue) : Pokemon(name, level, healthOffset, pokeImage) {
     this->mineralValue = mineralValue;
+    addRandomMove(typeid(*this).name());
+    addRandomMove(typeid(*this).name());
 }
 
 bool WaterType::attack(Pokemon* pokemonToAttack) {
@@ -291,6 +409,8 @@ void WaterType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
 GrassType::GrassType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float waterEfficiency) : Pokemon(name, level, healthOffset, pokeImage) {
     this->waterEfficiency = waterEfficiency;
     percentDriedUp = 100;
+    addRandomMove(typeid(*this).name());
+    addRandomMove(typeid(*this).name());
 }
 
 bool GrassType::attack(Pokemon* pokemonToAttack) {
@@ -352,6 +472,8 @@ void GrassType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
 
 IceType::IceType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float inchesOfIceDefense) : Pokemon(name, level, healthOffset, pokeImage) {
     this->inchesOfIceDefense = inchesOfIceDefense;
+    addRandomMove(typeid(*this).name());
+    addRandomMove(typeid(*this).name());
 }
 
 bool IceType::attack(Pokemon* pokemonToAttack) {

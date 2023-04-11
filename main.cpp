@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <random>
+#include <fstream>
 
 #include "screenSizeChange.h"
 #include "player.h"
@@ -139,7 +140,8 @@ int main(int argc, char* argv[]) {
     //---------------------------------------------------\\
 
     //TODO: Pressing:
-    //      Make random pokemon have random moves and an offset for type specifics so they are not all the same
+    //      Make pokemon learn moves on level up
+    //      Make random pokemon have an offset for type specifics so they are not all the same like mineral power
     //
     //TODO: Later
     //      Make death animation (make pokemon go offscreen)
@@ -175,6 +177,30 @@ int main(int argc, char* argv[]) {
     //Sets up key presses
     const Uint8 *keystates = SDL_GetKeyboardState(nullptr);
 
+    fstream fin("moveInfo.txt");
+    char ch;
+    string fullInfo;
+    while (!fin.eof()){
+        fin >> noskipws >> ch;
+        fullInfo += ch;
+        if (ch == '\n'){
+            if (fullInfo != "FireType\n" && fullInfo != "IceType\n" && fullInfo != "GrassType\n" && fullInfo != "WaterType\n") {
+                amountOfMovesPerType++;
+            }
+            else if (amountOfMovesPerType > 0){
+                break;
+            }
+            fullInfo = "";
+        }
+    }
+
+    if (ch){
+        amountOfMovesPerType++;
+    }
+
+    /////////////////Check with professor about this since there is no open()
+    fin.close();
+
     SDL_Surface* background = IMG_Load("images/background.png");
     SDL_Rect bgPos = {-background->w / 2 + SCREEN_WIDTH / 2, -background->h / 2 + SCREEN_HEIGHT / 2, background->w, background->h};
 
@@ -182,7 +208,7 @@ int main(int argc, char* argv[]) {
     SDL_Rect textboxPos = {0, SCREEN_HEIGHT - textboxIMG->h, 0, 0};
 
     Player* player = new Player({SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2, 0, 0});
-    Pokemon* p1 = new FireType("Poki", 1, 0, IMG_Load("images/p.png"), 100);
+    Pokemon* p1 = new IceType("Poki", 1, 0, IMG_Load("images/p.png"), 1.2);
     Pokemon* p2 = new FireType("Poki2", 1, 0, IMG_Load("images/p.png"), 100);
     Pokemon* p3 = new FireType("Poki3", 1, 0, IMG_Load("images/p.png"), 100);
     Pokemon* p4 = new FireType("Poki4", 1, 0, IMG_Load("images/p.png"), 100);
