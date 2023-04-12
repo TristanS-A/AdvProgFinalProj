@@ -8,7 +8,8 @@
 #include "button.h"
 #include <iostream>
 #include <vector>
-#include <bits/stdc++.h>
+#include <random>
+#include <algorithm>
 
 Player::Player(SDL_Rect playerPos) {
     playerImage = IMG_Load("images/p.png");
@@ -404,7 +405,28 @@ void Player::checkForLevelUps() {
                 pokemon->levelUp();
             }
             messageList.push_back(pokemon->getName() + " leveled up to level " + to_string(pokemon->getLevel()) + "!");
+            if (pokemon->getLevel() == pokemon->getMaxLevel()){
+                messageList.push_back(pokemon->getName() + " has maxed out its level!");
+            }
             messageList.push_back(pokemon->getName() + "'s health, attack, and defense power rose!");
+
+            int moveCount = pokemon->getMoves().size();
+
+            if (moveCount < pokemon->getMaxMoveAmount()) {
+                random_device random;
+                mt19937 outputNum(random());
+                uniform_real_distribution<double> randomChanceRange(0, 1);
+                const float CHANCE_TO_LEARN_NEW_MOVE = 1;
+
+                if (randomChanceRange(outputNum) <= CHANCE_TO_LEARN_NEW_MOVE) {
+                    try {
+                        pokemon->addRandomMove(typeid(*pokemon).name());
+                        messageList.push_back(pokemon->getName() + " learned " + pokemon->getMoves()[moveCount]);
+                    } catch (string &errorMessage) {
+                        cout << errorMessage << endl;
+                    }
+                }
+            }
         }
     }
 }

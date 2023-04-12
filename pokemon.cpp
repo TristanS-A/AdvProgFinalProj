@@ -6,13 +6,13 @@
 #include "button.h"
 #include "globalVariables.h"
 #include <iostream>
-#include <iomanip>
 #include <random>
+#include <algorithm>
 
 Pokemon::Pokemon(string name, int level, int healthOffset, SDL_Surface *pokeImage) {
     this->name = name;
     this->level = level;
-    this->health = 20 + 10 * level + healthOffset;
+    this->health = 20 + LEVEL_BOOST / 2 * level + healthOffset;
     this->maxHealth = health;
     this->pokeImage = pokeImage;
     pokeRect = {0, 0, this->pokeImage->w, this->pokeImage->h};
@@ -20,7 +20,7 @@ Pokemon::Pokemon(string name, int level, int healthOffset, SDL_Surface *pokeImag
     baseAttackPower = 1 + ((level - 1.0) / LEVEL_BOOST);
     baseDefensePower = 1 + ((level - 1.0) / LEVEL_BOOST);
     experience = BASE_EXPERIENCE * (level - 1) * (level - 1);
-    experienceUntilNextLevel = BASE_EXPERIENCE * (level) * (level);
+    experienceUntilNextLevel = BASE_EXPERIENCE + experience * 3;
 }
 
 Pokemon::~Pokemon() {
@@ -28,8 +28,7 @@ Pokemon::~Pokemon() {
 }
 
 bool Pokemon::attack(Pokemon* pokemonToAttack) {
-    cout << -movePower[currAttack] << " dfghjk" << endl;
-    pokemonToAttack->addToHealth(-movePower[currAttack] / pokemonToAttack->getBaseDefense());
+    pokemonToAttack->addToHealth(int(-movePower[currAttack] * baseAttackPower) / pokemonToAttack->getBaseDefense());
     return true;
 }
 
@@ -176,16 +175,16 @@ SDL_Rect Pokemon::getInfoPos() {
     return infoDestination;
 }
 
-float Pokemon::getBaseDefense() {
+float Pokemon::getBaseDefense() const {
     return baseDefensePower;
 }
 
-int Pokemon::getExperience() {
+int Pokemon::getExperience() const {
     return experience;
 }
 
-bool Pokemon::checkForLevelUp() {
-    if (experience >= experienceUntilNextLevel){
+bool Pokemon::checkForLevelUp() const {
+    if (experience >= experienceUntilNextLevel && level < MAX_LEVEL){
         return true;
     }
 
@@ -198,12 +197,13 @@ void Pokemon::addToExperience(int amount) {
 
 void Pokemon::levelUp() {
     level++;
-    maxHealth += static_cast<int>(LEVEL_BOOST);
+    maxHealth += static_cast<int>(LEVEL_BOOST / 2);
     health = maxHealth;
-    baseAttackPower += LEVEL_BOOST / 100;
-    baseDefensePower += LEVEL_BOOST / 100;
-    experienceUntilNextLevel = BASE_EXPERIENCE * (level) * (level);
 
+    float scaler = 100;
+    baseAttackPower += LEVEL_BOOST / scaler;
+    baseDefensePower += LEVEL_BOOST / (scaler * 5);
+    experienceUntilNextLevel = BASE_EXPERIENCE + (BASE_EXPERIENCE * (level - 1) * (level - 1)) * 3;
 }
 
 void Pokemon::addRandomMove(string typeID) {
@@ -228,6 +228,8 @@ void Pokemon::addRandomMove(string typeID) {
     moveDescriptions.push_back("");
 
     fileLine = randomChanceRange(outputNum);
+
+    int lineToLoopBackTo = fileLine;
 
     while (!noDuplicates) {
         fstream fin("moveInfo.txt");
@@ -309,6 +311,13 @@ void Pokemon::addRandomMove(string typeID) {
             } else {
                 fileLine++;
             }
+            if (fileLine == lineToLoopBackTo){
+                string errorMessage = "Could not find a new move to give " + name + " after looping through all moves of its type.";
+                moveNames.erase(find(moveNames.begin(), moveNames.end(), moveNames[moveNames.size() - 1]));
+                movePower.erase(find(movePower.begin(), movePower.end(), movePower[movePower.size() - 1]));
+                moveDescriptions.erase(find(moveDescriptions.begin(), moveDescriptions.end(), moveDescriptions[moveDescriptions.size() - 1]));
+                throw errorMessage;
+            }
         }
     }
 
@@ -317,10 +326,28 @@ void Pokemon::addRandomMove(string typeID) {
     moveDescriptions[moveDescriptions.size() - 1] = tempDescription;
 }
 
+vector<string> Pokemon::getMoves() {
+    return moveNames;
+}
+/////////////////Make these two const later because of lag stuff
+int Pokemon::getMaxMoveAmount(){
+    return MAX_MOVE_AMOUNT;
+}
+
+int Pokemon::getMaxLevel(){
+    return MAX_LEVEL;
+}
+
 FireType::FireType(string name, int level, int healthOffset, SDL_Surface *pokeImage, int fireTemperature) : Pokemon(name, level, healthOffset, pokeImage){
     this->fireTemperature = fireTemperature;
-    addRandomMove(typeid(*this).name());
-    addRandomMove(typeid(*this).name());
+    try {
+        addRandomMove(typeid(*this).name());
+        addRandomMove(typeid(*this).name());
+        addRandomMove(typeid(*this).name());
+        addRandomMove(typeid(*this).name());
+    } catch (string &errorMessage) {
+        cout << errorMessage << endl;
+    }
 }
 
 bool FireType::attack(Pokemon* pokemonToAttack) {
@@ -362,8 +389,15 @@ void FireType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
 
 WaterType::WaterType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float mineralValue) : Pokemon(name, level, healthOffset, pokeImage) {
     this->mineralValue = mineralValue;
-    addRandomMove(typeid(*this).name());
-    addRandomMove(typeid(*this).name());
+
+    try {
+        addRandomMove(typeid(*this).name());
+        addRandomMove(typeid(*this).name());
+        addRandomMove(typeid(*this).name());
+        addRandomMove(typeid(*this).name());
+    } catch (string &errorMessage) {
+        cout << errorMessage << endl;
+    }
 }
 
 bool WaterType::attack(Pokemon* pokemonToAttack) {
@@ -409,8 +443,15 @@ void WaterType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
 GrassType::GrassType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float waterEfficiency) : Pokemon(name, level, healthOffset, pokeImage) {
     this->waterEfficiency = waterEfficiency;
     percentDriedUp = 100;
-    addRandomMove(typeid(*this).name());
-    addRandomMove(typeid(*this).name());
+
+    try {
+        addRandomMove(typeid(*this).name());
+        addRandomMove(typeid(*this).name());
+        addRandomMove(typeid(*this).name());
+        addRandomMove(typeid(*this).name());
+    } catch (string &errorMessage) {
+        cout << errorMessage << endl;
+    }
 }
 
 bool GrassType::attack(Pokemon* pokemonToAttack) {
@@ -472,8 +513,15 @@ void GrassType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
 
 IceType::IceType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float inchesOfIceDefense) : Pokemon(name, level, healthOffset, pokeImage) {
     this->inchesOfIceDefense = inchesOfIceDefense;
-    addRandomMove(typeid(*this).name());
-    addRandomMove(typeid(*this).name());
+
+    try {
+        addRandomMove(typeid(*this).name());
+        addRandomMove(typeid(*this).name());
+        addRandomMove(typeid(*this).name());
+        addRandomMove(typeid(*this).name());
+    } catch (string &errorMessage) {
+        cout << errorMessage << endl;
+    }
 }
 
 bool IceType::attack(Pokemon* pokemonToAttack) {

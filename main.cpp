@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
     //---------------------------------------------------\\
 
     //TODO: Pressing:
-    //      Make pokemon learn moves on level up
+    //      Make pokemon have a max of levels they can up before foring them to learn a new move
     //      Make random pokemon have an offset for type specifics so they are not all the same like mineral power
     //
     //TODO: Later

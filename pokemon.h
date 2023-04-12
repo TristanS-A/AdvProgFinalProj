@@ -40,9 +40,9 @@ public:
 
     int getLevel() const;
 
-    int getExperience();
+    int getExperience() const;
 
-    bool checkForLevelUp();
+    bool checkForLevelUp() const;
 
     void addToExperience(int amount);
 
@@ -56,9 +56,15 @@ public:
 
     SDL_Rect getInfoPos();
 
-    float getBaseDefense();
+    float getBaseDefense() const;
 
     void addRandomMove(string typeID);
+
+    vector<string> getMoves();
+
+    int getMaxMoveAmount();
+
+    int getMaxLevel();
 
     /////////////////////////////Review protected and stuff
 protected:
@@ -70,6 +76,7 @@ protected:
     int experienceUntilNextLevel;
     const float LEVEL_BOOST = 10.0;
     const int BASE_EXPERIENCE = 50;
+    const int MAX_LEVEL = 100;
     float baseAttackPower;
     float baseDefensePower;
     SDL_Surface* pokeImage;
