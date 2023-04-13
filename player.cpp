@@ -416,12 +416,15 @@ void Player::checkForLevelUps() {
                 random_device random;
                 mt19937 outputNum(random());
                 uniform_real_distribution<double> randomChanceRange(0, 1);
-                const float CHANCE_TO_LEARN_NEW_MOVE = 1;
 
-                if (randomChanceRange(outputNum) <= CHANCE_TO_LEARN_NEW_MOVE) {
+                const float CHANCE_TO_LEARN_NEW_MOVE = 1;
+                const int MAX_LEVEL_UPS_WITHOUT_NEW_MOVE = 5;
+
+                if (randomChanceRange(outputNum) <= CHANCE_TO_LEARN_NEW_MOVE || pokemon->getLevelUpsWithoutNewMove() >= MAX_LEVEL_UPS_WITHOUT_NEW_MOVE) {
                     try {
                         pokemon->addRandomMove(typeid(*pokemon).name());
                         messageList.push_back(pokemon->getName() + " learned " + pokemon->getMoves()[moveCount]);
+                        pokemon->resetLevelUpsWithoutNewMove();
                     } catch (string &errorMessage) {
                         cout << errorMessage << endl;
                     }

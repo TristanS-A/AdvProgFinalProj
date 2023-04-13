@@ -140,10 +140,11 @@ int main(int argc, char* argv[]) {
     //---------------------------------------------------\\
 
     //TODO: Pressing:
-    //      Make pokemon have a max of levels they can up before foring them to learn a new move
-    //      Make random pokemon have an offset for type specifics so they are not all the same like mineral power
+    //      Make pokemon have a max of levels they can up before foring them to learn a new move (TEST!!!!!!!!!!!!!!!!!)
     //
     //TODO: Later
+    //      Find out why there is infinant loop if files arent in the debiug folder (txt file) and fix
+    //      Write new moves in the move txt file
     //      Make death animation (make pokemon go offscreen)
     //      Make attacks also do things like heal (Review and modify)
     //      Modify and review type amplifiers like fire temp to attacking
@@ -156,6 +157,8 @@ int main(int argc, char* argv[]) {
     //      Make title screen
     //      Review levelup system and experience stuff;
     //      Refactoring
+    //      Comment everything
+    //      Going over grade requirements (like deleting dynamics)
 
     //Initialize fonts
     smallFont = TTF_OpenFont("fonts/font.ttf", SMALL_FONT_SIZE);
@@ -198,7 +201,6 @@ int main(int argc, char* argv[]) {
         amountOfMovesPerType++;
     }
 
-    /////////////////Check with professor about this since there is no open()
     fin.close();
 
     SDL_Surface* background = IMG_Load("images/background.png");
@@ -375,19 +377,26 @@ int main(int argc, char* argv[]) {
                             wildPokemonLevel = 1;
                         }
 
+                        float memberOffset = randomChanceRange(outputNum);
+
                         ////////////////////Change this to be based on where the player is on the map
                         switch (static_cast<int>(randomChanceRange(outputNum) * 4)) {
                             case 0:
-                                wildPokemon = new FireType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 100);
+                                memberOffset *= 100;
+                                wildPokemon = new FireType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 100 + memberOffset);
                                 break;
                             case 1:
-                                wildPokemon = new WaterType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 1.2);
+                                wildPokemon = new WaterType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 1.0 + memberOffset);
                                 break;
                             case 2:
-                                wildPokemon = new GrassType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 0.5);
+                                ////////////////////////////////Do want 100% water efficiency?
+                                if (memberOffset > 0.9){
+                                    memberOffset = 0.9;
+                                }
+                                wildPokemon = new GrassType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 1 - memberOffset);
                                 break;
                             case 3:
-                                wildPokemon = new IceType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 0.6);
+                                wildPokemon = new IceType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 0.5 + memberOffset);
                         }
                     }
                 }

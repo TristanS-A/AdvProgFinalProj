@@ -62,9 +62,13 @@ public:
 
     vector<string> getMoves();
 
-    int getMaxMoveAmount();
+    int getMaxMoveAmount() const;
 
-    int getMaxLevel();
+    int getMaxLevel() const;
+
+    int getLevelUpsWithoutNewMove() const;
+
+    void resetLevelUpsWithoutNewMove();
 
     /////////////////////////////Review protected and stuff
 protected:
@@ -77,6 +81,7 @@ protected:
     const float LEVEL_BOOST = 10.0;
     const int BASE_EXPERIENCE = 50;
     const int MAX_LEVEL = 100;
+    int levelUpsWithoutNewMove;
     float baseAttackPower;
     float baseDefensePower;
     SDL_Surface* pokeImage;

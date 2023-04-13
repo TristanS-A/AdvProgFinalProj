@@ -21,6 +21,7 @@ Pokemon::Pokemon(string name, int level, int healthOffset, SDL_Surface *pokeImag
     baseDefensePower = 1 + ((level - 1.0) / LEVEL_BOOST);
     experience = BASE_EXPERIENCE * (level - 1) * (level - 1);
     experienceUntilNextLevel = BASE_EXPERIENCE + experience * 3;
+    levelUpsWithoutNewMove = 0;
 }
 
 Pokemon::~Pokemon() {
@@ -211,6 +212,8 @@ void Pokemon::addRandomMove(string typeID) {
 
     mt19937 outputNum(random());
     uniform_real_distribution<double> randomChanceRange(0, amountOfMovesPerType - 0.001);
+
+    /////////////////////////////Maybe ask teacher about creating variables here and then adding values in loop instead of all in the loop
     int fileLine;
     bool noDuplicates = false;
     int count;
@@ -248,7 +251,6 @@ void Pokemon::addRandomMove(string typeID) {
                     if (ch != ';') {
                         tempName += ch;
                     } else {
-                        cout << fileLine << endl;
                         fullInfo = "";
                     }
                 }
@@ -264,6 +266,7 @@ void Pokemon::addRandomMove(string typeID) {
                     if (ch != ';') {
                         tempDescription += ch;
                     } else {
+                        //////////////////////////cout << fileLine << endl;
                         break;
                     }
                 } else {
@@ -330,12 +333,20 @@ vector<string> Pokemon::getMoves() {
     return moveNames;
 }
 /////////////////Make these two const later because of lag stuff
-int Pokemon::getMaxMoveAmount(){
+int Pokemon::getMaxMoveAmount() const{
     return MAX_MOVE_AMOUNT;
 }
 
-int Pokemon::getMaxLevel(){
+int Pokemon::getMaxLevel() const{
     return MAX_LEVEL;
+}
+
+int Pokemon::getLevelUpsWithoutNewMove() const{
+    return levelUpsWithoutNewMove;
+}
+
+void Pokemon::resetLevelUpsWithoutNewMove() {
+    levelUpsWithoutNewMove = 0;
 }
 
 FireType::FireType(string name, int level, int healthOffset, SDL_Surface *pokeImage, int fireTemperature) : Pokemon(name, level, healthOffset, pokeImage){
@@ -504,10 +515,15 @@ void GrassType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
     Pokemon::displayPokemonAndInfo(windowSurf);
 
     ///////////////////////////////////////////////////Maybe redo this with global variables
-    int spacingY = 50;
-    int spacingX = 200 + to_string(level).size() * MEDIUM_FONT_SIZE;
+    int spacingY = SMALL_FONT_SIZE + 20;
+    int spacingX = 200 + to_string(level).size() * SMALL_FONT_SIZE;
     SDL_Rect nextLine = {infoDestination.x + spacingX, infoDestination.y + spacingY, 0, 0};
-    SDL_Surface* textSurf = TTF_RenderText_Solid(mediumFont, ("% Dried up: " + to_string(percentDriedUp)).c_str(), {255, 255, 255});
+    SDL_Surface* textSurf = TTF_RenderText_Solid(smallFont, ("% Dried up: " + to_string(percentDriedUp)).c_str(), {255, 255, 255});
+    SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
+
+    nextLine = {nextLine.x, nextLine.y + SMALL_FONT_SIZE, 0, 0};
+    textSurf = TTF_RenderText_Solid(smallFont, ("Water Efficiency: " + to_string(int(waterEfficiency)) + "." +
+                                                                        to_string(int(waterEfficiency * 10) % 10)).c_str(), {255, 255, 255});
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
 }
 
