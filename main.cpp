@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
     //---------------------------------------------------\\
 
     //TODO: Pressing:
-    //      Make pokemon have a max of levels they can up before foring them to learn a new move (TEST!!!!!!!!!!!!!!!!!)
+    //      Make heal not happen when the pokemon is fully healed
     //
     //TODO: Later
     //      Find out why there is infinant loop if files arent in the debiug folder (txt file) and fix
@@ -211,7 +211,7 @@ int main(int argc, char* argv[]) {
 
     Player* player = new Player({SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2, 0, 0});
     Pokemon* p1 = new IceType("Poki", 1, 0, IMG_Load("images/p.png"), 1.2);
-    Pokemon* p2 = new FireType("Poki2", 1, 0, IMG_Load("images/p.png"), 100);
+    Pokemon* p2 = new GrassType("Poki2", 1, 0, IMG_Load("images/p.png"), 0.9);
     Pokemon* p3 = new FireType("Poki3", 1, 0, IMG_Load("images/p.png"), 100);
     Pokemon* p4 = new FireType("Poki4", 1, 0, IMG_Load("images/p.png"), 100);
     Pokemon* p5 = new FireType("Poki5", 1, 0, IMG_Load("images/p.png"), 100);
@@ -393,6 +393,9 @@ int main(int argc, char* argv[]) {
                                 if (memberOffset > 0.9){
                                     memberOffset = 0.9;
                                 }
+                                else if (memberOffset < 0.1){
+                                    memberOffset = 0.1;
+                                }
                                 wildPokemon = new GrassType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 1 - memberOffset);
                                 break;
                             case 3:
@@ -420,6 +423,7 @@ int main(int argc, char* argv[]) {
                                             hasAttacked = false;
                                             playersTurn = false;
 
+                                            ////////////////Maybe change the position of this since this is used twice whiel battle is happening. Also the folowing bit too
                                             if (wildPokemon->getHealth() <= 0) {
                                                 battleIsOver = true;
                                                 playersTurn = true;
@@ -429,6 +433,19 @@ int main(int argc, char* argv[]) {
 
                                                 messageList.push_back("You won!");
                                                 //////////////////////////////////////////If both pokemon die make sure to go to send person to pokeecnter or make player lose instead
+                                            }
+
+                                            if (player->getCurrPokemon()->getHealth() <= 0){
+                                                messageList.push_back(player->getCurrPokemon()->getName() + " fainted!");
+                                                if (player->noOtherHealthyPokemon()) {
+                                                    battleIsOver = true;
+                                                    //////////////////////////////////////////////Calculate experience
+                                                    messageList.push_back("You lost...");
+                                                }
+                                                else {
+                                                    player->resetBattleMenu();
+                                                    playersTurn = true;
+                                                }
                                             }
                                         }
                                     }
@@ -502,6 +519,17 @@ int main(int argc, char* argv[]) {
                                             else {
                                                 player->resetBattleMenu();
                                             }
+                                        }
+
+                                        if (wildPokemon->getHealth() <= 0) {
+                                            battleIsOver = true;
+                                            playersTurn = true;
+                                            messageList.push_back(wildPokemon->getName() + " fainted!");
+                                            ///////////////////////////////////////////Prob put this after battle has ended
+                                            player->calculateTeamExperience(wildPokemon);
+
+                                            messageList.push_back("You won!");
+                                            //////////////////////////////////////////If both pokemon die make sure to go to send person to pokeecnter or make player lose instead
                                         }
                                     }
                                 }

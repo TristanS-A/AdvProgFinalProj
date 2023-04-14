@@ -60,6 +60,8 @@ public:
 
     Pokemon* getCurrPokemon();
 
+    bool allPokemonHealthy();
+
     bool noOtherHealthyPokemon();
 
     bool switchingPokemon();

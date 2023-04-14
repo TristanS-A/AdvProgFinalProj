@@ -10,6 +10,7 @@
 #include <vector>
 #include <random>
 #include <algorithm>
+#include <string>
 
 Player::Player(SDL_Rect playerPos) {
     playerImage = IMG_Load("images/p.png");
@@ -192,6 +193,15 @@ bool Player::noOtherHealthyPokemon() {
     }
 
     return noMorePokemon;
+}
+
+bool Player::allPokemonHealthy() {
+    for (Pokemon* pokemon : playersPokemon){
+        if (pokemon->getHealth() == 0){
+            return false;
+        }
+    }
+    return true;
 }
 
 PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
@@ -381,7 +391,11 @@ void Player::calculateTeamExperience(Pokemon* pokemonDefeated) {
     int experienceToAdd = pokemonDefeated->getExperience() + 10;
     messageList.push_back(currPokemon->getName() + " got " + to_string(experienceToAdd) + " EXP!");
     if (playersPokemon.size() > 1) {
-        messageList.push_back("Everyone else got " + to_string((experienceToAdd) / 2) + " EXP.");
+        if (allPokemonHealthy()){
+            messageList.push_back("Everyone else got " + to_string((experienceToAdd) / 2) + " EXP.");
+        } else {
+            messageList.push_back("Everyone else who didn't faint got " + to_string((experienceToAdd) / 2) + " EXP.");
+        }
     }
 
     for (Pokemon* pokemon : playersPokemon){
@@ -417,14 +431,16 @@ void Player::checkForLevelUps() {
                 mt19937 outputNum(random());
                 uniform_real_distribution<double> randomChanceRange(0, 1);
 
-                const float CHANCE_TO_LEARN_NEW_MOVE = 1;
+                const float CHANCE_TO_LEARN_NEW_MOVE = 0.1;
                 const int MAX_LEVEL_UPS_WITHOUT_NEW_MOVE = 5;
+                cout << pokemon->getLevelUpsWithoutNewMove() << " " << pokemon->getName() << endl;
 
                 if (randomChanceRange(outputNum) <= CHANCE_TO_LEARN_NEW_MOVE || pokemon->getLevelUpsWithoutNewMove() >= MAX_LEVEL_UPS_WITHOUT_NEW_MOVE) {
                     try {
+                        cout << "New move being added." << pokemon->getName() << endl;
                         pokemon->addRandomMove(typeid(*pokemon).name());
                         messageList.push_back(pokemon->getName() + " learned " + pokemon->getMoves()[moveCount]);
-                        pokemon->resetLevelUpsWithoutNewMove();
+                        pokemon->setLevelUpsWithoutNewMove(0);
                     } catch (string &errorMessage) {
                         cout << errorMessage << endl;
                     }

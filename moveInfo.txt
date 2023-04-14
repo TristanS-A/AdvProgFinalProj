@@ -2,10 +2,10 @@ FireType
 Name: Double Kick; Power: 10; Description: The pokemon kicks the enemie twice;
 Name: Double Kick2; Power: 12; Description: The pokemon kicks the enemie twice2;
 WaterType
-Name: Water Kick; Power: 10; Description: The pokemon kicks the enemie twice;
+Name: Heal; Power: 10; Description: The pokemon kicks the enemie twice;
 Name: Water Kick2; Power: 12; Description: The pokemon kicks the enemie twice2;
 GrassType
-Name: Grass Kick; Power: 10; Description: The pokemon kicks the enemie twice;
+Name: Rehydrate; Power: 10; Description: The pokemon kicks the enemie twice;
 Name: Grass Kick2; Power: 12; Description: The pokemon kicks the enemie twice2;
 IceType
 Name: Ice Kick; Power: 10; Description: The pokemon kicks the enemie twice;

@@ -193,7 +193,7 @@ bool Pokemon::checkForLevelUp() const {
 }
 
 void Pokemon::addToExperience(int amount) {
-    experience += amount;
+    experience += 100000;
 }
 
 void Pokemon::levelUp() {
@@ -201,10 +201,12 @@ void Pokemon::levelUp() {
     maxHealth += static_cast<int>(LEVEL_BOOST / 2);
     health = maxHealth;
 
-    float scaler = 100;
-    baseAttackPower += LEVEL_BOOST / scaler;
-    baseDefensePower += LEVEL_BOOST / (scaler * 5);
+    const float SCALER = 100;
+    baseAttackPower += LEVEL_BOOST / SCALER;
+    baseDefensePower += LEVEL_BOOST / (SCALER * 5);
     experienceUntilNextLevel = BASE_EXPERIENCE + (BASE_EXPERIENCE * (level - 1) * (level - 1)) * 3;
+
+    levelUpsWithoutNewMove++;
 }
 
 void Pokemon::addRandomMove(string typeID) {
@@ -345,15 +347,73 @@ int Pokemon::getLevelUpsWithoutNewMove() const{
     return levelUpsWithoutNewMove;
 }
 
-void Pokemon::resetLevelUpsWithoutNewMove() {
-    levelUpsWithoutNewMove = 0;
+void Pokemon::setLevelUpsWithoutNewMove(int num) {
+    levelUpsWithoutNewMove = num;
+}
+
+void Pokemon::addMoveByName(string moveName) {
+    fstream fin("moveInfo.txt");
+    char ch;
+    string fullInfo;
+    string moveInfo;
+    string tempPower;
+
+    moveNames.push_back("");
+    movePower.push_back(0);
+    moveDescriptions.push_back("");
+
+    while (!fin.eof()) {
+        if (fullInfo == "Name: " + moveName + ";") {
+            if (moveNames[moveNames.size() - 1].empty()) {
+                moveNames[moveNames.size() - 1] = moveName;
+                moveInfo = "";
+            }
+            if (moveInfo == "Power: ") {
+                if (ch != ';') {
+                    tempPower += ch;
+                } else {
+                    movePower[movePower.size() - 1] = stoi(tempPower);
+                    moveInfo = "";
+                }
+            } else if (moveInfo == "Description: ") {
+                if (ch != ';') {
+                    moveDescriptions[moveDescriptions.size() - 1] += ch;
+                } else {
+                    break;
+                }
+            }
+            else {
+                if ((ch != ' ' || !moveInfo.empty())) {
+                    moveInfo += ch;
+                }
+            }
+        } else {
+            if (ch && (ch != ' ' || !fullInfo.empty())) {
+                fullInfo += ch;
+            }
+
+            if (ch == '\n'){
+                fullInfo = "";
+            }
+        }
+
+        fin >> noskipws >> ch;
+    }
+
+    fin.close();
+
+    if (moveNames[moveNames.size() - 1].empty()){
+        string errorMessage = "Could not find the move, " + moveName + ".";
+        moveNames.erase(find(moveNames.begin(), moveNames.end(), moveNames[moveNames.size() - 1]));
+        movePower.erase(find(movePower.begin(), movePower.end(), movePower[movePower.size() - 1]));
+        moveDescriptions.erase(find(moveDescriptions.begin(), moveDescriptions.end(), moveDescriptions[moveDescriptions.size() - 1]));
+        throw errorMessage;
+    }
 }
 
 FireType::FireType(string name, int level, int healthOffset, SDL_Surface *pokeImage, int fireTemperature) : Pokemon(name, level, healthOffset, pokeImage){
     this->fireTemperature = fireTemperature;
     try {
-        addRandomMove(typeid(*this).name());
-        addRandomMove(typeid(*this).name());
         addRandomMove(typeid(*this).name());
         addRandomMove(typeid(*this).name());
     } catch (string &errorMessage) {
@@ -404,8 +464,6 @@ WaterType::WaterType(string name, int level, int healthOffset, SDL_Surface *poke
     try {
         addRandomMove(typeid(*this).name());
         addRandomMove(typeid(*this).name());
-        addRandomMove(typeid(*this).name());
-        addRandomMove(typeid(*this).name());
     } catch (string &errorMessage) {
         cout << errorMessage << endl;
     }
@@ -453,12 +511,11 @@ void WaterType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
 
 GrassType::GrassType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float waterEfficiency) : Pokemon(name, level, healthOffset, pokeImage) {
     this->waterEfficiency = waterEfficiency;
-    percentDriedUp = 100;
+    percentDriedUp = 0;
+    baseWaterEfficiency = 3;
 
     try {
-        addRandomMove(typeid(*this).name());
-        addRandomMove(typeid(*this).name());
-        addRandomMove(typeid(*this).name());
+        addMoveByName("Rehydrate");
         addRandomMove(typeid(*this).name());
     } catch (string &errorMessage) {
         cout << errorMessage << endl;
@@ -467,7 +524,7 @@ GrassType::GrassType(string name, int level, int healthOffset, SDL_Surface *poke
 
 bool GrassType::attack(Pokemon* pokemonToAttack) {
     if (moveNames[currAttack] != "Rehydrate") {
-        if (percentDriedUp > 0) {
+        if (percentDriedUp < 100) {
             int temp = movePower[currAttack];
             movePower[currAttack] *= baseAttackPower;
             if (typeid(*pokemonToAttack) == typeid(IceType)) {
@@ -481,13 +538,14 @@ bool GrassType::attack(Pokemon* pokemonToAttack) {
             Pokemon::attack(pokemonToAttack);
 
             movePower[currAttack] = temp;
-            setDriedUpPercent(percentDriedUp - movePower[currAttack] * waterEfficiency);
+            setDriedUpPercent(percentDriedUp + int(movePower[currAttack] * waterEfficiency) * baseWaterEfficiency);
         } else {
             messageList.push_back(name + " is all dried up and can't attack!");
         }
     }
     else {
-        setDriedUpPercent(percentDriedUp + movePower[currAttack] * waterEfficiency);
+        cout << movePower[currAttack] << endl;
+        setDriedUpPercent(percentDriedUp - movePower[currAttack]);
     }
 
     currAttack = -1;
@@ -495,14 +553,19 @@ bool GrassType::attack(Pokemon* pokemonToAttack) {
 }
 
 void GrassType::setDriedUpPercent(int newPercent) {
-    if (newPercent < 0){
-        addToHealth(newPercent);
+    if (newPercent > 100) {
         messageList.push_back(name + " used too much water and overexerted itself!");
-        percentDriedUp = 0;
-    }
-    else if (newPercent > 100){
+        addToHealth(100 - newPercent);
         percentDriedUp = 100;
     } else {
+        if (newPercent < 0) {
+            newPercent = 0;
+        }
+        if (newPercent - percentDriedUp <= 0) {
+            messageList.push_back(
+                    name + " restored " + to_string(percentDriedUp - newPercent) + " percent of its body water.");
+        }
+
         percentDriedUp = newPercent;
     }
 }
@@ -522,17 +585,43 @@ void GrassType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
 
     nextLine = {nextLine.x, nextLine.y + SMALL_FONT_SIZE, 0, 0};
-    textSurf = TTF_RenderText_Solid(smallFont, ("Water Efficiency: " + to_string(int(waterEfficiency)) + "." +
-                                                                        to_string(int(waterEfficiency * 10) % 10)).c_str(), {255, 255, 255});
+    float waterEfficiencyFlip = 1 - waterEfficiency;
+    textSurf = TTF_RenderText_Solid(smallFont, ("Water Efficiency: " + to_string(int(waterEfficiencyFlip * 10) % 10) +
+                                to_string(int(waterEfficiencyFlip * 100) % 10) + "%").c_str(), {255, 255, 255});
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
+}
+
+void GrassType::levelUp() {
+    Pokemon::levelUp();
+
+    const float SCALER = 500;
+    baseWaterEfficiency -= LEVEL_BOOST / SCALER;
+}
+
+void GrassType::pickRandomMove() {
+    if (percentDriedUp != 100) {
+        Pokemon::pickRandomMove();
+        if (percentDriedUp == 0 && moveNames[currAttack] == "Rehydrate"){
+            if (currAttack == moveNames.size() - 1){
+                currAttack = 0;
+            } else {
+                currAttack++;
+            }
+        }
+    } else {
+        for (int i = 0; i < moveNames.size() - 1; i++) {
+            if (moveNames[i] == "Rehydrate") {
+                currAttack = i;
+                messageList.push_back(name + " used " + moveNames[currAttack]);
+            }
+        }
+    }
 }
 
 IceType::IceType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float inchesOfIceDefense) : Pokemon(name, level, healthOffset, pokeImage) {
     this->inchesOfIceDefense = inchesOfIceDefense;
 
     try {
-        addRandomMove(typeid(*this).name());
-        addRandomMove(typeid(*this).name());
         addRandomMove(typeid(*this).name());
         addRandomMove(typeid(*this).name());
     } catch (string &errorMessage) {

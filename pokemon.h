@@ -46,7 +46,7 @@ public:
 
     void addToExperience(int amount);
 
-    void levelUp();
+    virtual void levelUp();
 
     void setImagePos(int x, int y);
 
@@ -60,6 +60,8 @@ public:
 
     void addRandomMove(string typeID);
 
+    void addMoveByName(string moveName);
+
     vector<string> getMoves();
 
     int getMaxMoveAmount() const;
@@ -68,7 +70,7 @@ public:
 
     int getLevelUpsWithoutNewMove() const;
 
-    void resetLevelUpsWithoutNewMove();
+    void setLevelUpsWithoutNewMove(int num);
 
     /////////////////////////////Review protected and stuff
 protected:
@@ -127,14 +129,19 @@ public:
 
     bool attack(Pokemon* pokemonToAttack) override;
 
+    void pickRandomMove() override;
+
     void setDriedUpPercent(int newPercent);
 
     void displayPokemonAndInfo(SDL_Surface* windowSurf) override;
 
     bool displayAndChooseMoves(SDL_Surface* windowSurf) override;
+
+    void levelUp() override;
 private:
     int percentDriedUp;
     float waterEfficiency;
+    float baseWaterEfficiency;
 };
 
 class IceType : public Pokemon{
