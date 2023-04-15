@@ -213,6 +213,9 @@ int main(int argc, char* argv[]) {
     int bottomLeftQuadrant[2] = {-935, -742};
     int bottomRightQuadrant[2] = {-1230, -742};
 
+    SDL_Surface* pokecenter = IMG_Load("images/p.png");
+    SDL_Rect pokecenterPos = {bgPos.w / 2 - 50, bgPos.h / 2 - 50, 100, 100};
+
     SDL_Surface* textboxIMG = IMG_Load("images/textbox.png");
     SDL_Rect textboxPos = {0, SCREEN_HEIGHT - textboxIMG->h, 0, 0};
 
@@ -427,6 +430,18 @@ int main(int argc, char* argv[]) {
                     SDL_BlitSurface(background, nullptr, windowSurf, &placeHolderRect);
 
                     player->displayPlayer(windowSurf);
+
+                    if ((bgPos.x > -bgPos.w / 2 - pokecenterPos.w / 2 && bgPos.x < -bgPos.w / 2 + SCREEN_WIDTH +
+                            pokecenterPos.w / 2) && (bgPos.y > -bgPos.h / 2 - pokecenterPos.h / 2 && bgPos.y < -bgPos.h
+                                                                            / 2 + SCREEN_HEIGHT + pokecenterPos.h / 2)) {
+
+                        pokecenterPos.x = bgPos.x + background->w / 2 - pokecenterPos.w / 2;
+                        pokecenterPos.y = bgPos.y + background->h / 2 - pokecenterPos.h / 2;
+
+                        placeHolderRect = pokecenterPos;
+
+                        SDL_BlitSurface(pokecenter, nullptr, windowSurf, &placeHolderRect);
+                    }
                 }
             }
             if (inBattle) {
