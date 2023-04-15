@@ -193,7 +193,7 @@ bool Pokemon::checkForLevelUp() const {
 }
 
 void Pokemon::addToExperience(int amount) {
-    experience += 100000;
+    experience += amount;
 }
 
 void Pokemon::levelUp() {
@@ -238,71 +238,76 @@ void Pokemon::addRandomMove(string typeID) {
 
     while (!noDuplicates) {
         fstream fin("moveInfo.txt");
-        fullInfo = "";
-        temp = "";
-        ch = '\0';
-        count = 0;
-        tempName = "";
-        tempPower = 0;
-        tempDescription = "";
-        foundType = false;
-        noDuplicates = true;
-        while (!fin.eof()) {
-            if (foundType && count == fileLine) {
-                if (fullInfo == "Name: ") {
-                    if (ch != ';') {
-                        tempName += ch;
+        if (fin.is_open()) {
+            fullInfo = "";
+            temp = "";
+            ch = '\0';
+            count = 0;
+            tempName = "";
+            tempPower = 0;
+            tempDescription = "";
+            foundType = false;
+            noDuplicates = true;
+            while (!fin.eof()) {
+                if (foundType && count == fileLine) {
+                    if (fullInfo == "Name: ") {
+                        if (ch != ';') {
+                            tempName += ch;
+                        } else {
+                            fullInfo = "";
+                        }
+                    } else if (fullInfo == "Power: ") {
+                        if (ch != ';') {
+                            temp += ch;
+                        } else {
+                            tempPower = stoi(temp);
+                            fullInfo = "";
+                        }
+                    } else if (fullInfo == "Description: ") {
+                        if (ch != ';') {
+                            tempDescription += ch;
+                        } else {
+                            //////////////////////////cout << fileLine << endl;
+                            break;
+                        }
                     } else {
-                        fullInfo = "";
+                        if (ch && (ch != ' ' || !fullInfo.empty())) {
+                            fullInfo += ch;
+                        }
                     }
                 }
-                else if (fullInfo == "Power: "){
-                    if (ch != ';') {
-                        temp += ch;
+
+                if (ch == '\n') {
+                    if (fullInfo != "FireType\n" && fullInfo != "IceType\n" && fullInfo != "GrassType\n" &&
+                        fullInfo != "WaterType\n") {
+                        count++;
                     } else {
-                        tempPower = stoi(temp);
-                        fullInfo = "";
+                        count = 0;
+                        if (fullInfo.substr(0, fullInfo.length() - 1) == typeID.substr(1, typeID.length())) {
+                            foundType = true;
+                        } else {
+                            foundType = false;
+                        }
                     }
+
+                    fullInfo = "";
                 }
-                else if (fullInfo == "Description: "){
-                    if (ch != ';') {
-                        tempDescription += ch;
-                    } else {
-                        //////////////////////////cout << fileLine << endl;
-                        break;
-                    }
-                } else {
-                    if (ch && (ch != ' ' || !fullInfo.empty())) {
-                        fullInfo += ch;
-                    }
+
+                fin >> noskipws >> ch;
+
+                if (!foundType) {
+                    fullInfo += ch;
                 }
             }
 
-            if (ch == '\n') {
-                if (fullInfo != "FireType\n" && fullInfo != "IceType\n" && fullInfo != "GrassType\n" && fullInfo != "WaterType\n") {
-                    count++;
-                }
-                else {
-                    count = 0;
-                    if (fullInfo.substr(0, fullInfo.length() - 1) == typeID.substr(1, typeID.length())) {
-                        foundType = true;
-                    }
-                    else {
-                        foundType = false;
-                    }
-                }
-
-                fullInfo = "";
-            }
-
-            fin >> noskipws >> ch;
-
-            if (!foundType) {
-                fullInfo += ch;
-            }
+            fin.close();
+        } else {
+            string errorMessage = "Could not find and open moveInfo.txt file.\n";
+            moveNames.erase(find(moveNames.begin(), moveNames.end(), moveNames[moveNames.size() - 1]));
+            movePower.erase(find(movePower.begin(), movePower.end(), movePower[movePower.size() - 1]));
+            moveDescriptions.erase(find(moveDescriptions.begin(), moveDescriptions.end(), moveDescriptions[moveDescriptions.size() - 1]));
+            throw errorMessage;
         }
-
-        fin.close();
 
         for (string name: moveNames) {
             if (name == tempName) {
@@ -353,54 +358,58 @@ void Pokemon::setLevelUpsWithoutNewMove(int num) {
 
 void Pokemon::addMoveByName(string moveName) {
     fstream fin("moveInfo.txt");
-    char ch;
-    string fullInfo;
-    string moveInfo;
-    string tempPower;
+    if (fin.is_open()) {
+        char ch;
+        string fullInfo;
+        string moveInfo;
+        string tempPower;
 
-    moveNames.push_back("");
-    movePower.push_back(0);
-    moveDescriptions.push_back("");
+        moveNames.push_back("");
+        movePower.push_back(0);
+        moveDescriptions.push_back("");
 
-    while (!fin.eof()) {
-        if (fullInfo == "Name: " + moveName + ";") {
-            if (moveNames[moveNames.size() - 1].empty()) {
-                moveNames[moveNames.size() - 1] = moveName;
-                moveInfo = "";
-            }
-            if (moveInfo == "Power: ") {
-                if (ch != ';') {
-                    tempPower += ch;
-                } else {
-                    movePower[movePower.size() - 1] = stoi(tempPower);
+        while (!fin.eof()) {
+            if (fullInfo == "Name: " + moveName + ";") {
+                if (moveNames[moveNames.size() - 1].empty()) {
+                    moveNames[moveNames.size() - 1] = moveName;
                     moveInfo = "";
                 }
-            } else if (moveInfo == "Description: ") {
-                if (ch != ';') {
-                    moveDescriptions[moveDescriptions.size() - 1] += ch;
+                if (moveInfo == "Power: ") {
+                    if (ch != ';') {
+                        tempPower += ch;
+                    } else {
+                        movePower[movePower.size() - 1] = stoi(tempPower);
+                        moveInfo = "";
+                    }
+                } else if (moveInfo == "Description: ") {
+                    if (ch != ';') {
+                        moveDescriptions[moveDescriptions.size() - 1] += ch;
+                    } else {
+                        break;
+                    }
                 } else {
-                    break;
+                    if ((ch != ' ' || !moveInfo.empty())) {
+                        moveInfo += ch;
+                    }
                 }
-            }
-            else {
-                if ((ch != ' ' || !moveInfo.empty())) {
-                    moveInfo += ch;
+            } else {
+                if (ch && (ch != ' ' || !fullInfo.empty())) {
+                    fullInfo += ch;
                 }
-            }
-        } else {
-            if (ch && (ch != ' ' || !fullInfo.empty())) {
-                fullInfo += ch;
+
+                if (ch == '\n') {
+                    fullInfo = "";
+                }
             }
 
-            if (ch == '\n'){
-                fullInfo = "";
-            }
+            fin >> noskipws >> ch;
         }
 
-        fin >> noskipws >> ch;
+        fin.close();
+    } else {
+        string errorMessage = "Could not find and open moveInfo.txt file.\n";
+        throw errorMessage;
     }
-
-    fin.close();
 
     if (moveNames[moveNames.size() - 1].empty()){
         string errorMessage = "Could not find the move, " + moveName + ".";
@@ -509,6 +518,19 @@ void WaterType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
 }
 
+void WaterType::pickRandomMove() {
+    Pokemon::pickRandomMove();
+
+    if (health == maxHealth && moveNames[currAttack] == "Heal"){
+        if (currAttack == moveNames.size() - 1){
+            currAttack = 0;
+        } else {
+            currAttack++;
+        }
+        messageList[messageList.size() - 1] = name + " used " + moveNames[currAttack];
+    }
+}
+
 GrassType::GrassType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float waterEfficiency) : Pokemon(name, level, healthOffset, pokeImage) {
     this->waterEfficiency = waterEfficiency;
     percentDriedUp = 0;
@@ -544,7 +566,6 @@ bool GrassType::attack(Pokemon* pokemonToAttack) {
         }
     }
     else {
-        cout << movePower[currAttack] << endl;
         setDriedUpPercent(percentDriedUp - movePower[currAttack]);
     }
 
@@ -607,6 +628,7 @@ void GrassType::pickRandomMove() {
             } else {
                 currAttack++;
             }
+            messageList[messageList.size() - 1] = name + " used " + moveNames[currAttack];
         }
     } else {
         for (int i = 0; i < moveNames.size() - 1; i++) {

@@ -139,25 +139,18 @@ int main(int argc, char* argv[]) {
     //------------- Variable initialization -------------\\
     //---------------------------------------------------\\
 
-    //TODO: Pressing:
-    //      Make heal not happen when the pokemon is fully healed
-    //
-    //TODO: Later
-    //      Find out why there is infinant loop if files arent in the debiug folder (txt file) and fix
+    //TODO:
     //      Write new moves in the move txt file
+    //      Make new file for pokemon names
     //      Make death animation (make pokemon go offscreen)
-    //      Make attacks also do things like heal (Review and modify)
-    //      Modify and review type amplifiers like fire temp to attacking
     //      Add pokecenter to heal all pokemon and go when all the player's pokemon faint
     //      Make Art for buttons, pokemon, and battle areas.
     //      Add music and sound effects.
     //      Make Attack animation
     //      Make healing animations
-    //      Make battle enter/exit animation
     //      Make title screen
-    //      Review levelup system and experience stuff;
     //      Refactoring
-    //      Comment everything
+    //      Comment everything and review (balancing and boolean logic for battle animations (like the booleans logic to blit the player when entering a battle))
     //      Going over grade requirements (like deleting dynamics)
 
     //Initialize fonts
@@ -181,36 +174,50 @@ int main(int argc, char* argv[]) {
     const Uint8 *keystates = SDL_GetKeyboardState(nullptr);
 
     fstream fin("moveInfo.txt");
-    char ch;
-    string fullInfo;
-    while (!fin.eof()){
-        fin >> noskipws >> ch;
-        fullInfo += ch;
-        if (ch == '\n'){
-            if (fullInfo != "FireType\n" && fullInfo != "IceType\n" && fullInfo != "GrassType\n" && fullInfo != "WaterType\n") {
-                amountOfMovesPerType++;
+    if (fin.is_open()) {
+        char ch;
+        string fullInfo;
+        while (!fin.eof()) {
+            fin >> noskipws >> ch;
+            fullInfo += ch;
+            if (ch == '\n') {
+                if (fullInfo != "FireType\n" && fullInfo != "IceType\n" && fullInfo != "GrassType\n" &&
+                    fullInfo != "WaterType\n") {
+                    amountOfMovesPerType++;
+                } else if (amountOfMovesPerType > 0) {
+                    break;
+                }
+                fullInfo = "";
             }
-            else if (amountOfMovesPerType > 0){
-                break;
-            }
-            fullInfo = "";
         }
-    }
 
-    if (ch){
-        amountOfMovesPerType++;
-    }
+        if (ch) {
+            amountOfMovesPerType++;
+        }
 
-    fin.close();
+        fin.close();
+    } else {
+        cout << "Could not find and open moveInfo.txt file.\n";
+    }
 
     SDL_Surface* background = IMG_Load("images/background.png");
     SDL_Rect bgPos = {-background->w / 2 + SCREEN_WIDTH / 2, -background->h / 2 + SCREEN_HEIGHT / 2, background->w, background->h};
+
+    SDL_Surface* curtain = IMG_Load("images/curtain.png");
+    SDL_Rect curtainPos = {0, -SCREEN_HEIGHT, curtain->w, curtain->h};
+
+    bool curtainHasDropped = false;
+
+    int topLeftQuadrant[2] = {-935, -422};
+    int topRightQuadrant[2] = {-1230, -422};
+    int bottomLeftQuadrant[2] = {-935, -742};
+    int bottomRightQuadrant[2] = {-1230, -742};
 
     SDL_Surface* textboxIMG = IMG_Load("images/textbox.png");
     SDL_Rect textboxPos = {0, SCREEN_HEIGHT - textboxIMG->h, 0, 0};
 
     Player* player = new Player({SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2, 0, 0});
-    Pokemon* p1 = new IceType("Poki", 1, 0, IMG_Load("images/p.png"), 1.2);
+    Pokemon* p1 = new FireType("Poki", 1, 0, IMG_Load("images/p.png"), 100);
     Pokemon* p2 = new GrassType("Poki2", 1, 0, IMG_Load("images/p.png"), 0.9);
     Pokemon* p3 = new FireType("Poki3", 1, 0, IMG_Load("images/p.png"), 100);
     Pokemon* p4 = new FireType("Poki4", 1, 0, IMG_Load("images/p.png"), 100);
@@ -224,9 +231,6 @@ int main(int argc, char* argv[]) {
     //This exists because SDL's blitting function changes the destination rect's position when blitting, if the
     // position is offscreen
     SDL_Rect placeHolderRect = {0, 0, 0, 0};
-
-    //Surface to display text
-    SDL_Surface *textSurf;
 
     //Text color
     SDL_Color textColor = {255, 255, 255};
@@ -261,7 +265,9 @@ int main(int argc, char* argv[]) {
     player->addToPlayersItems(collectedItem3);
     collectedItem = nullptr;
 
-    float encounterChance = 1.0;
+    float encounterChance = 1;
+
+    bool inEncounterArea;
 
     float runSuccessRate = 0.5;
 
@@ -274,6 +280,8 @@ int main(int argc, char* argv[]) {
     CatchingState catchState = ANIMATION_NOT_FINISHED;
 
     bool playersTurn = true;
+
+    bool hadToForceSwitchPokemon;
 
     bool battleHasBegun = false;
 
@@ -355,61 +363,81 @@ int main(int argc, char* argv[]) {
                     player->setWalking();
             }
 
-            if (!inBattle){
-                //Handles movement inputs
-                handlePlayerMovement(player, bgPos, SCREEN_WIDTH, SCREEN_HEIGHT, keystates);
+            if (!battleHasBegun || (battleIsOver && curtainHasDropped)){
 
-                placeHolderRect = bgPos;
-                SDL_BlitSurface(background, nullptr, windowSurf, &placeHolderRect);
+                if (!inBattle) {
+                    //Handles movement inputs
+                    handlePlayerMovement(player, bgPos, SCREEN_WIDTH, SCREEN_HEIGHT, keystates);
 
-                player->displayPlayer(windowSurf);
+                    currEncounterTime = SDL_GetTicks();
+                    if (currEncounterTime > prevEncounterTime + encounterCheckTime * 1000) {
+                        prevEncounterTime = currEncounterTime;
+                        if (randomChanceRange(outputNum) <= encounterChance) {
 
-                currEncounterTime = SDL_GetTicks();
-                if (currEncounterTime > prevEncounterTime + encounterCheckTime * 1000){
-                    prevEncounterTime = currEncounterTime;
-                    if (randomChanceRange(outputNum) <= encounterChance) {
-                        inBattle = true;
+                            inEncounterArea = true;
+                            float memberOffset = randomChanceRange(outputNum);
 
-                        //Deletes in case wild pokemon points to an existing pokemon
-                        delete wildPokemon;
-                        int wildPokemonLevel = static_cast<int>(player->getTeamAverageLevel() + randomLevelRange(outputNum));
-                        if (wildPokemonLevel <= 0){
-                            wildPokemonLevel = 1;
-                        }
+                            int wildPokemonLevel = static_cast<int>(player->getTeamAverageLevel() +
+                                                                    randomLevelRange(outputNum));
+                            if (wildPokemonLevel <= 0) {
+                                wildPokemonLevel = 1;
+                            }
 
-                        float memberOffset = randomChanceRange(outputNum);
+                            /////////////////////////Maybe rewformat this so that this delete isnt always called
+                            delete wildPokemon;
 
-                        ////////////////////Change this to be based on where the player is on the map
-                        switch (static_cast<int>(randomChanceRange(outputNum) * 4)) {
-                            case 0:
-                                memberOffset *= 100;
-                                wildPokemon = new FireType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 100 + memberOffset);
-                                break;
-                            case 1:
-                                wildPokemon = new WaterType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 1.0 + memberOffset);
-                                break;
-                            case 2:
-                                ////////////////////////////////Do want 100% water efficiency?
-                                if (memberOffset > 0.9){
+
+                            if (bgPos.x > topLeftQuadrant[0] && bgPos.y > topLeftQuadrant[1]) {
+                                wildPokemon = new IceType("Wild Lad", wildPokemonLevel,
+                                                          int(randomLevelRange(outputNum)), IMG_Load("images/p.png"),
+                                                          0.5 + memberOffset);
+                            } else if (bgPos.x < topRightQuadrant[0] && bgPos.y > topRightQuadrant[1]) {
+                                if (memberOffset > 0.9) {
                                     memberOffset = 0.9;
-                                }
-                                else if (memberOffset < 0.1){
+                                } else if (memberOffset < 0.1) {
                                     memberOffset = 0.1;
                                 }
-                                wildPokemon = new GrassType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 1 - memberOffset);
-                                break;
-                            case 3:
-                                wildPokemon = new IceType("Wild Lad", wildPokemonLevel, int(randomLevelRange(outputNum)), IMG_Load("images/p.png"), 0.5 + memberOffset);
+                                wildPokemon = new GrassType("Wild Lad", wildPokemonLevel,
+                                                            int(randomLevelRange(outputNum)), IMG_Load("images/p.png"),
+                                                            1 - memberOffset);
+                            } else if (bgPos.x > bottomLeftQuadrant[0] && bgPos.y < bottomLeftQuadrant[1]) {
+                                wildPokemon = new WaterType("Wild Lad", wildPokemonLevel,
+                                                            int(randomLevelRange(outputNum)), IMG_Load("images/p.png"),
+                                                            1.0 + memberOffset);
+                            } else if (bgPos.x < bottomRightQuadrant[0] && bgPos.y < bottomRightQuadrant[1]) {
+                                memberOffset *= 100;
+                                wildPokemon = new FireType("Wild Lad", wildPokemonLevel,
+                                                           int(randomLevelRange(outputNum)), IMG_Load("images/p.png"),
+                                                           100 + memberOffset);
+                            } else {
+                                inEncounterArea = false;
+                            }
+
+                            if (inEncounterArea) {
+
+                                inBattle = true;
+                                battleIsOver = false;
+
+                            }
                         }
                     }
                 }
+                if (!curtainHasDropped || battleIsOver) {
+                    placeHolderRect = bgPos;
+                    SDL_BlitSurface(background, nullptr, windowSurf, &placeHolderRect);
+
+                    player->displayPlayer(windowSurf);
+                }
             }
-            else {
-                SDL_BlitSurface(textboxIMG, nullptr, windowSurf, &textboxPos);
-                player->getCurrPokemon()->displayPokemonAndInfo(windowSurf);
-                //Check for if the player catches the wild pokemon and wildPokemon gets set to null
-                if (wildPokemon != nullptr) {
-                    wildPokemon->displayPokemonAndInfo(windowSurf);
+            if (inBattle) {
+                if ((battleHasBegun || curtainHasDropped) && (!battleIsOver || !curtainHasDropped)) {
+                    SDL_BlitSurface(textboxIMG, nullptr, windowSurf, &textboxPos);
+                    player->getCurrPokemon()->displayPokemonAndInfo(windowSurf);
+
+                    //Check for if the player catches the wild pokemon and wildPokemon gets set to null
+                    if (wildPokemon != nullptr) {
+                        wildPokemon->displayPokemonAndInfo(windowSurf);
+                    }
                 }
                 if (messageList.empty()) {
                     if (battleHasBegun && !battleIsOver) {
@@ -474,9 +502,18 @@ int main(int argc, char* argv[]) {
                                     }
                                 }
                                 else if (chosenAction == SWITCH_POKEMON){
+
+                                    if (player->getCurrPokemon()->getHealth() == 0){
+                                        hadToForceSwitchPokemon = true;
+                                    }
+
                                     if (!player->switchingPokemon()){
                                         chosenAction = NOT_CHOSEN;
-                                        playersTurn = false;
+                                        if (!hadToForceSwitchPokemon) {
+                                            playersTurn = false;
+                                        } else {
+                                            hadToForceSwitchPokemon = false;
+                                        }
                                     }
                                 }
                                 else if (chosenAction == RUN){
@@ -540,21 +577,57 @@ int main(int argc, char* argv[]) {
                             }
                         }
                     } else if (!battleHasBegun) {
-                        player->getCurrPokemon()->setImagePos(100, 500);
-                        player->getCurrPokemon()->setInfoPos(300, 500);
-                        wildPokemon->setImagePos(1100, 100);
-                        wildPokemon->setInfoPos(400, 100);
-                        ///////////////////////////////////////////////////////Play enter battle animation
-                        messageList.emplace_back("You encountered a wild pokemon!");
-                        ///////////////////////////////Check all NOT_CHOSEN things to see if this one here is necessary
-                        chosenAction = NOT_CHOSEN;
-                        player->resetBattleMenu();
-                        battleHasBegun = true;
-                        battleIsOver = false;
+                        if (!curtainHasDropped && curtainPos.y != 0){
+                            curtainPos.y /= 1.2;
+                            placeHolderRect = curtainPos;
+                            SDL_BlitSurface(curtain, nullptr, windowSurf, &placeHolderRect);
+
+                            if (curtainPos.y > -1){
+                                curtainPos.y = -2;
+                                player->getCurrPokemon()->setImagePos(100, 500);
+                                player->getCurrPokemon()->setInfoPos(300, 500);
+                                wildPokemon->setImagePos(1100, 100);
+                                wildPokemon->setInfoPos(400, 100);
+                                curtainHasDropped = true;
+                            }
+                        } else if (curtainHasDropped && curtainPos.y != -SCREEN_HEIGHT){
+                            curtainPos.y /= 0.65;
+                            placeHolderRect = curtainPos;
+                            SDL_BlitSurface(curtain, nullptr, windowSurf, &placeHolderRect);
+
+                            if (curtainPos.y < -SCREEN_HEIGHT){
+                                curtainPos.y = -SCREEN_HEIGHT;
+                                curtainHasDropped = false;
+                                ///////////////////////////////////////////////////////Play enter battle animation (done-ish)
+                                messageList.emplace_back("You encountered a wild pokemon!");
+                                ///////////////////////////////Check all NOT_CHOSEN things to see if this one here is necessary
+                                chosenAction = NOT_CHOSEN;
+                                player->resetBattleMenu();
+                                battleHasBegun = true;
+                                battleIsOver = false;
+                            }
+                        }
                     } else {
-                        ////////////////////////////////////////////////////////Play exit battle animation
-                        inBattle = false;
-                        battleHasBegun = false;
+                        if (!curtainHasDropped && curtainPos.y != 0) {
+                            curtainPos.y /= 1.2;
+                            placeHolderRect = curtainPos;
+                            SDL_BlitSurface(curtain, nullptr, windowSurf, &placeHolderRect);
+                            if (curtainPos.y > -1) {
+                                curtainPos.y = -2;
+                                curtainHasDropped = true;
+                            }
+                        } else if (curtainHasDropped && curtainPos.y != -SCREEN_HEIGHT) {
+                            curtainPos.y /= 0.65;
+                            placeHolderRect = curtainPos;
+                            SDL_BlitSurface(curtain, nullptr, windowSurf, &placeHolderRect);
+                            if (curtainPos.y < -SCREEN_HEIGHT) {
+                                curtainPos.y = -SCREEN_HEIGHT;
+                                inBattle = false;
+                                battleHasBegun = false;
+                                curtainHasDropped = false;
+                                prevEncounterTime = SDL_GetTicks();
+                            }
+                        }
                     }
                 }
                 else {
@@ -594,11 +667,9 @@ int main(int argc, char* argv[]) {
         SDL_RenderPresent(renderer);
     }
 
-    //////////////////////////////////////Investigate exit code not zero because of this sometimes
-    ////////////////////////////////////////////Also check for other surfaces that don't get freed like the item surfs
+    ////////////////////////////////////////////Also check for other surfaces that don't get freed like the item surfs and textbox surf
     //Frees surfaces
     SDL_FreeSurface(windowSurf);
-    SDL_FreeSurface(textSurf);
 
     //Destroys textures
     SDL_DestroyTexture(windowTexture);
@@ -606,10 +677,7 @@ int main(int argc, char* argv[]) {
     //Deletes player
     delete player;
 
-    //Checks if wildPokemon is still pointing to a Pokemon and deletes it
-    if (wildPokemon != nullptr){
-        delete wildPokemon;
-    }
+    delete wildPokemon;
 
     //Close the font that was used
     TTF_CloseFont(smallFont);

@@ -84,7 +84,7 @@ CatchingState Player::tryCatchingPokemon(Pokemon* pokemonToCatch) {
 
     if (catchingChancesCount != TOTAL_CATCHING_CHANCES){
         catchProbability = float(0.5 - pokemonToCatch->getHealthPercent()) + float(0.1 * (float(getTeamAverageLevel()) / float(pokemonToCatch->getLevel())));
-        cout << catchProbability << endl;
+        ////////////cout << catchProbability << endl;
         if (randomRange(outputNum) < catchProbability){
             addToPlayersPokemon(pokemonToCatch);
             removeFromPlayersPokeballs(currPokeball);
@@ -235,7 +235,6 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
         case USE_ITEM:
             //////////////////////////////////////////////////////Display item descriptions
             if (!playersItems.empty()){
-                cout << currItem << endl;
                 playersItems[currItem][0]->displayDescription(windowSurf);
 
                 //Not if else statements because the other button images would dispensary if another one was pressed
@@ -433,11 +432,9 @@ void Player::checkForLevelUps() {
 
                 const float CHANCE_TO_LEARN_NEW_MOVE = 0.1;
                 const int MAX_LEVEL_UPS_WITHOUT_NEW_MOVE = 5;
-                cout << pokemon->getLevelUpsWithoutNewMove() << " " << pokemon->getName() << endl;
 
                 if (randomChanceRange(outputNum) <= CHANCE_TO_LEARN_NEW_MOVE || pokemon->getLevelUpsWithoutNewMove() >= MAX_LEVEL_UPS_WITHOUT_NEW_MOVE) {
                     try {
-                        cout << "New move being added." << pokemon->getName() << endl;
                         pokemon->addRandomMove(typeid(*pokemon).name());
                         messageList.push_back(pokemon->getName() + " learned " + pokemon->getMoves()[moveCount]);
                         pokemon->setLevelUpsWithoutNewMove(0);

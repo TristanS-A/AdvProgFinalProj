@@ -116,6 +116,8 @@ public:
 
     bool attack(Pokemon* pokemonToAttack) override;
 
+    void pickRandomMove() override;
+
     void displayPokemonAndInfo(SDL_Surface* windowSurf) override;
 
     bool displayAndChooseMoves(SDL_Surface* windowSurf) override;
