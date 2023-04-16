@@ -109,6 +109,12 @@ void Pokemon::addToHealth(int amount) {
     }
 }
 
+void Pokemon::restore() {
+    health = maxHealth;
+    ////////////////Put sp full here if implemented
+}
+
+
 int Pokemon::getHealth() const {
     return health;
 }
@@ -126,7 +132,9 @@ int Pokemon::getLevel() const {
 }
 
 void Pokemon::displayPokemonAndInfo(SDL_Surface *windowSurf) {
-    ////////////////////////////////////////////////Maybe also make an image for pokemon info
+    int spaceing = 30;
+    SDL_Rect offset = {infoDestination.x - spaceing, infoDestination.y - spaceing, 0, 0};
+    SDL_BlitSurface(pokeInfoBG, nullptr, windowSurf, &offset);
     SDL_BlitSurface(pokeImage, nullptr, windowSurf, &pokeRect);
 
     string pokeInfo = getName() + "    " + to_string(getHealth()) + "/" + to_string(maxHealth) + " HP";
@@ -135,10 +143,10 @@ void Pokemon::displayPokemonAndInfo(SDL_Surface *windowSurf) {
 
     ////////////////////////////////////////////////////Maybe clean this up
     pokeInfo = "Level: " + to_string(getLevel());
-    int spacing = 50;
-    SDL_Rect nextLine = {infoDestination.x, infoDestination.y + spacing, 0, 0};
+    spaceing = 50;
+    offset = {infoDestination.x, infoDestination.y + spaceing, 0, 0};
     textSurf = TTF_RenderText_Solid(mediumFont, (pokeInfo).c_str(), {255, 255, 255});
-    SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
+    SDL_BlitSurface(textSurf, nullptr, windowSurf, &offset);
 }
 
 void Pokemon::displayPokemonInfoButton(SDL_Surface* windowSurf, SDL_Rect destRect) {
@@ -638,6 +646,11 @@ void GrassType::pickRandomMove() {
             }
         }
     }
+}
+
+void GrassType::restore() {
+    Pokemon::restore();
+    percentDriedUp = 0;
 }
 
 IceType::IceType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float inchesOfIceDefense) : Pokemon(name, level, healthOffset, pokeImage) {

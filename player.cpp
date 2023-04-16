@@ -184,6 +184,10 @@ Pokemon* Player::getCurrPokemon() {
     return currPokemon;
 }
 
+vector<Pokemon *> Player::getAllPokemon() {
+    return playersPokemon;
+}
+
 bool Player::noOtherHealthyPokemon() {
     bool noMorePokemon = true;
     for (Pokemon* pokemon : playersPokemon){
@@ -208,19 +212,19 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
     ///////////////////////////////////////////////////////////Maybe add random text for how the currPokemon is doing
     switch (chosenAction){
         case NOT_CHOSEN:
-            if (currPokemon->getHealth() > 0 && checkForClickAndDisplayButton({120, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
+            if (currPokemon->getHealth() > 0 && checkForClickAndDisplayButton({120, 650, 200, 100}, windowSurf, attackButtonIMG, attackButtonHoverIMG) == PRESSED){
                 chosenAction = ATTACKING;
             }
-            else if (currPokemon->getHealth() > 0 && checkForClickAndDisplayButton({370, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
+            else if (currPokemon->getHealth() > 0 && checkForClickAndDisplayButton({370, 650, 200, 100}, windowSurf, itemsButtonIMG, itemsButtonHoverIMG) == PRESSED){
                 chosenAction = USE_ITEM;
             }
-            else if (currPokemon->getHealth() > 0 && checkForClickAndDisplayButton({620, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
+            else if (currPokemon->getHealth() > 0 && checkForClickAndDisplayButton({620, 650, 200, 100}, windowSurf, catchButtonIMG, catchButtonHoverIMG) == PRESSED){
                 chosenAction = CATCH;
             }
-            else if (checkForClickAndDisplayButton({870, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED || currPokemon->getHealth() <= 0){
+            else if (checkForClickAndDisplayButton({870, 650, 200, 100}, windowSurf, swapButtonIMG, swapButtonHoverIMG) == PRESSED || currPokemon->getHealth() <= 0){
                 chosenAction = SWITCH_POKEMON;
             }
-            else if (currPokemon->getHealth() > 0 && checkForClickAndDisplayButton({1120, 650, 200, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
+            else if (currPokemon->getHealth() > 0 && checkForClickAndDisplayButton({1120, 650, 200, 100}, windowSurf, runButtonIMG, runButtonHoverIMG) == PRESSED){
                 chosenAction = RUN;
             }
             break;
@@ -238,10 +242,10 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
                 playersItems[currItem][0]->displayDescription(windowSurf);
 
                 //Not if else statements because the other button images would dispensary if another one was pressed
-                if (currItem < playersItems.size() - 1 && checkForClickAndDisplayButton({1280, 655, 50, 50}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
+                if (currItem < playersItems.size() - 1 && checkForClickAndDisplayButton({1280, 655, 50, 50}, windowSurf, rightButtonIMG, rightButtonHoverIMG) == PRESSED){
                     currItem++;
                 }
-                if (currItem > 0 && checkForClickAndDisplayButton({1110, 655, 50, 50}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
+                if (currItem > 0 && checkForClickAndDisplayButton({1110, 655, 50, 50}, windowSurf, leftButtonIMG, leftButtonHoverIMG) == PRESSED){
                     currItem--;
                 }
                 if (checkForClickAndDisplayButton({1170, 630, 100, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){

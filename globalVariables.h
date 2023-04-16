@@ -35,6 +35,12 @@ extern bool mouseDown;
 //To keep track of if the mouse button is being held down
 extern bool mouseHeldDown;
 
+//So that holding down a key will not skip through messages
+extern bool noSkip;
+
+//Sets up key presses
+extern const Uint8 *keystates;
+
 //To send messages in battle;
 extern vector<string> messageList;
 
@@ -47,5 +53,28 @@ extern SDL_Surface* buttonHoverIMG;
 extern SDL_Surface* backButtonIMG;
 
 extern SDL_Surface* backButtonHoverIMG;
+
+extern SDL_Surface* attackButtonIMG;
+extern SDL_Surface* attackButtonHoverIMG;
+
+extern SDL_Surface* itemsButtonIMG;
+extern SDL_Surface* itemsButtonHoverIMG;
+
+extern SDL_Surface* catchButtonIMG;
+extern SDL_Surface* catchButtonHoverIMG;
+
+extern SDL_Surface* swapButtonIMG;
+extern SDL_Surface* swapButtonHoverIMG;
+
+extern SDL_Surface* runButtonIMG;
+extern SDL_Surface* runButtonHoverIMG;
+
+extern SDL_Surface* leftButtonIMG;
+extern SDL_Surface* leftButtonHoverIMG;
+
+extern SDL_Surface* rightButtonIMG;
+extern SDL_Surface* rightButtonHoverIMG;
+
+extern SDL_Surface* pokeInfoBG;
 
 #endif //ADVPROGFINPROJ_GLOBALVARIABLES_H

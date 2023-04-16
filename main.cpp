@@ -11,6 +11,7 @@
 #include "pokemon.h"
 #include "items.h"
 #include "globalVariables.h"
+#include "showMessages.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -22,11 +23,6 @@ using namespace std;
 #define SCREEN_WIDTH    1440
 #define SCREEN_HEIGHT   810
 
-void showMessages(string messageToSend, SDL_Surface* windowSurf){
-    SDL_Surface *textSurf = TTF_RenderText_Solid(mediumFont, messageToSend.c_str(), {255, 255, 255});
-    SDL_Rect dest = {100, 650, 0, 0};
-    SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
-}
 int main(int argc, char* argv[]) {
 
     //--------------------------------------\\
@@ -139,19 +135,22 @@ int main(int argc, char* argv[]) {
     //------------- Variable initialization -------------\\
     //---------------------------------------------------\\
 
-    //TODO:
+    //TODO: Need to
     //      Write new moves in the move txt file
     //      Make new file for pokemon names
-    //      Make death animation (make pokemon go offscreen)
-    //      Add pokecenter to heal all pokemon and go when all the player's pokemon faint
-    //      Make Art for buttons, pokemon, and battle areas.
-    //      Add music and sound effects.
-    //      Make Attack animation
-    //      Make healing animations
+    //      Make Art for items and pokemon.
     //      Make title screen
     //      Refactoring
     //      Comment everything and review (balancing and boolean logic for battle animations (like the booleans logic to blit the player when entering a battle))
     //      Going over grade requirements (like deleting dynamics)
+    //
+    //TODO: Maybe
+    //      Add music and sound effects.
+    //      Add sp so that big moves cannot be used every turn maybe.
+    //      Make death animation (make pokemon go offscreen)
+    //      Make Attack animation
+    //      Make healing animations
+
 
     //Initialize fonts
     smallFont = TTF_OpenFont("fonts/font.ttf", SMALL_FONT_SIZE);
@@ -168,10 +167,6 @@ int main(int argc, char* argv[]) {
     if (!largeFont){
         cout << "Large font could not be opened\n";
     }
-
-
-    //Sets up key presses
-    const Uint8 *keystates = SDL_GetKeyboardState(nullptr);
 
     fstream fin("moveInfo.txt");
     if (fin.is_open()) {
@@ -203,6 +198,12 @@ int main(int argc, char* argv[]) {
     SDL_Surface* background = IMG_Load("images/background.png");
     SDL_Rect bgPos = {-background->w / 2 + SCREEN_WIDTH / 2, -background->h / 2 + SCREEN_HEIGHT / 2, background->w, background->h};
 
+    SDL_Surface* battleBackground_Forest = IMG_Load("images/battleBG_Grass.png");
+    SDL_Surface* battleBackground_Swamp = IMG_Load("images/battleBG_Swamp.png");
+    SDL_Surface* battleBackground_Snow = IMG_Load("images/battleBG_Snow.png");
+    SDL_Surface* battleBackground_Fire = IMG_Load("images/battleBG_Fire.png");
+    SDL_Surface* currBattleBackground;
+
     SDL_Surface* curtain = IMG_Load("images/curtain.png");
     SDL_Rect curtainPos = {0, -SCREEN_HEIGHT, curtain->w, curtain->h};
 
@@ -215,6 +216,8 @@ int main(int argc, char* argv[]) {
 
     SDL_Surface* pokecenter = IMG_Load("images/p.png");
     SDL_Rect pokecenterPos = {bgPos.w / 2 - 50, bgPos.h / 2 - 50, 100, 100};
+
+    SDL_Surface* spaceButton = IMG_Load("images/spaceButton.png");
 
     SDL_Surface* textboxIMG = IMG_Load("images/textbox.png");
     SDL_Rect textboxPos = {0, SCREEN_HEIGHT - textboxIMG->h, 0, 0};
@@ -290,10 +293,6 @@ int main(int argc, char* argv[]) {
 
     bool battleIsOver = false;
 
-    bool noSkip = true;
-
-    int currMessage = 0;
-
     Uint32 currEncounterTime;
     Uint32 prevEncounterTime = 0;
 
@@ -368,64 +367,72 @@ int main(int argc, char* argv[]) {
 
             if (!battleHasBegun || (battleIsOver && curtainHasDropped)){
 
-                if (!inBattle) {
+                if (!inBattle && messageList.empty()) {
+
                     //Handles movement inputs
                     handlePlayerMovement(player, bgPos, SCREEN_WIDTH, SCREEN_HEIGHT, keystates);
 
-                    currEncounterTime = SDL_GetTicks();
-                    if (currEncounterTime > prevEncounterTime + encounterCheckTime * 1000) {
-                        prevEncounterTime = currEncounterTime;
-                        if (randomChanceRange(outputNum) <= encounterChance) {
+                    if ((bgPos.x > topLeftQuadrant[0] && bgPos.y > topLeftQuadrant[1]) ||
+                                    (bgPos.x < topRightQuadrant[0] && bgPos.y > topRightQuadrant[1]) ||
+                                            (bgPos.x > bottomLeftQuadrant[0] && bgPos.y < bottomLeftQuadrant[1]) ||
+                                                (bgPos.x < bottomRightQuadrant[0] && bgPos.y < bottomRightQuadrant[1])) {
 
-                            inEncounterArea = true;
-                            float memberOffset = randomChanceRange(outputNum);
+                        currEncounterTime = SDL_GetTicks();
+                        if (currEncounterTime > prevEncounterTime + encounterCheckTime * 1000) {
+                            prevEncounterTime = currEncounterTime;
+                            if (randomChanceRange(outputNum) <= encounterChance) {
 
-                            int wildPokemonLevel = static_cast<int>(player->getTeamAverageLevel() +
-                                                                    randomLevelRange(outputNum));
-                            if (wildPokemonLevel <= 0) {
-                                wildPokemonLevel = 1;
-                            }
+                                float memberOffset = randomChanceRange(outputNum);
 
-                            /////////////////////////Maybe rewformat this so that this delete isnt always called
-                            delete wildPokemon;
-
-
-                            if (bgPos.x > topLeftQuadrant[0] && bgPos.y > topLeftQuadrant[1]) {
-                                wildPokemon = new IceType("Wild Lad", wildPokemonLevel,
-                                                          int(randomLevelRange(outputNum)), IMG_Load("images/p.png"),
-                                                          0.5 + memberOffset);
-                            } else if (bgPos.x < topRightQuadrant[0] && bgPos.y > topRightQuadrant[1]) {
-                                if (memberOffset > 0.9) {
-                                    memberOffset = 0.9;
-                                } else if (memberOffset < 0.1) {
-                                    memberOffset = 0.1;
+                                int wildPokemonLevel = static_cast<int>(player->getTeamAverageLevel() +
+                                                                        randomLevelRange(outputNum));
+                                if (wildPokemonLevel <= 0) {
+                                    wildPokemonLevel = 1;
                                 }
-                                wildPokemon = new GrassType("Wild Lad", wildPokemonLevel,
-                                                            int(randomLevelRange(outputNum)), IMG_Load("images/p.png"),
-                                                            1 - memberOffset);
-                            } else if (bgPos.x > bottomLeftQuadrant[0] && bgPos.y < bottomLeftQuadrant[1]) {
-                                wildPokemon = new WaterType("Wild Lad", wildPokemonLevel,
-                                                            int(randomLevelRange(outputNum)), IMG_Load("images/p.png"),
-                                                            1.0 + memberOffset);
-                            } else if (bgPos.x < bottomRightQuadrant[0] && bgPos.y < bottomRightQuadrant[1]) {
-                                memberOffset *= 100;
-                                wildPokemon = new FireType("Wild Lad", wildPokemonLevel,
-                                                           int(randomLevelRange(outputNum)), IMG_Load("images/p.png"),
-                                                           100 + memberOffset);
-                            } else {
-                                inEncounterArea = false;
-                            }
 
-                            if (inEncounterArea) {
+                                delete wildPokemon;
+                                wildPokemon = nullptr;
 
+
+                                if (bgPos.x > topLeftQuadrant[0] && bgPos.y > topLeftQuadrant[1]) {
+                                    wildPokemon = new IceType("Wild Lad", wildPokemonLevel,
+                                                              int(randomLevelRange(outputNum)),
+                                                              IMG_Load("images/p.png"),
+                                                              0.5 + memberOffset);
+                                    currBattleBackground = battleBackground_Snow;
+                                } else if (bgPos.x < topRightQuadrant[0] && bgPos.y > topRightQuadrant[1]) {
+                                    if (memberOffset > 0.9) {
+                                        memberOffset = 0.9;
+                                    } else if (memberOffset < 0.1) {
+                                        memberOffset = 0.1;
+                                    }
+                                    wildPokemon = new GrassType("Wild Lad", wildPokemonLevel,
+                                                                int(randomLevelRange(outputNum)),
+                                                                IMG_Load("images/p.png"),
+                                                                1 - memberOffset);
+                                    currBattleBackground = battleBackground_Forest;
+                                } else if (bgPos.x > bottomLeftQuadrant[0] && bgPos.y < bottomLeftQuadrant[1]) {
+                                    wildPokemon = new WaterType("Wild Lad", wildPokemonLevel,
+                                                                int(randomLevelRange(outputNum)),
+                                                                IMG_Load("images/p.png"),
+                                                                1.0 + memberOffset);
+                                    currBattleBackground = battleBackground_Swamp;
+                                } else if (bgPos.x < bottomRightQuadrant[0] && bgPos.y < bottomRightQuadrant[1]) {
+                                    memberOffset *= 100;
+                                    wildPokemon = new FireType("Wild Lad", wildPokemonLevel,
+                                                               int(randomLevelRange(outputNum)),
+                                                               IMG_Load("images/p.png"),
+                                                               100 + memberOffset);
+                                    currBattleBackground = battleBackground_Fire;
+                                }
                                 inBattle = true;
                                 battleIsOver = false;
-
                             }
                         }
                     }
                 }
                 if (!curtainHasDropped || battleIsOver) {
+
                     placeHolderRect = bgPos;
                     SDL_BlitSurface(background, nullptr, windowSurf, &placeHolderRect);
 
@@ -441,11 +448,33 @@ int main(int argc, char* argv[]) {
                         placeHolderRect = pokecenterPos;
 
                         SDL_BlitSurface(pokecenter, nullptr, windowSurf, &placeHolderRect);
+                        if ((bgPos.x > -bgPos.w / 2 + SCREEN_WIDTH / 2 -
+                                       pokecenterPos.w && bgPos.x < -bgPos.w / 2 + SCREEN_WIDTH / 2 +
+                                                                    pokecenterPos.w) && (bgPos.y < -bgPos.h / 2 + SCREEN_HEIGHT / 2
+                                                                                                   + pokecenterPos.h && bgPos.y > -bgPos.h / 2 + SCREEN_HEIGHT / 2 -
+                                                                                                                                  pokecenterPos.h)){
+                            if (keystates[SDL_SCANCODE_SPACE] || !messageList.empty() || (player->noOtherHealthyPokemon() && player->getCurrPokemon()->getHealth() == 0 && !curtainHasDropped)){
+                                if (messageList.empty()){
+                                    for (Pokemon* pokemon : player->getAllPokemon()){
+                                        pokemon->restore();
+                                    }
+                                    messageList.emplace_back("You healed up all your Pokemon!");
+                                } else {
+                                    SDL_BlitSurface(textboxIMG, nullptr, windowSurf, &textboxPos);
+                                    showMessages(messageList, windowSurf);
+                                }
+                            } else {
+                                placeHolderRect = {pokecenterPos.x + pokecenterPos.w / 2 - spaceButton->w / 2, pokecenterPos.y - spaceButton->h, 0, 0};
+                                SDL_BlitSurface(spaceButton, nullptr, windowSurf, &placeHolderRect);
+                            }
+                        }
                     }
                 }
             }
             if (inBattle) {
                 if ((battleHasBegun || curtainHasDropped) && (!battleIsOver || !curtainHasDropped)) {
+                    placeHolderRect = { 0, 0, 0, 0};
+                    SDL_BlitSurface(currBattleBackground, nullptr, windowSurf, &placeHolderRect);
                     SDL_BlitSurface(textboxIMG, nullptr, windowSurf, &textboxPos);
                     player->getCurrPokemon()->displayPokemonAndInfo(windowSurf);
 
@@ -484,6 +513,9 @@ int main(int argc, char* argv[]) {
                                                     battleIsOver = true;
                                                     //////////////////////////////////////////////Calculate experience
                                                     messageList.push_back("You lost...");
+                                                    messageList.push_back("You quickly ran to the Pokecenter, carrying your Pokemon.");
+                                                    player->setPlayerPos(SCREEN_WIDTH / 2 - player->getPlayerRect().w / 2, SCREEN_HEIGHT / 2 - player->getPlayerRect().h / 2);                                                    bgPos.x = -bgPos.w / 2 + SCREEN_WIDTH / 2;
+                                                    bgPos.y = -bgPos.h / 2 + SCREEN_HEIGHT / 2;
                                                 }
                                                 else {
                                                     player->resetBattleMenu();
@@ -567,6 +599,10 @@ int main(int argc, char* argv[]) {
                                                 battleIsOver = true;
                                                 //////////////////////////////////////////////Calculate experience
                                                 messageList.push_back("You lost...");
+                                                messageList.push_back("You quickly ran to the Pokecenter, carrying your Pokemon.");
+                                                player->setPlayerPos(SCREEN_WIDTH / 2 - player->getPlayerRect().w / 2, SCREEN_HEIGHT / 2 - player->getPlayerRect().h / 2);
+                                                bgPos.x = -bgPos.w / 2 + SCREEN_WIDTH / 2;
+                                                bgPos.y = -bgPos.h / 2 + SCREEN_HEIGHT / 2;
                                             }
                                             else {
                                                 player->resetBattleMenu();
@@ -599,10 +635,10 @@ int main(int argc, char* argv[]) {
 
                             if (curtainPos.y > -1){
                                 curtainPos.y = -2;
-                                player->getCurrPokemon()->setImagePos(100, 500);
-                                player->getCurrPokemon()->setInfoPos(300, 500);
-                                wildPokemon->setImagePos(1100, 100);
-                                wildPokemon->setInfoPos(400, 100);
+                                player->getCurrPokemon()->setImagePos(200, 500);
+                                player->getCurrPokemon()->setInfoPos(500, 490);
+                                wildPokemon->setImagePos(1050, 150);
+                                wildPokemon->setInfoPos(100, 100);
                                 curtainHasDropped = true;
                             }
                         } else if (curtainHasDropped && curtainPos.y != -SCREEN_HEIGHT){
@@ -646,21 +682,7 @@ int main(int argc, char* argv[]) {
                     }
                 }
                 else {
-                    if (currMessage < messageList.size()) {
-                        showMessages(messageList[currMessage], windowSurf);
-
-                        if (keystates[SDL_SCANCODE_N] && !noSkip) {
-                            currMessage++;
-                            noSkip = true;
-                        } else if (!keystates[SDL_SCANCODE_N]) {
-                            noSkip = false;
-                        }
-                    }
-                    else {
-                        noSkip = true;
-                        currMessage = 0;
-                        messageList.clear();
-                    }
+                    showMessages(messageList, windowSurf);
                 }
             }
 

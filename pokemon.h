@@ -32,6 +32,8 @@ public:
 
     virtual void addToHealth(int amount);
 
+    virtual void restore();
+
     int getHealth() const;
 
     float getHealthPercent() const;
@@ -140,6 +142,8 @@ public:
     bool displayAndChooseMoves(SDL_Surface* windowSurf) override;
 
     void levelUp() override;
+
+    void restore() override;
 private:
     int percentDriedUp;
     float waterEfficiency;

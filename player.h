@@ -60,6 +60,8 @@ public:
 
     Pokemon* getCurrPokemon();
 
+    vector<Pokemon*> getAllPokemon();
+
     bool allPokemonHealthy();
 
     bool noOtherHealthyPokemon();
