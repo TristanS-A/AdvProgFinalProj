@@ -1,12 +1,12 @@
 FireType
-Name: Double Kick; Power: 10; Description: The pokemon kicks the enemie twice;
-Name: Double Kick2; Power: 12; Description: The pokemon kicks the enemie twice2;
+Name: Heat Wave; Power: 5; Description: The pokemon blasts the enemie with a wave of heat;
+Name: Flame Kick; Power: 10; Description: The pokemon attacks the enemie with a fiery kick;
 WaterType
-Name: Heal; Power: 10; Description: The pokemon kicks the enemie twice;
-Name: Water Kick2; Power: 12; Description: The pokemon kicks the enemie twice2;
+Name: Heal; Power: 20; Description: The pokemon restores HP in relation to its mineral value;
+Name: Splash; Power: 5; Description: The pokemon rapidly splashes water at the enemie;
 GrassType
-Name: Rehydrate; Power: 10; Description: The pokemon kicks the enemie twice;
-Name: Grass Kick2; Power: 12; Description: The pokemon kicks the enemie twice2;
+Name: Rehydrate; Power: 30; Description: The pokemon restores its water levels;
+Name: Jab; Power: 8; Description: The pokemon jabs at the enemie with a stick or branch;
 IceType
-Name: Ice Kick; Power: 10; Description: The pokemon kicks the enemie twice;
-Name: Ice Kick2; Power: 12; Description: The pokemon kicks the enemie twice2;
+Name: Ice Beam; Power: 20; Description: The pokemon shoots a freezing beam at the enemie;
+Name: Chilling Grip; Power: 10; Description: The pokemon grasps the enemie with a strong freezing grip;

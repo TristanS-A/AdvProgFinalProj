@@ -46,6 +46,8 @@ extern vector<string> messageList;
 
 extern int amountOfMovesPerType;
 
+extern int amountOfNamesPerType;
+
 extern SDL_Surface* buttonIMG;
 
 extern SDL_Surface* buttonHoverIMG;

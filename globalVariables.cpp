@@ -39,6 +39,8 @@ vector<string> messageList;
 
 int amountOfMovesPerType = 0;
 
+int amountOfNamesPerType = 0;
+
 SDL_Surface* buttonIMG = IMG_Load("images/button.png");
 
 SDL_Surface* buttonHoverIMG = IMG_Load("images/buttonHover.png");

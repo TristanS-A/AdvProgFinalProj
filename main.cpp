@@ -12,6 +12,7 @@
 #include "items.h"
 #include "globalVariables.h"
 #include "showMessages.h"
+#include "pokemonNameHandler.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -136,8 +137,8 @@ int main(int argc, char* argv[]) {
     //---------------------------------------------------\\
 
     //TODO: Need to
-    //      Write new moves in the move txt file
-    //      Make new file for pokemon names
+    //      Add display for base attack power to attacks
+    //      Write new moves in the move txt file and more names in the names file
     //      Make Art for items and pokemon.
     //      Make title screen
     //      Refactoring
@@ -186,13 +187,32 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        if (ch) {
-            amountOfMovesPerType++;
+        fin.close();
+    } else {
+        cout << "Could not find and open moveInfo.txt file.\n";
+    }
+
+    fin.open("nameList.txt");
+    if (fin.is_open()) {
+        char ch;
+        string fullInfo;
+        while (!fin.eof()) {
+            fin >> noskipws >> ch;
+            fullInfo += ch;
+            if (ch == '\n') {
+                if (fullInfo != "FireType\n" && fullInfo != "IceType\n" && fullInfo != "GrassType\n" &&
+                    fullInfo != "WaterType\n") {
+                    amountOfNamesPerType++;
+                } else if (amountOfNamesPerType > 0) {
+                    break;
+                }
+                fullInfo = "";
+            }
         }
 
         fin.close();
     } else {
-        cout << "Could not find and open moveInfo.txt file.\n";
+        cout << "Could not find and open nameList.txt file.\n";
     }
 
     SDL_Surface* background = IMG_Load("images/background.png");
@@ -273,8 +293,6 @@ int main(int argc, char* argv[]) {
 
     float encounterChance = 1;
 
-    bool inEncounterArea;
-
     float runSuccessRate = 0.5;
 
     int encounterCheckTime = 1;
@@ -308,6 +326,12 @@ int main(int argc, char* argv[]) {
     player->addToPlayersPokeballs(pe);
 
     bool inBattle = false;
+
+    try {
+        cout << getRandomName(typeid(GrassType).name());
+    } catch (string message){
+        cout << message << endl;
+    }
 
     //-------------------------------------\\
     //------------- Game Loop -------------\\
