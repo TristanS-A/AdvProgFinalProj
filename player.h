@@ -50,9 +50,9 @@ public:
 
     void removeFromPlayersItems(Item* item);
 
-    void addToPlayersPokeballs(Item* pokeball);
+    void addToPlayersPokeballs(Pokeball* pokeball);
 
-    void removeFromPlayersPokeballs(Item* pokeball);
+    void removeFromPlayersPokeballs(Pokeball* pokeball);
 
     Item* getCurrItem();
 
@@ -88,14 +88,15 @@ private:
     vector<Pokemon*> playersPokemon;
     Pokemon* currPokemon;
     Pokemon* pokemonToSwapTo;
-    vector<vector<Item*>> playersPokeballs;
+    vector<vector<Pokeball*>> playersPokeballs;
     bool canDoAction = false;
     int catchingChancesCount = 0;
     const int TOTAL_CATCHING_CHANCES = 3;
     float catchProbability;
-    Item* currPokeball;
+    Pokeball* currPokeball;
     PlayerAction chosenAction;
-    const int MAX_ITEMS = 20;
+    const int MAX_ITEMS = 10;
+    const int MAX_POKEBALLS = 10;
     vector<vector<Item*>> playersItems;
     int currItem = 0;
 };

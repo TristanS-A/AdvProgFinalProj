@@ -2,7 +2,7 @@ FireType
 Charchi;
 Embi;
 Lizfi;
-Sentiscorch;
+Sentalscorch;
 WaterType
 Aquersa;
 Splooshy;
@@ -17,4 +17,4 @@ IceType
 Chillskull;
 Frenski;
 Ignila;
-Frosbee;
+Frosbi;

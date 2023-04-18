@@ -8,13 +8,40 @@
 #include <iostream>
 #include <random>
 #include <algorithm>
+#include <filesystem>
 
-Pokemon::Pokemon(string name, int level, int healthOffset, SDL_Surface *pokeImage) {
+Pokemon::Pokemon(string name, int level, int healthOffset) {
     this->name = name;
     this->level = level;
     this->health = 20 + LEVEL_BOOST / 2 * level + healthOffset;
     this->maxHealth = health;
-    this->pokeImage = pokeImage;
+    string filePath = "images/pokemon/"+ name + "Left.png";
+
+    namespace fs = std::filesystem;
+    fs::path f{ filePath };
+
+    if (fs::exists(f)) {
+        this->leftImage = IMG_Load(filePath.c_str());
+        pokeRect = {0, 0, this->leftImage->w, this->leftImage->h};
+
+    } else {
+        cout << "Could not find left image for the name " + name << endl;
+        this->leftImage = IMG_Load("images/m/png");
+    }
+
+    filePath = "images/pokemon/"+ name + "Right.png";
+
+    if (fs::exists(f)) {
+        this->rightImage = IMG_Load(filePath.c_str());
+        pokeRect = {0, 0, this->rightImage->w, this->rightImage->h};
+
+    } else {
+        cout << "Could not find right image for the name " + name << endl;
+        this->rightImage = IMG_Load("images/m/png");
+    }
+
+    pokeImage = leftImage;
+
     pokeRect = {0, 0, this->pokeImage->w, this->pokeImage->h};
     infoDestination = {0, 0, 0, 0};
     baseAttackPower = 1 + ((level - 1.0) / LEVEL_BOOST);
@@ -53,6 +80,13 @@ bool Pokemon::displayAndChooseMoves(SDL_Surface* windowSurf) {
 
         textSurf = TTF_RenderText_Solid(mediumFont, moveNames[i].c_str(), {255, 255, 255});
         SDL_Rect dest = {150 + spacing, 650, 0, 0};
+        SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
+
+        string powerDisplay = "Power: " + to_string(movePower[i]);
+
+        textSurf = TTF_RenderText_Solid(smallFont, powerDisplay.c_str(), {255, 255, 255});
+        dest = {150 + spacing + int(moveNames[i].length() * MEDIUM_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH / 2) -
+                        int(powerDisplay.length() * SMALL_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH / 2.0), 650 + MEDIUM_FONT_SIZE + SMALL_FONT_SIZE / 2, 0, 0};
         SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
 
         spacing += buttonLength + buttonOffset / 2;
@@ -131,8 +165,9 @@ int Pokemon::getLevel() const {
     return level;
 }
 
-void Pokemon::displayPokemonAndInfo(SDL_Surface *windowSurf) {
+void Pokemon::displayPokemonAndInfo(SDL_Surface *windowSurf, bool isPlayersPokemon) {
     int spaceing = 30;
+
     SDL_Rect offset = {infoDestination.x - spaceing, infoDestination.y - spaceing, 0, 0};
     SDL_BlitSurface(pokeInfoBG, nullptr, windowSurf, &offset);
     SDL_BlitSurface(pokeImage, nullptr, windowSurf, &pokeRect);
@@ -428,7 +463,15 @@ void Pokemon::addMoveByName(string moveName) {
     }
 }
 
-FireType::FireType(string name, int level, int healthOffset, SDL_Surface *pokeImage, int fireTemperature) : Pokemon(name, level, healthOffset, pokeImage){
+void Pokemon::setImageFacingRight(bool isFacingLeft) {
+    if (isFacingLeft){
+        pokeImage = leftImage;
+    } else {
+        pokeImage = rightImage;
+    }
+}
+
+FireType::FireType(string name, int level, int healthOffset, int fireTemperature) : Pokemon(name, level, healthOffset){
     this->fireTemperature = fireTemperature;
     try {
         addRandomMove(typeid(*this).name());
@@ -464,8 +507,8 @@ bool FireType::displayAndChooseMoves(SDL_Surface* windowSurf) {
     return Pokemon::displayAndChooseMoves(windowSurf);
 }
 
-void FireType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
-    Pokemon::displayPokemonAndInfo(windowSurf);
+void FireType::displayPokemonAndInfo(SDL_Surface *windowSurf, bool isPlayersPokemon) {
+    Pokemon::displayPokemonAndInfo(windowSurf, isPlayersPokemon);
 
     ///////////////////////////////////////////////////Maybe redo this with global variables
     int spacingY = 50;
@@ -475,7 +518,7 @@ void FireType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
 }
 
-WaterType::WaterType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float mineralValue) : Pokemon(name, level, healthOffset, pokeImage) {
+WaterType::WaterType(string name, int level, int healthOffset, float mineralValue) : Pokemon(name, level, healthOffset) {
     this->mineralValue = mineralValue;
 
     try {
@@ -514,8 +557,8 @@ bool WaterType::displayAndChooseMoves(SDL_Surface* windowSurf) {
     return Pokemon::displayAndChooseMoves(windowSurf);
 }
 
-void WaterType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
-    Pokemon::displayPokemonAndInfo(windowSurf);
+void WaterType::displayPokemonAndInfo(SDL_Surface *windowSurf, bool isPlayersPokemon) {
+    Pokemon::displayPokemonAndInfo(windowSurf, isPlayersPokemon);
 
     ///////////////////////////////////////////////////Maybe redo this with global variables
     int spacingY = 50;
@@ -539,7 +582,7 @@ void WaterType::pickRandomMove() {
     }
 }
 
-GrassType::GrassType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float waterEfficiency) : Pokemon(name, level, healthOffset, pokeImage) {
+GrassType::GrassType(string name, int level, int healthOffset, float waterEfficiency) : Pokemon(name, level, healthOffset) {
     this->waterEfficiency = waterEfficiency;
     percentDriedUp = 0;
     baseWaterEfficiency = 3;
@@ -563,12 +606,12 @@ bool GrassType::attack(Pokemon* pokemonToAttack) {
             } else if (typeid(*pokemonToAttack) == typeid(FireType)) {
                 movePower[currAttack] *= 0.5;
                 messageList.push_back("It wasn't very effective...");
-            };
+            }
 
             Pokemon::attack(pokemonToAttack);
 
             movePower[currAttack] = temp;
-            setDriedUpPercent(percentDriedUp + int(movePower[currAttack] * waterEfficiency) * baseWaterEfficiency);
+            setDriedUpPercent(percentDriedUp + (1 + movePower[currAttack] * waterEfficiency) * baseWaterEfficiency);
         } else {
             messageList.push_back(name + " is all dried up and can't attack!");
         }
@@ -603,8 +646,8 @@ bool GrassType::displayAndChooseMoves(SDL_Surface* windowSurf) {
     return Pokemon::displayAndChooseMoves(windowSurf);
 }
 
-void GrassType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
-    Pokemon::displayPokemonAndInfo(windowSurf);
+void GrassType::displayPokemonAndInfo(SDL_Surface *windowSurf, bool isPlayersPokemon) {
+    Pokemon::displayPokemonAndInfo(windowSurf, isPlayersPokemon);
 
     ///////////////////////////////////////////////////Maybe redo this with global variables
     int spacingY = SMALL_FONT_SIZE + 20;
@@ -653,7 +696,7 @@ void GrassType::restore() {
     percentDriedUp = 0;
 }
 
-IceType::IceType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float inchesOfIceDefense) : Pokemon(name, level, healthOffset, pokeImage) {
+IceType::IceType(string name, int level, int healthOffset, float inchesOfIceDefense) : Pokemon(name, level, healthOffset) {
     this->inchesOfIceDefense = inchesOfIceDefense;
 
     try {
@@ -686,8 +729,8 @@ bool IceType::displayAndChooseMoves(SDL_Surface* windowSurf) {
     return Pokemon::displayAndChooseMoves(windowSurf);
 }
 
-void IceType::displayPokemonAndInfo(SDL_Surface *windowSurf) {
-    Pokemon::displayPokemonAndInfo(windowSurf);
+void IceType::displayPokemonAndInfo(SDL_Surface *windowSurf, bool isPlayersPokemon) {
+    Pokemon::displayPokemonAndInfo(windowSurf, isPlayersPokemon);
 
     ///////////////////////////////////////////////////Maybe redo this with global variables
     int spacingY = 50;

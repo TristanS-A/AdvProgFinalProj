@@ -32,7 +32,7 @@ Player::~Player() {
         }
     }
 
-    for (vector<Item*> vectorOfPokeballs: playersPokeballs){
+    for (vector<Pokeball*> vectorOfPokeballs: playersPokeballs){
         for (Item* pokeball : vectorOfPokeballs){
             delete pokeball;
         }
@@ -84,7 +84,8 @@ CatchingState Player::tryCatchingPokemon(Pokemon* pokemonToCatch) {
 
     if (catchingChancesCount != TOTAL_CATCHING_CHANCES){
         catchProbability = float(0.5 - pokemonToCatch->getHealthPercent()) + float(0.1 * (float(getTeamAverageLevel()) / float(pokemonToCatch->getLevel())));
-        ////////////cout << catchProbability << endl;
+        catchProbability += currPokeball->getCatchBooster() * 0.2;
+        cout << catchProbability << endl;
         if (randomRange(outputNum) < catchProbability){
             addToPlayersPokemon(pokemonToCatch);
             removeFromPlayersPokeballs(currPokeball);
@@ -98,7 +99,7 @@ CatchingState Player::tryCatchingPokemon(Pokemon* pokemonToCatch) {
 
         //This is that if the player used their last pokeball the menu would reset
         bool outOfPokeballs = true;
-        for (vector<Item*> vectorOfPokeballs : playersPokeballs){
+        for (vector<Pokeball*> vectorOfPokeballs : playersPokeballs){
             if (!vectorOfPokeballs.empty()){
                 outOfPokeballs = false;
             }
@@ -147,8 +148,11 @@ void Player::removeFromPlayersPokemon(Pokemon *pokemon) {
 void Player::addToPlayersItems(Item *item) {
     for (vector<Item*> &vectorOfItems : playersItems){
         if (vectorOfItems[0]->getName() == item->getName()){
-            vectorOfItems.push_back(item);
-            return;
+            if (vectorOfItems.size() < MAX_ITEMS) {
+                vectorOfItems.push_back(item);
+            } else {
+                messageList.push_back("But you don't have enough room for it!");
+            }
         }
     }
 
@@ -237,25 +241,33 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
             }
             break;
         case USE_ITEM:
-            //////////////////////////////////////////////////////Display item descriptions
             if (!playersItems.empty()){
                 playersItems[currItem][0]->displayDescription(windowSurf);
 
+                int buttonHeight = 100;
+
                 //Not if else statements because the other button images would dispensary if another one was pressed
-                if (currItem < playersItems.size() - 1 && checkForClickAndDisplayButton({1280, 655, 50, 50}, windowSurf, rightButtonIMG, rightButtonHoverIMG) == PRESSED){
+                if (currItem < playersItems.size() - 1 && checkForClickAndDisplayButton({1280, 655, buttonHeight / 2, buttonHeight / 2}, windowSurf, rightButtonIMG, rightButtonHoverIMG) == PRESSED){
                     currItem++;
                 }
-                if (currItem > 0 && checkForClickAndDisplayButton({1110, 655, 50, 50}, windowSurf, leftButtonIMG, leftButtonHoverIMG) == PRESSED){
+                if (currItem > 0 && checkForClickAndDisplayButton({1110, 655, buttonHeight / 2, buttonHeight / 2}, windowSurf, leftButtonIMG, leftButtonHoverIMG) == PRESSED){
                     currItem--;
                 }
-                if (checkForClickAndDisplayButton({1170, 630, 100, 100}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
+                if (checkForClickAndDisplayButton({1170, 630, buttonHeight, buttonHeight}, windowSurf, buttonIMG, buttonHoverIMG) == PRESSED){
                     messageList.push_back("You used " + playersItems[currItem][0]->getName());
                     return chosenAction;
                 }
                 if (checkForClickAndDisplayButton({1210, 740, 120, 50}, windowSurf, backButtonIMG, backButtonHoverIMG) == PRESSED){
                     resetBattleMenu();
                 }
-                playersItems[currItem][0]->displayItem(windowSurf, {1170, 630, 0, 0});
+
+                SDL_Rect destRect = {1170, 630, 0, 0};
+                playersItems[currItem][0]->displayItem(windowSurf, destRect);
+
+                destRect.x = destRect.x + buttonHeight - SMALL_FONT_SIZE;
+                destRect.y = destRect.y + buttonHeight - MEDIUM_FONT_SIZE;
+                SDL_Surface* textSurf = TTF_RenderText_Solid(smallFont, (to_string(playersItems[currItem].size())).c_str(), {255, 255, 255});
+                SDL_BlitSurface(textSurf, nullptr, windowSurf, &destRect);
             } else {
                 messageList.push_back("You don't have any items to use!");
                 resetBattleMenu();
@@ -289,6 +301,11 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
                             playersPokeballs[i][0]->displayDescription(windowSurf);
                         }
                         playersPokeballs[i][0]->displayItem(windowSurf, displayPos);
+
+                        displayPos.x = displayPos.x + displayPos.w - SMALL_FONT_SIZE;
+                        displayPos.y = displayPos.y + displayPos.h - MEDIUM_FONT_SIZE;
+                        SDL_Surface* textSurf = TTF_RenderText_Solid(smallFont, (to_string(playersPokeballs[i].size())).c_str(), {255, 255, 255});
+                        SDL_BlitSurface(textSurf, nullptr, windowSurf, &displayPos);
                     }
                 }
                 if (checkForClickAndDisplayButton({1210, 745, 120, 50}, windowSurf, backButtonIMG, backButtonHoverIMG) == PRESSED){
@@ -349,10 +366,14 @@ void Player::resetBattleMenu() {
     chosenAction = NOT_CHOSEN;
 }
 
-void Player::addToPlayersPokeballs(Item* pokeball) {
-    for (vector<Item*> vectorOfPokeballs : playersPokeballs){
+void Player::addToPlayersPokeballs(Pokeball* pokeball) {
+    for (vector<Pokeball*> vectorOfPokeballs : playersPokeballs){
         if (vectorOfPokeballs[0]->getName() == pokeball->getName()){
-            vectorOfPokeballs.push_back(pokeball);
+            if (vectorOfPokeballs.size() < MAX_POKEMON) {
+                vectorOfPokeballs.push_back(pokeball);
+            } else {
+                messageList.push_back("But you don't have enough room for it!");
+            }
             return;
         }
     }
@@ -361,8 +382,8 @@ void Player::addToPlayersPokeballs(Item* pokeball) {
     playersPokeballs[playersPokeballs.size() - 1].push_back(pokeball);
 }
 
-void Player::removeFromPlayersPokeballs(Item* pokeball) {
-    for (vector<Item*> &vectorOfPokeballs : playersPokeballs){
+void Player::removeFromPlayersPokeballs(Pokeball* pokeball) {
+    for (vector<Pokeball*> &vectorOfPokeballs : playersPokeballs){
         if (vectorOfPokeballs[0]->getName() == pokeball->getName()){
             vectorOfPokeballs.erase(find(vectorOfPokeballs.begin(), vectorOfPokeballs.end(), pokeball));
             if (vectorOfPokeballs.empty()){

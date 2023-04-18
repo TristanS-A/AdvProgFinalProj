@@ -16,13 +16,13 @@ using namespace std;
 class Pokemon{
 public:
 
-    Pokemon(string name, int level, int healthOffset, SDL_Surface* pokeImage);
+    Pokemon(string name, int level, int healthOffset);
 
     virtual ~Pokemon();
 
     virtual bool attack(Pokemon* pokemonToAttack) = 0;
 
-    virtual void displayPokemonAndInfo(SDL_Surface* windowSurf);
+    virtual void displayPokemonAndInfo(SDL_Surface* windowSurf, bool isPlayersPokemon);
 
     virtual void displayPokemonInfoButton(SDL_Surface* windowSurf, SDL_Rect destRect);
 
@@ -74,6 +74,8 @@ public:
 
     void setLevelUpsWithoutNewMove(int num);
 
+    void setImageFacingRight(bool isFacingLeft);
+
     /////////////////////////////Review protected and stuff
 protected:
     string name;
@@ -89,6 +91,8 @@ protected:
     float baseAttackPower;
     float baseDefensePower;
     SDL_Surface* pokeImage;
+    SDL_Surface* leftImage;
+    SDL_Surface*rightImage;
     SDL_Rect pokeRect;
     ////////////////////////////////////////////////////Maybe make a limit to how many times you can use a move
     vector<string> moveNames;
@@ -101,11 +105,11 @@ protected:
 
 class FireType : public Pokemon{
 public:
-    FireType(string name, int level, int healthOffset, SDL_Surface *pokeImage, int fireTemperature);
+    FireType(string name, int level, int healthOffset, int fireTemperature);
 
     bool attack(Pokemon* pokemonToAttack) override;
 
-    void displayPokemonAndInfo(SDL_Surface* windowSurf) override;
+    void displayPokemonAndInfo(SDL_Surface* windowSurf, bool isPlayersPokemon) override;
 
     bool displayAndChooseMoves(SDL_Surface* windowSurf) override;
 private:
@@ -114,13 +118,13 @@ private:
 
 class WaterType : public Pokemon{
 public:
-    WaterType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float mineralValue);
+    WaterType(string name, int level, int healthOffsetpowerDisplay, float mineralValue);
 
     bool attack(Pokemon* pokemonToAttack) override;
 
     void pickRandomMove() override;
 
-    void displayPokemonAndInfo(SDL_Surface* windowSurf) override;
+    void displayPokemonAndInfo(SDL_Surface* windowSurf, bool isPlayersPokemon) override;
 
     bool displayAndChooseMoves(SDL_Surface* windowSurf) override;
 private:
@@ -129,7 +133,7 @@ private:
 
 class GrassType : public Pokemon{
 public:
-    GrassType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float waterEfficiency);
+    GrassType(string name, int level, int healthOffsetpowerDisplay, float waterEfficiency);
 
     bool attack(Pokemon* pokemonToAttack) override;
 
@@ -137,7 +141,7 @@ public:
 
     void setDriedUpPercent(int newPercent);
 
-    void displayPokemonAndInfo(SDL_Surface* windowSurf) override;
+    void displayPokemonAndInfo(SDL_Surface* windowSurf, bool isPlayersPokemon) override;
 
     bool displayAndChooseMoves(SDL_Surface* windowSurf) override;
 
@@ -152,13 +156,13 @@ private:
 
 class IceType : public Pokemon{
 public:
-    IceType(string name, int level, int healthOffset, SDL_Surface *pokeImage, float inchesOfIceDefense);
+    IceType(string name, int level, int healthOffset, float inchesOfIceDefense);
 
     bool attack(Pokemon* pokemonToAttack) override;
 
     void addToHealth(int amount) override;
 
-    void displayPokemonAndInfo(SDL_Surface* windowSurf) override;
+    void displayPokemonAndInfo(SDL_Surface* windowSurf, bool isPlayersPokemon) override;
 
     bool displayAndChooseMoves(SDL_Surface* windowSurf) override;
 private:
