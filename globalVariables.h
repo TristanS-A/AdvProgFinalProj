@@ -7,8 +7,11 @@
 
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include "pokemon.h"
+#include "player.h"
 #include <string>
 #include <vector>
+#include <random>
 
 using namespace std;
 
@@ -29,6 +32,9 @@ extern const int LARGE_FONT_SIZE;
 //To convert the pixel size of the font to width instead of hight (I think)
 extern const float FONT_PIXEL_HEIGHT_TO_WIDTH;
 
+extern uniform_real_distribution<double> randomChanceRange;
+extern uniform_real_distribution<double> randomLevelRange;
+
 //To keep track of if the mouse is pressed
 extern bool mouseDown;
 
@@ -40,6 +46,30 @@ extern bool noSkip;
 
 //Sets up key presses
 extern const Uint8 *keystates;
+
+//Quadrants of the map
+extern int topLeftQuadrant[2];
+extern int topRightQuadrant[2];
+extern int bottomLeftQuadrant[2];
+extern int bottomRightQuadrant[2];
+
+//Images for the battle backgrounds in each quadrant
+extern SDL_Surface* battleBackground_Forest;
+extern SDL_Surface* battleBackground_Swamp;
+extern SDL_Surface* battleBackground_Snow;
+extern SDL_Surface* battleBackground_Fire;
+
+//The current battle background
+extern SDL_Surface* currBattleBackground;
+
+//Image for the bakcground
+extern SDL_Surface* background;
+
+//Pointer for the player
+extern Player* player;
+
+//Position and size of the background
+extern SDL_Rect bgPos;
 
 //To send messages in battle;
 extern vector<string> messageList;

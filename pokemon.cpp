@@ -215,6 +215,10 @@ SDL_Rect Pokemon::getImagePos() {
     return pokeRect;
 }
 
+SDL_Surface *Pokemon::getPokeImage() {
+    return pokeImage;
+}
+
 SDL_Rect Pokemon::getInfoPos() {
     return infoDestination;
 }

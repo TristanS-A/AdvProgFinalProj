@@ -153,6 +153,7 @@ void Player::addToPlayersItems(Item *item) {
             } else {
                 messageList.push_back("But you don't have enough room for it!");
             }
+            return;
         }
     }
 
@@ -369,7 +370,7 @@ void Player::resetBattleMenu() {
 void Player::addToPlayersPokeballs(Pokeball* pokeball) {
     for (vector<Pokeball*> vectorOfPokeballs : playersPokeballs){
         if (vectorOfPokeballs[0]->getName() == pokeball->getName()){
-            if (vectorOfPokeballs.size() < MAX_POKEMON) {
+            if (vectorOfPokeballs.size() < MAX_POKEBALLS) {
                 vectorOfPokeballs.push_back(pokeball);
             } else {
                 messageList.push_back("But you don't have enough room for it!");

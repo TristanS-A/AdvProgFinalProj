@@ -22,6 +22,9 @@ const int LARGE_FONT_SIZE = 50;
 //To convert the pixel size of the font to width instead of hight (I think)
 const float FONT_PIXEL_HEIGHT_TO_WIDTH = 1.3;
 
+uniform_real_distribution<double> randomChanceRange(0, 0.9999);
+uniform_real_distribution<double> randomLevelRange(-5.0, 5.0);
+
 //To keep track of if the mouse is pressed
 bool mouseDown = false;
 
@@ -33,6 +36,30 @@ bool noSkip = true;
 
 //Sets up key presses
 const Uint8 *keystates{SDL_GetKeyboardState(nullptr)};
+
+//Quadrants of the map
+int topLeftQuadrant[2] = {-935, -422};
+int topRightQuadrant[2] = {-1230, -422};
+int bottomLeftQuadrant[2] = {-935, -742};
+int bottomRightQuadrant[2] = {-1230, -742};
+
+//Images for the battle backgrounds in each quadrant
+SDL_Surface* battleBackground_Forest = IMG_Load("images/battleBG_Grass.png");
+SDL_Surface* battleBackground_Swamp = IMG_Load("images/battleBG_Swamp.png");
+SDL_Surface* battleBackground_Snow = IMG_Load("images/battleBG_Snow.png");
+SDL_Surface* battleBackground_Fire = IMG_Load("images/battleBG_Fire.png");
+
+//The current battle background
+SDL_Surface* currBattleBackground;
+
+//Image for the bakcground
+SDL_Surface* background = IMG_Load("images/background.png");
+
+//Position and size of the background
+SDL_Rect bgPos;
+
+//Pointer for the player
+Player* player;
 
 //To send messages in battle;
 vector<string> messageList;

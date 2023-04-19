@@ -56,6 +56,8 @@ public:
 
     SDL_Rect getImagePos();
 
+    SDL_Surface* getPokeImage();
+
     SDL_Rect getInfoPos();
 
     float getBaseDefense() const;
@@ -118,7 +120,7 @@ private:
 
 class WaterType : public Pokemon{
 public:
-    WaterType(string name, int level, int healthOffsetpowerDisplay, float mineralValue);
+    WaterType(string name, int level, int healthOffset, float mineralValue);
 
     bool attack(Pokemon* pokemonToAttack) override;
 
@@ -133,7 +135,7 @@ private:
 
 class GrassType : public Pokemon{
 public:
-    GrassType(string name, int level, int healthOffsetpowerDisplay, float waterEfficiency);
+    GrassType(string name, int level, int healthOffset, float waterEfficiency);
 
     bool attack(Pokemon* pokemonToAttack) override;
 
