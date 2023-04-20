@@ -1,12 +1,36 @@
 FireType
 Name: Heat Wave; Power: 5; Description: The pokemon blasts the enemie with a wave of heat;
-Name: Flame Kick; Power: 10; Description: The pokemon attacks the enemie with a fiery kick;
+Name: Flame Kick; Power: 10; Description: The pokemon attacks the enemywith a fiery kick;
+Name: Combustion; Power 20; Description: The pokemon attacks with a fiery explosion;
+Name: Flamethrower; Power 15; Description: The pokemon shoots a stream of fire at the enemy;
+Name: Flame Rush; Power 8; Description: The pokemon surrounds itself with fire and rushes the enemy;
+Name: Fireball; Power 8; Description: The pokemon lanches a fireball at the enemy;
+Name: Scorch; Power 10; Description: The pokemon serverely burns the enemy;
+Name: Chain Reaction; Power 25; Description: The pokemon causes a chain reaction of explosions around the enemy;
 WaterType
 Name: Heal; Power: 20; Description: The pokemon restores HP in relation to its mineral value;
-Name: Splash; Power: 5; Description: The pokemon rapidly splashes water at the enemie;
+Name: Splash; Power: 5; Description: The pokemon rapidly splashes water at the enemy;
+Name: Water Gun; Power 10; Description: The pokemon shoots a precise bullet of water;
+Name: Torrent; Power 12; Description: The pokemon bombards the enemy with water from all sides;
+Name: Tidal Wave; Power 20; Description: The pokemon summons a tidal wave of water;
+Name: Water Whip; Power 8; Description: The pokemon whips the enemy with a stream of water;
+Name: Ultra Heal; Power 40; Description: The pokemon restores a bunch of HP in relation to its mineral value;
+Name: Aqua Blade; Power 10; Description: The pokemon slashes the enemy with a blade of water;
 GrassType
 Name: Rehydrate; Power: 30; Description: The pokemon restores its water levels;
 Name: Jab; Power: 8; Description: The pokemon jabs at the enemie with a stick or branch;
+Name: Leaf Storm; Power: 12; Description: The pokemon creates a storm of slicing leaves around the enemy;
+Name: Flower Bomb; Power: 15; Description: The pokemon throws and explosive flower at the enemy;
+Name: Grass Blade; Power: 10; Description: The pokemon slashes the enemy with a sharp blade of grass;
+Name: Root Snare; Power: 5; Description: The pokemon wraps up the enemy with roots and strangles it;
+Name: Seed Bomb; Power: 8; Description: The pokemon throws an explosive seed at the enemy;
+Name: Vine Slash; Power: 12; Description: The pokemon slashes the enemy with vines;
 IceType
-Name: Ice Beam; Power: 20; Description: The pokemon shoots a freezing beam at the enemie;
+Name: Ice Beam; Power: 20; Description: The pokemon shoots a freezing beam at the enemy;
 Name: Chilling Grip; Power: 10; Description: The pokemon grasps the enemie with a strong freezing grip;
+Name: Hail; Power: 5; Description: The pokemon fires small balls of ice at the enemy;
+Name: Ice Charge; Power: 5; Description: The pokemon hardens its ice shields and charges at the enemy;
+Name: Blizzard; Power: 8; Description: The pokemon blasts the enemy with snow and ice;
+Name: Ice Sickle; Power: 12; Description: The pokemon slashes the enemy with a weapon made of ice;
+Name: Snow Ball; Power: 8; Description: The pokemon throws a dense ball of snow at the enemy;
+Name: Refreeze; Power: 12; Description: The pokemon quickly freezes an enemy and thaws it twice;

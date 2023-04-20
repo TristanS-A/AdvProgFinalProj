@@ -534,7 +534,7 @@ WaterType::WaterType(string name, int level, int healthOffset, float mineralValu
 }
 
 bool WaterType::attack(Pokemon* pokemonToAttack) {
-    if (moveNames[currAttack] != "Heal") {
+    if (moveNames[currAttack] != "Heal" || moveNames[currAttack] != "Ultra Heal") {
         int temp = movePower[currAttack];
         movePower[currAttack] *= baseAttackPower;
         if (typeid(*pokemonToAttack) == typeid(FireType)){
@@ -576,11 +576,18 @@ void WaterType::displayPokemonAndInfo(SDL_Surface *windowSurf, bool isPlayersPok
 void WaterType::pickRandomMove() {
     Pokemon::pickRandomMove();
 
-    if (health == maxHealth && moveNames[currAttack] == "Heal"){
-        if (currAttack == moveNames.size() - 1){
-            currAttack = 0;
-        } else {
-            currAttack++;
+    int loopCheck = 0;
+    if (health == maxHealth){
+        while (moveNames[currAttack] == "Heal" || moveNames[currAttack] == "Ultra Heal") {
+            if (currAttack == moveNames.size() - 1) {
+                currAttack = 0;
+            } else {
+                currAttack++;
+            }
+            loopCheck++;
+            if (loopCheck > MAX_MOVE_AMOUNT){
+                break;
+            }
         }
         messageList[messageList.size() - 1] = name + " used " + moveNames[currAttack];
     }

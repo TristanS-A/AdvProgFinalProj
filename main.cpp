@@ -139,7 +139,7 @@ int main(int argc, char* argv[]) {
     //---------------------------------------------------\\
 
     //TODO: Need to
-    //      Write new moves in the move txt file and more names in the names file
+    //      Write new moves in the move txt file and more names in the names file ( Check chain reaction and ulra heal des and names) (Also check ultra heal implimentation)
     //      Refactoring
     //      Comment everything and review (balancing and boolean logic for battle animations (like the booleans logic to blit the player when entering a battle))
     //      Going over grade requirements (like deleting dynamics)
@@ -230,16 +230,6 @@ int main(int argc, char* argv[]) {
     SDL_Rect textboxPos = {0, SCREEN_HEIGHT - textboxIMG->h, 0, 0};
 
     player = new Player({SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2, 0, 0});
-    Pokemon* p1 = new FireType("Embi", 1, 0, 100);
-    Pokemon* p2 = new GrassType("Twine", 1, 0, 0.9);
-    Pokemon* p3 = new FireType("Embi", 1, 0, 100);
-    Pokemon* p4 = new FireType("Embi", 1, 0, 100);
-    Pokemon* p5 = new FireType("Embi", 1, 0, 100);
-    player->addToPlayersPokemon(p1);
-    player->addToPlayersPokemon(p2);
-    player->addToPlayersPokemon(p3);
-    player->addToPlayersPokemon(p4);
-    player->addToPlayersPokemon(p5);
 
     //So that the player doesn't spawn directly under the pokecenter
     bgPos.y += player->getPlayerRect().h * 2;
