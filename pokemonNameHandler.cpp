@@ -12,17 +12,14 @@ string getRandomName(string typeID) {
     random_device random;
 
     mt19937 outputNum(random());
-    uniform_real_distribution<double> randomChanceRange(0, amountOfNamesPerType - 0.001);
+    uniform_real_distribution<double> randomNameRange(0, amountOfNamesPerType - 0.001);
 
-    /////////////////////////////Maybe ask teacher about creating variables here and then adding values in loop instead of all in the loop
-    int fileLine;
+    int fileLine = int(randomNameRange(outputNum));
     int count = 0;
     char ch;
     string fullInfo;
     string name;
     bool foundType = false;
-
-    fileLine = randomChanceRange(outputNum);
 
     fstream fin("nameList.txt");
     if (fin.is_open()) {

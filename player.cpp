@@ -454,8 +454,6 @@ void Player::checkForLevelUps() {
             if (moveCount < pokemon->getMaxMoveAmount()) {
                 random_device random;
                 mt19937 outputNum(random());
-                uniform_real_distribution<double> randomChanceRange(0, 1);
-
                 const float CHANCE_TO_LEARN_NEW_MOVE = 0.1;
                 const int MAX_LEVEL_UPS_WITHOUT_NEW_MOVE = 5;
 

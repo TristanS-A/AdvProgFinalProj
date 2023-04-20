@@ -260,7 +260,7 @@ void Pokemon::addRandomMove(string typeID) {
     random_device random;
 
     mt19937 outputNum(random());
-    uniform_real_distribution<double> randomChanceRange(0, amountOfMovesPerType - 0.001);
+    uniform_real_distribution<double> randomMoveRange(0, amountOfMovesPerType - 0.001);
 
     /////////////////////////////Maybe ask teacher about creating variables here and then adding values in loop instead of all in the loop
     int fileLine;
@@ -279,7 +279,7 @@ void Pokemon::addRandomMove(string typeID) {
     movePower.push_back(0);
     moveDescriptions.push_back("");
 
-    fileLine = randomChanceRange(outputNum);
+    fileLine = randomMoveRange(outputNum);
 
     int lineToLoopBackTo = fileLine;
 
