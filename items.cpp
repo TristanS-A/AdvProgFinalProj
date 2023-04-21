@@ -20,13 +20,15 @@ string Item::getName() {
 }
 
 void Item::displayDescription(SDL_Surface* windowSurf) {
-    SDL_Surface* textSurf = TTF_RenderText_Solid(largeFont, name.c_str(), {255, 255, 255});
+    textSurf = TTF_RenderText_Solid(largeFont, name.c_str(), {255, 255, 255});
     SDL_Rect dest = {100, 660, 0, 0};
-
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
+    SDL_FreeSurface(textSurf);
+
     textSurf = TTF_RenderText_Solid(mediumFont, description.c_str(), {255, 255, 255});
     dest = {100, 740, 0, 0};
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
+    SDL_FreeSurface(textSurf);
 }
 
 void Item::displayItem(SDL_Surface* windowSurf, SDL_Rect destRect) {

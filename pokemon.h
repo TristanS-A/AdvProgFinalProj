@@ -78,7 +78,10 @@ public:
 
     void setImageFacingRight(bool isFacingLeft);
 
-    /////////////////////////////Review protected and stuff
+    int operator+(int num);
+
+    friend ostream& operator<<(ostream & out, const Pokemon* pokemon);
+
 protected:
     string name;
     int health;
@@ -96,7 +99,6 @@ protected:
     SDL_Surface* leftImage;
     SDL_Surface*rightImage;
     SDL_Rect pokeRect;
-    ////////////////////////////////////////////////////Maybe make a limit to how many times you can use a move
     vector<string> moveNames;
     vector<int> movePower;
     vector<string> moveDescriptions;

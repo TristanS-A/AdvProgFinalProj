@@ -52,7 +52,10 @@ Pokemon::Pokemon(string name, int level, int healthOffset) {
 }
 
 Pokemon::~Pokemon() {
-    SDL_FreeSurface(pokeImage);
+    SDL_FreeSurface(leftImage);
+    SDL_FreeSurface(rightImage);
+    pokeImage = nullptr;
+    //SDL_FreeSurface(pokeImage);
 }
 
 bool Pokemon::attack(Pokemon* pokemonToAttack) {
@@ -65,29 +68,43 @@ bool Pokemon::displayAndChooseMoves(SDL_Surface* windowSurf) {
     int spacing = 0;
     currAttack = -1;
     for (int i = 0; i < moveNames.size(); i++) {
-        SDL_Surface *textSurf;
         int buttonOffset = 50;
-        int buttonLength = moveNames[i].size() * MEDIUM_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH + buttonOffset * 2;
+        int buttonLength;
+        int fontSize;
+
+        if (moveNames[i].size() < 10) {
+            fontSize = int(MEDIUM_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH);
+            buttonLength = moveNames[i].size() * fontSize + buttonOffset * 2;
+            textSurf = TTF_RenderText_Solid(mediumFont, moveNames[i].c_str(), {255, 255, 255});
+        } else {
+            fontSize = int(SMALL_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH);
+            buttonLength = moveNames[i].size() * fontSize + buttonOffset * 2;
+            textSurf = TTF_RenderText_Solid(smallFont, moveNames[i].c_str(), {255, 255, 255});
+        }
+
         ButtonState movesButton = checkForClickAndDisplayButton({150 + spacing - buttonOffset, 650, buttonLength, int(buttonOffset * 1.5)}, windowSurf, buttonIMG, buttonHoverIMG);
+
+        SDL_Rect dest = {150 + spacing, 655, 0, 0};
+        SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
+        SDL_FreeSurface(textSurf);
+
+        string powerDisplay = "Power: " + to_string(movePower[i]);
+
+        textSurf = TTF_RenderText_Solid(smallFont, powerDisplay.c_str(), {255, 255, 255});
+        dest = {150 + spacing + int(moveNames[i].length() * fontSize / 2) -
+                int(powerDisplay.length() * SMALL_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH / 2.0), 650 + MEDIUM_FONT_SIZE + SMALL_FONT_SIZE / 2, 0, 0};
+        SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
+        SDL_FreeSurface(textSurf);
+
         if (movesButton == PRESSED){
             currAttack = i;
         }
         else if (movesButton == HOVER){
             textSurf = TTF_RenderText_Solid(smallFont, moveDescriptions[i].c_str(), {255, 255, 255});
-            SDL_Rect dest = {100, 750, 0, 0};
+            dest = {100, 750, 0, 0};
             SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
+            SDL_FreeSurface(textSurf);
         }
-
-        textSurf = TTF_RenderText_Solid(mediumFont, moveNames[i].c_str(), {255, 255, 255});
-        SDL_Rect dest = {150 + spacing, 650, 0, 0};
-        SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
-
-        string powerDisplay = "Power: " + to_string(movePower[i]);
-
-        textSurf = TTF_RenderText_Solid(smallFont, powerDisplay.c_str(), {255, 255, 255});
-        dest = {150 + spacing + int(moveNames[i].length() * MEDIUM_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH / 2) -
-                        int(powerDisplay.length() * SMALL_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH / 2.0), 650 + MEDIUM_FONT_SIZE + SMALL_FONT_SIZE / 2, 0, 0};
-        SDL_BlitSurface(textSurf, nullptr, windowSurf, &dest);
 
         spacing += buttonLength + buttonOffset / 2;
     }
@@ -173,8 +190,9 @@ void Pokemon::displayPokemonAndInfo(SDL_Surface *windowSurf, bool isPlayersPokem
     SDL_BlitSurface(pokeImage, nullptr, windowSurf, &pokeRect);
 
     string pokeInfo = getName() + "    " + to_string(getHealth()) + "/" + to_string(maxHealth) + " HP";
-    SDL_Surface *textSurf = TTF_RenderText_Solid(mediumFont, (pokeInfo).c_str(), {255, 255, 255});
+    textSurf = TTF_RenderText_Solid(mediumFont, (pokeInfo).c_str(), {255, 255, 255});
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &infoDestination);
+    SDL_FreeSurface(textSurf);
 
     ////////////////////////////////////////////////////Maybe clean this up
     pokeInfo = "Level: " + to_string(getLevel());
@@ -182,6 +200,7 @@ void Pokemon::displayPokemonAndInfo(SDL_Surface *windowSurf, bool isPlayersPokem
     offset = {infoDestination.x, infoDestination.y + spaceing, 0, 0};
     textSurf = TTF_RenderText_Solid(mediumFont, (pokeInfo).c_str(), {255, 255, 255});
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &offset);
+    SDL_FreeSurface(textSurf);
 }
 
 void Pokemon::displayPokemonInfoButton(SDL_Surface* windowSurf, SDL_Rect destRect) {
@@ -191,8 +210,9 @@ void Pokemon::displayPokemonInfoButton(SDL_Surface* windowSurf, SDL_Rect destRec
     int centeredXPos = destRect.x + destRect.w / 2 - name.size() * SMALL_FONT_SIZE / 2 / FONT_PIXEL_HEIGHT_TO_WIDTH;
     SDL_Rect nextLine = {centeredXPos, destRect.y + spacing, 0, 0};
 
-    SDL_Surface* textSurf = TTF_RenderText_Solid(smallFont, name.c_str(), {255, 255, 255});
+    textSurf = TTF_RenderText_Solid(smallFont, name.c_str(), {255, 255, 255});
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
+    SDL_FreeSurface(textSurf);
 
     spacing = destRect.h + SMALL_FONT_SIZE;
     string healthInfo = "Health: " + to_string(health) + "/" + to_string(maxHealth);
@@ -201,6 +221,7 @@ void Pokemon::displayPokemonInfoButton(SDL_Surface* windowSurf, SDL_Rect destRec
 
     textSurf = TTF_RenderText_Solid(smallFont, healthInfo.c_str(), {255, 255, 255});
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
+    SDL_FreeSurface(textSurf);
 }
 
 void Pokemon::setImagePos(int x, int y) {
@@ -263,7 +284,7 @@ void Pokemon::addRandomMove(string typeID) {
     uniform_real_distribution<double> randomMoveRange(0, amountOfMovesPerType - 0.001);
 
     /////////////////////////////Maybe ask teacher about creating variables here and then adding values in loop instead of all in the loop
-    int fileLine;
+    int fileLine = int(randomMoveRange(outputNum));
     bool noDuplicates = false;
     int count;
     char ch;
@@ -278,8 +299,6 @@ void Pokemon::addRandomMove(string typeID) {
     moveNames.push_back("");
     movePower.push_back(0);
     moveDescriptions.push_back("");
-
-    fileLine = randomMoveRange(outputNum);
 
     int lineToLoopBackTo = fileLine;
 
@@ -314,7 +333,6 @@ void Pokemon::addRandomMove(string typeID) {
                         if (ch != ';') {
                             tempDescription += ch;
                         } else {
-                            //////////////////////////cout << fileLine << endl;
                             break;
                         }
                     } else {
@@ -475,11 +493,21 @@ void Pokemon::setImageFacingRight(bool isFacingLeft) {
     }
 }
 
+ostream &operator<<(ostream &out, const Pokemon *pokemon) {
+    out << "Name: " << pokemon->getName() << "\nLevel: " << pokemon->getLevel() << endl << endl;
+    return out;
+}
+
+int Pokemon::operator+(int num) {
+    return num + level;
+}
+
 FireType::FireType(string name, int level, int healthOffset, int fireTemperature) : Pokemon(name, level, healthOffset){
     this->fireTemperature = fireTemperature;
     try {
-        addRandomMove(typeid(*this).name());
-        addRandomMove(typeid(*this).name());
+        for (int i = 0; i < (level + 10) / 5 && i < MAX_MOVE_AMOUNT; i++) {
+            addRandomMove(typeid(*this).name());
+        }
     } catch (string &errorMessage) {
         cout << errorMessage << endl;
     }
@@ -518,23 +546,36 @@ void FireType::displayPokemonAndInfo(SDL_Surface *windowSurf, bool isPlayersPoke
     int spacingY = 50;
     int spacingX = 200 + to_string(level).size() * MEDIUM_FONT_SIZE;
     SDL_Rect nextLine = {infoDestination.x + spacingX, infoDestination.y + spacingY, 0, 0};
-    SDL_Surface* textSurf = TTF_RenderText_Solid(mediumFont, ("Fire Temperature: " + to_string(fireTemperature)).c_str(), {255, 255, 255});
+    textSurf = TTF_RenderText_Solid(mediumFont, ("Fire Temperature: " + to_string(fireTemperature)).c_str(), {255, 255, 255});
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
+    SDL_FreeSurface(textSurf);
 }
 
 WaterType::WaterType(string name, int level, int healthOffset, float mineralValue) : Pokemon(name, level, healthOffset) {
     this->mineralValue = mineralValue;
 
     try {
-        addRandomMove(typeid(*this).name());
-        addRandomMove(typeid(*this).name());
+        addMoveByName("Heal");
+        for (int i = 1; i < (level + 10) / 5 && i < MAX_MOVE_AMOUNT; i++) {
+            addRandomMove(typeid(*this).name());
+        }
+        if (moveNames.size() == 2){
+            if (moveNames[1] == "Ultra Heal") {
+                while (moveNames[1] == "Ultra Heal") {
+                    moveNames.erase(find(moveNames.begin(), moveNames.end(), moveNames[1]));
+                    movePower.erase(find(movePower.begin(), movePower.end(), movePower[1]));
+                    moveDescriptions.erase(find(moveDescriptions.begin(), moveDescriptions.end(), moveDescriptions[1]));
+                    addRandomMove(typeid(*this).name());
+                }
+            }
+        }
     } catch (string &errorMessage) {
         cout << errorMessage << endl;
     }
 }
 
 bool WaterType::attack(Pokemon* pokemonToAttack) {
-    if (moveNames[currAttack] != "Heal" || moveNames[currAttack] != "Ultra Heal") {
+    if (moveNames[currAttack] != "Heal" && moveNames[currAttack] != "Ultra Heal") {
         int temp = movePower[currAttack];
         movePower[currAttack] *= baseAttackPower;
         if (typeid(*pokemonToAttack) == typeid(FireType)){
@@ -568,9 +609,10 @@ void WaterType::displayPokemonAndInfo(SDL_Surface *windowSurf, bool isPlayersPok
     int spacingY = 50;
     int spacingX = 200 + to_string(level).size() * MEDIUM_FONT_SIZE;
     SDL_Rect nextLine = {infoDestination.x + spacingX, infoDestination.y + spacingY, 0, 0};
-    SDL_Surface* textSurf = TTF_RenderText_Solid(mediumFont, ("Mineral Value: " + to_string(int(mineralValue)) + "." +
+    textSurf = TTF_RenderText_Solid(mediumFont, ("Mineral Value: " + to_string(int(mineralValue)) + "." +
                                                                                   to_string(int(mineralValue * 10) % 10)).c_str(), {255, 255, 255});
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
+    SDL_FreeSurface(textSurf);
 }
 
 void WaterType::pickRandomMove() {
@@ -600,7 +642,9 @@ GrassType::GrassType(string name, int level, int healthOffset, float waterEffici
 
     try {
         addMoveByName("Rehydrate");
-        addRandomMove(typeid(*this).name());
+        for (int i = 1; i < (level + 10) / 5 && i < MAX_MOVE_AMOUNT; i++) {
+            addRandomMove(typeid(*this).name());
+        }
     } catch (string &errorMessage) {
         cout << errorMessage << endl;
     }
@@ -664,14 +708,16 @@ void GrassType::displayPokemonAndInfo(SDL_Surface *windowSurf, bool isPlayersPok
     int spacingY = SMALL_FONT_SIZE + 20;
     int spacingX = 200 + to_string(level).size() * SMALL_FONT_SIZE;
     SDL_Rect nextLine = {infoDestination.x + spacingX, infoDestination.y + spacingY, 0, 0};
-    SDL_Surface* textSurf = TTF_RenderText_Solid(smallFont, ("% Dried up: " + to_string(percentDriedUp)).c_str(), {255, 255, 255});
+    textSurf = TTF_RenderText_Solid(smallFont, ("% Dried up: " + to_string(percentDriedUp)).c_str(), {255, 255, 255});
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
+    SDL_FreeSurface(textSurf);
 
     nextLine = {nextLine.x, nextLine.y + SMALL_FONT_SIZE, 0, 0};
     float waterEfficiencyFlip = 1 - waterEfficiency;
     textSurf = TTF_RenderText_Solid(smallFont, ("Water Efficiency: " + to_string(int(waterEfficiencyFlip * 10) % 10) +
                                 to_string(int(waterEfficiencyFlip * 100) % 10) + "%").c_str(), {255, 255, 255});
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
+    SDL_FreeSurface(textSurf);
 }
 
 void GrassType::levelUp() {
@@ -711,8 +757,9 @@ IceType::IceType(string name, int level, int healthOffset, float inchesOfIceDefe
     this->inchesOfIceDefense = inchesOfIceDefense;
 
     try {
-        addRandomMove(typeid(*this).name());
-        addRandomMove(typeid(*this).name());
+        for (int i = 0; i < (level + 10) / 5 && i < MAX_MOVE_AMOUNT; i++) {
+            addRandomMove(typeid(*this).name());
+        }
     } catch (string &errorMessage) {
         cout << errorMessage << endl;
     }
@@ -747,9 +794,10 @@ void IceType::displayPokemonAndInfo(SDL_Surface *windowSurf, bool isPlayersPokem
     int spacingY = 50;
     int spacingX = 200 + to_string(level).size() * MEDIUM_FONT_SIZE;
     SDL_Rect nextLine = {infoDestination.x + spacingX, infoDestination.y + spacingY, 0, 0};
-    SDL_Surface* textSurf = TTF_RenderText_Solid(mediumFont, ("Ice Defense: " + to_string(int(inchesOfIceDefense)) + "." +
+    textSurf = TTF_RenderText_Solid(mediumFont, ("Ice Defense: " + to_string(int(inchesOfIceDefense)) + "." +
             to_string(int(inchesOfIceDefense * 10) % 10) + "``").c_str(), {255, 255, 255});
     SDL_BlitSurface(textSurf, nullptr, windowSurf, &nextLine);
+    SDL_FreeSurface(textSurf);
 }
 
 void IceType::addToHealth(int amount) {

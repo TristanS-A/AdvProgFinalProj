@@ -99,7 +99,7 @@ MESSAGE(STATUS "SDL_image TIME: ${DELTASDL_image}s")
 MESSAGE(STATUS "SDL_mixer TIME: ${DELTASDL_mixer}s")
 
 # add executable
-add_executable(main main.cpp screenSizeChange.cpp screenSizeChange.h player.cpp player.h handlePlayerMovement.cpp handlePlayerMovement.h pokemon.cpp pokemon.h items.cpp items.h button.h button.cpp globalVariables.h globalVariables.cpp showMessages.cpp showMessages.h pokemonNameHandler.cpp pokemonNameHandler.h getRandomPokemon.cpp getRandomPokemon.h)
+add_executable(main main.cpp screenSizeChange.cpp screenSizeChange.h player.cpp player.h handlePlayerMovement.cpp handlePlayerMovement.h pokemon.cpp pokemon.h items.cpp items.h button.h button.cpp globalVariables.h globalVariables.cpp showMessages.cpp showMessages.h pokemonNameHandler.cpp pokemonNameHandler.h getRandomPokemon.cpp getRandomPokemon.h calculateResults.cpp calculateResults.h freeingSDLStuff.cpp freeingSDLStuff.h)
 include_directories(${SDL2_INCLUDE_DIR})
 target_include_directories(main PRIVATE ${SDL2_INCLUDE_DIR})
 target_link_libraries(main SDL2 SDL2_ttf SDL2_image SDL2_mixer)

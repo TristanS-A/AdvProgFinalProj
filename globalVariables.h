@@ -7,6 +7,7 @@
 
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include "SDL_mixer.h"
 #include "pokemon.h"
 #include "player.h"
 #include <string>
@@ -108,5 +109,31 @@ extern SDL_Surface* rightButtonIMG;
 extern SDL_Surface* rightButtonHoverIMG;
 
 extern SDL_Surface* pokeInfoBG;
+
+extern SDL_Surface* titleScreenImage;
+
+extern SDL_Surface* startButtonIMG;
+
+extern SDL_Surface* startButtonHoverIMG;
+
+extern SDL_Surface* chooseScreen;
+
+extern SDL_Surface* curtain;
+
+extern SDL_Surface* pokecenter;
+
+extern SDL_Surface* spaceButton;
+
+extern SDL_Surface* textboxIMG;
+
+extern SDL_Surface* textSurf;
+
+extern Mix_Music* titleMusic;
+
+extern Mix_Music* worldMusic;
+
+extern Mix_Music* battleMusic;
+
+extern Mix_Chunk* battleIntro;
 
 #endif //ADVPROGFINPROJ_GLOBALVARIABLES_H

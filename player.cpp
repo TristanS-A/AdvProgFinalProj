@@ -44,6 +44,9 @@ Player::~Player() {
 
     playersPokemon.clear();
     playersItems.clear();
+    playersPokeballs.clear();
+
+    SDL_FreeSurface(playerImage);
 }
 
 void Player::movePlayer(int xUnits, int yUnits) {
@@ -267,8 +270,9 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
 
                 destRect.x = destRect.x + buttonHeight - SMALL_FONT_SIZE;
                 destRect.y = destRect.y + buttonHeight - MEDIUM_FONT_SIZE;
-                SDL_Surface* textSurf = TTF_RenderText_Solid(smallFont, (to_string(playersItems[currItem].size())).c_str(), {255, 255, 255});
+                textSurf = TTF_RenderText_Solid(smallFont, (to_string(playersItems[currItem].size())).c_str(), {255, 255, 255});
                 SDL_BlitSurface(textSurf, nullptr, windowSurf, &destRect);
+                SDL_FreeSurface(textSurf);
             } else {
                 messageList.push_back("You don't have any items to use!");
                 resetBattleMenu();
@@ -305,8 +309,9 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
 
                         displayPos.x = displayPos.x + displayPos.w - SMALL_FONT_SIZE;
                         displayPos.y = displayPos.y + displayPos.h - MEDIUM_FONT_SIZE;
-                        SDL_Surface* textSurf = TTF_RenderText_Solid(smallFont, (to_string(playersPokeballs[i].size())).c_str(), {255, 255, 255});
+                        textSurf = TTF_RenderText_Solid(smallFont, (to_string(playersPokeballs[i].size())).c_str(), {255, 255, 255});
                         SDL_BlitSurface(textSurf, nullptr, windowSurf, &displayPos);
+                        SDL_FreeSurface(textSurf);
                     }
                 }
                 if (checkForClickAndDisplayButton({1210, 745, 120, 50}, windowSurf, backButtonIMG, backButtonHoverIMG) == PRESSED){

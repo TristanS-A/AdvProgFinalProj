@@ -15,6 +15,8 @@
 #include "pokemonNameHandler.h"
 #include "button.h"
 #include "getRandomPokemon.h"
+#include "calculateResults.h"
+#include "freeingSDLStuff.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -139,10 +141,9 @@ int main(int argc, char* argv[]) {
     //---------------------------------------------------\\
 
     //TODO: Need to
-    //      Write new moves in the move txt file and more names in the names file ( Check chain reaction and ulra heal des and names) (Also check ultra heal implimentation)
+    //      Deal with closing music and global variable surfs (Look into making windowsurf global)
     //      Refactoring
     //      Comment everything and review (balancing and boolean logic for battle animations (like the booleans logic to blit the player when entering a battle))
-    //      Going over grade requirements (like deleting dynamics)
     //
     //TODO: Maybe
     //      Add music and sound effects.
@@ -150,12 +151,14 @@ int main(int argc, char* argv[]) {
     //      Make death animation (make pokemon go offscreen)
     //      Make Attack animation
     //      Make healing animations
+    //      Make extra stats for end file like total damage taken
 
 
     //Initialize fonts
     smallFont = TTF_OpenFont("fonts/font.ttf", SMALL_FONT_SIZE);
     mediumFont = TTF_OpenFont("fonts/font.ttf", MEDIUM_FONT_SIZE);
     largeFont = TTF_OpenFont("fonts/font.ttf", LARGE_FONT_SIZE);
+
 
     //Check for if font was correctly opened
     if (!smallFont){
@@ -216,17 +219,14 @@ int main(int argc, char* argv[]) {
 
     bgPos = {-background->w / 2 + SCREEN_WIDTH / 2, -background->h / 2 + SCREEN_HEIGHT / 2, background->w, background->h};
 
-    SDL_Surface* curtain = IMG_Load("images/curtain.png");
     SDL_Rect curtainPos = {0, -SCREEN_HEIGHT, curtain->w, curtain->h};
 
     bool curtainHasDropped = false;
 
-    SDL_Surface* pokecenter = IMG_Load("images/p.png");
+    bool curtainIsDropping = false;
+
     SDL_Rect pokecenterPos = {bgPos.w / 2 - 50, bgPos.h / 2 - 50, 100, 100};
 
-    SDL_Surface* spaceButton = IMG_Load("images/spaceButton.png");
-
-    SDL_Surface* textboxIMG = IMG_Load("images/textbox.png");
     SDL_Rect textboxPos = {0, SCREEN_HEIGHT - textboxIMG->h, 0, 0};
 
     player = new Player({SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2, 0, 0});
@@ -288,7 +288,7 @@ int main(int argc, char* argv[]) {
 
     bool battleHasBegun = false;
 
-    bool battleIsOver = false;
+    bool battleIsOver = true;
 
     bool calculatingResults = false;
 
@@ -300,12 +300,6 @@ int main(int argc, char* argv[]) {
 
     bool onTitleScreen = true;
 
-    SDL_Surface* titleScreenImage = IMG_Load("images/titleScreenImage.png");
-    SDL_Surface* startButtonIMG = IMG_Load("images/startButton.png");
-    SDL_Surface* startButtonHoverIMG = IMG_Load("images/startButtonHover.png");
-
-    SDL_Surface* chooseScreen = IMG_Load("images/chooseScreen.png");
-
     Uint32 currEncounterTime;
     Uint32 prevEncounterTime = 0;
 
@@ -313,14 +307,21 @@ int main(int argc, char* argv[]) {
 
     mt19937 outputNum(random());
 
-    Pokeball* p = new Pokeball("Master Ball", 3, IMG_Load("images/items/masterBall.png"),
-    "A super Pokeball with a much higher catching chance");
-    Pokeball* pe = new Pokeball("Great Ball", 1, IMG_Load("images/items/greatBall.png"),
-                                "A better Pokeball with a higher catching chance");
-    player->addToPlayersPokeballs(p);
-    player->addToPlayersPokeballs(pe);
+    player->addToPlayersPokeballs(new Pokeball("Master Ball", 3, IMG_Load("images/items/masterBall.png"),
+                                               "A super Pokeball with a much higher catching chance"));
+    player->addToPlayersPokeballs(new Pokeball("Great Ball", 1, IMG_Load("images/items/greatBall.png"),
+                                               "A better Pokeball with a higher catching chance"));
 
     bool inBattle = false;
+
+    Mix_MasterVolume(MIX_MAX_VOLUME);
+
+    titleMusic = Mix_LoadMUS("music/titleTheme.wav");
+    worldMusic = Mix_LoadMUS("music/worldTheme.wav");
+    battleMusic = Mix_LoadMUS("music/battleMusic.wav");
+    battleIntro = Mix_LoadWAV("music/introBattleSound.wav");
+
+    Mix_PlayMusic(titleMusic, -1);
 
     //-------------------------------------\\
     //------------- Game Loop -------------\\
@@ -386,8 +387,12 @@ int main(int argc, char* argv[]) {
                     buttonPos = {SCREEN_WIDTH / 2 - 150, 600, 300, 100};
                     ButtonState startButton = checkForClickAndDisplayButton(buttonPos, windowSurf, startButtonIMG,
                                                                             startButtonHoverIMG);
-                    if (startButton == PRESSED) {
-                        onTitleScreen = false;
+                    if (startButton == PRESSED && ! curtainIsDropping) {
+                        if (hasChoseStarterPokemon){
+                            curtainIsDropping = true;
+                        } else {
+                            onTitleScreen = false;
+                        }
                     }
                 } else if (!hasChoseStarterPokemon){
                     SDL_BlitSurface(chooseScreen, nullptr, windowSurf, &placeHolderRect);
@@ -399,29 +404,50 @@ int main(int argc, char* argv[]) {
 
                         string text = listOfStarterPokemon[i]->getName();
                         SDL_Rect textPos = {int(buttonPos.x + buttonPos.w / 2 - text.size() / 2.0 * MEDIUM_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH), buttonPos.y + buttonPos.h, 0, 0};
-                        SDL_Surface* textSurf = TTF_RenderText_Solid(mediumFont, text.c_str(), {0, 0, 0});
+                        textSurf = TTF_RenderText_Solid(mediumFont, text.c_str(), {0, 0, 0});
                         SDL_BlitSurface(textSurf, nullptr, windowSurf, &textPos);
+                        SDL_FreeSurface(textSurf);
 
                         text = typeid(*listOfStarterPokemon[i]).name();
                         text = text.substr(1, text.size());
                         textPos = {int(buttonPos.x + buttonPos.w / 2 - text.size() / 2.0 * MEDIUM_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH), buttonPos.y + buttonPos.h + MEDIUM_FONT_SIZE, 0, 0};
                         textSurf = TTF_RenderText_Solid(mediumFont, text.c_str(), {0, 0, 0});
                         SDL_BlitSurface(textSurf, nullptr, windowSurf, &textPos);
+                        SDL_FreeSurface(textSurf);
 
-                        if (starterPokemonButton == PRESSED){
+                        if (starterPokemonButton == PRESSED && !curtainIsDropping){
                             player->addToPlayersPokemon(listOfStarterPokemon[i]);
+                            curtainIsDropping = true;
+                            Mix_FadeOutMusic(500);
+                        }
+                    }
+                } else {
+                    curtainIsDropping = true;
+                    Mix_FadeOutMusic(500);
+                }
+                if (curtainIsDropping && curtainPos.y != 0) {
+                    curtainPos.y /= 1.2;
+                    placeHolderRect = curtainPos;
+                    SDL_BlitSurface(curtain, nullptr, windowSurf, &placeHolderRect);
+                    if (curtainPos.y > -1) {
+                        curtainPos.y = -2;
+                        curtainHasDropped = true;
+                        curtainIsDropping = false;
+                        onTitleScreen = false;
+                        hasChoseStarterPokemon = true;
+                        if (listOfStarterPokemon[0] != nullptr){
                             for (Pokemon* &pokemon : listOfStarterPokemon){
-                                if (pokemon != listOfStarterPokemon[i]) {
+                                if (pokemon != player->getCurrPokemon()) {
                                     delete pokemon;
                                 }
                                 pokemon = nullptr;
                             }
-                            hasChoseStarterPokemon = true;
-                            break;
                         }
+                        Mix_FadeInMusic(worldMusic, -1, 500);
                     }
                 }
-            } else {
+            }
+            else {
                 if (!battleHasBegun || (battleIsOver && curtainHasDropped)) {
 
                     if (!inBattle && messageList.empty()) {
@@ -446,6 +472,10 @@ int main(int argc, char* argv[]) {
 
                                     inBattle = true;
                                     battleIsOver = false;
+                                    curtainIsDropping = true;
+                                    Mix_FadeOutMusic(0);
+                                    Mix_PlayChannel(1, battleIntro, 0);
+                                    Mix_FadeInMusic(battleMusic, -1, 2500);
                                 }
                             }
                         }
@@ -497,7 +527,7 @@ int main(int argc, char* argv[]) {
                     }
                 }
                 if (inBattle) {
-                    if ((battleHasBegun || curtainHasDropped) && (!battleIsOver || !curtainHasDropped)) {
+                    if (battleHasBegun || curtainHasDropped) {
                         placeHolderRect = {0, 0, 0, 0};
                         SDL_BlitSurface(currBattleBackground, nullptr, windowSurf, &placeHolderRect);
                         SDL_BlitSurface(textboxIMG, nullptr, windowSurf, &textboxPos);
@@ -648,22 +678,13 @@ int main(int argc, char* argv[]) {
                                     wildPokemon->setImagePos(950, 100);
                                     wildPokemon->setInfoPos(100, 100);
                                     curtainHasDropped = true;
-                                }
-                            } else if (curtainHasDropped && curtainPos.y != -SCREEN_HEIGHT) {
-                                curtainPos.y /= 0.65;
-                                placeHolderRect = curtainPos;
-                                SDL_BlitSurface(curtain, nullptr, windowSurf, &placeHolderRect);
-
-                                if (curtainPos.y < -SCREEN_HEIGHT) {
-                                    curtainPos.y = -SCREEN_HEIGHT;
-                                    curtainHasDropped = false;
-                                    ///////////////////////////////////////////////////////Play enter battle animation (done-ish)
                                     messageList.emplace_back("You encountered a wild pokemon!");
                                     ///////////////////////////////Check all NOT_CHOSEN things to see if this one here is necessary
                                     chosenAction = NOT_CHOSEN;
                                     player->resetBattleMenu();
                                     battleHasBegun = true;
                                     battleIsOver = false;
+                                    curtainIsDropping = false;
                                 }
                             }
                         } else {
@@ -715,6 +736,9 @@ int main(int argc, char* argv[]) {
                                 }
                                 calculatingResults = false;
                             } else {
+                                if (Mix_PlayingMusic()){
+                                    Mix_FadeOutMusic(500);
+                                }
                                 if (!curtainHasDropped && curtainPos.y != 0) {
                                     curtainPos.y /= 1.2;
                                     placeHolderRect = curtainPos;
@@ -722,17 +746,10 @@ int main(int argc, char* argv[]) {
                                     if (curtainPos.y > -1) {
                                         curtainPos.y = -2;
                                         curtainHasDropped = true;
-                                    }
-                                } else if (curtainHasDropped && curtainPos.y != -SCREEN_HEIGHT) {
-                                    curtainPos.y /= 0.65;
-                                    placeHolderRect = curtainPos;
-                                    SDL_BlitSurface(curtain, nullptr, windowSurf, &placeHolderRect);
-                                    if (curtainPos.y < -SCREEN_HEIGHT) {
-                                        curtainPos.y = -SCREEN_HEIGHT;
                                         inBattle = false;
                                         battleHasBegun = false;
-                                        curtainHasDropped = false;
                                         prevEncounterTime = SDL_GetTicks();
+                                        Mix_FadeInMusic(worldMusic, -1, 500);
                                     }
                                 }
                             }
@@ -740,6 +757,15 @@ int main(int argc, char* argv[]) {
                     } else {
                         showMessages(messageList, windowSurf);
                     }
+                }
+            }
+            if (curtainHasDropped && curtainPos.y != -SCREEN_HEIGHT) {
+                curtainPos.y /= 0.65;
+                placeHolderRect = curtainPos;
+                SDL_BlitSurface(curtain, nullptr, windowSurf, &placeHolderRect);
+                if (curtainPos.y < -SCREEN_HEIGHT) {
+                    curtainPos.y = -SCREEN_HEIGHT;
+                    curtainHasDropped = false;
                 }
             }
 
@@ -761,7 +787,9 @@ int main(int argc, char* argv[]) {
         SDL_RenderPresent(renderer);
     }
 
-    ////////////////////////////////////////////Also check for other surfaces that don't get freed like the item surfs and textbox surf
+    //Calculate and output results to results file
+    calculateResults();
+
     //Frees surfaces
     SDL_FreeSurface(windowSurf);
 
@@ -770,8 +798,14 @@ int main(int argc, char* argv[]) {
 
     //Deletes player
     delete player;
+    player = nullptr;
 
+    //Deletes wildPokemon
     delete wildPokemon;
+    wildPokemon = nullptr;
+
+    //Frees SDL surfaces and music/sound
+    freeingSDLStuff();
 
     //Close the font that was used
     TTF_CloseFont(smallFont);

@@ -1,21 +1,21 @@
 FireType
 Name: Heat Wave; Power: 5; Description: The pokemon blasts the enemie with a wave of heat;
 Name: Flame Kick; Power: 10; Description: The pokemon attacks the enemywith a fiery kick;
-Name: Combustion; Power 20; Description: The pokemon attacks with a fiery explosion;
-Name: Flamethrower; Power 15; Description: The pokemon shoots a stream of fire at the enemy;
-Name: Flame Rush; Power 8; Description: The pokemon surrounds itself with fire and rushes the enemy;
-Name: Fireball; Power 8; Description: The pokemon lanches a fireball at the enemy;
-Name: Scorch; Power 10; Description: The pokemon serverely burns the enemy;
-Name: Chain Reaction; Power 25; Description: The pokemon causes a chain reaction of explosions around the enemy;
+Name: Combustion; Power: 20; Description: The pokemon attacks with a fiery explosion;
+Name: Flamethrower; Power: 15; Description: The pokemon shoots a stream of fire at the enemy;
+Name: Flame Rush; Power: 8; Description: The pokemon surrounds itself with fire and rushes the enemy;
+Name: Fireball; Power: 8; Description: The pokemon lanches a fireball at the enemy;
+Name: Scorch; Power: 10; Description: The pokemon serverely burns the enemy;
+Name: Chain Reaction; Power: 25; Description: The pokemon causes a chain reaction of explosions around the enemy;
 WaterType
 Name: Heal; Power: 20; Description: The pokemon restores HP in relation to its mineral value;
 Name: Splash; Power: 5; Description: The pokemon rapidly splashes water at the enemy;
-Name: Water Gun; Power 10; Description: The pokemon shoots a precise bullet of water;
-Name: Torrent; Power 12; Description: The pokemon bombards the enemy with water from all sides;
-Name: Tidal Wave; Power 20; Description: The pokemon summons a tidal wave of water;
-Name: Water Whip; Power 8; Description: The pokemon whips the enemy with a stream of water;
-Name: Ultra Heal; Power 40; Description: The pokemon restores a bunch of HP in relation to its mineral value;
-Name: Aqua Blade; Power 10; Description: The pokemon slashes the enemy with a blade of water;
+Name: Water Gun; Power: 10; Description: The pokemon shoots a precise bullet of water;
+Name: Torrent; Power: 12; Description: The pokemon bombards the enemy with water from all sides;
+Name: Tidal Wave; Power: 20; Description: The pokemon summons a tidal wave of water;
+Name: Water Whip; Power: 8; Description: The pokemon whips the enemy with a stream of water;
+Name: Ultra Heal; Power: 40; Description: The pokemon restores a bunch of HP in relation to its mineral value;
+Name: Aqua Blade; Power: 10; Description: The pokemon slashes the enemy with a blade of water;
 GrassType
 Name: Rehydrate; Power: 30; Description: The pokemon restores its water levels;
 Name: Jab; Power: 8; Description: The pokemon jabs at the enemie with a stick or branch;

@@ -66,4 +66,7 @@ string getRandomName(string typeID) {
         string errorMessage = "Could not find a name after looking through all names of its type.";
         throw errorMessage;
     }
+
+    return "";
+
 }

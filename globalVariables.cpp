@@ -98,3 +98,29 @@ SDL_Surface* rightButtonIMG = IMG_Load("images/rightButton.png");
 SDL_Surface* rightButtonHoverIMG = IMG_Load("images/rightButtonHover.png");
 
 SDL_Surface* pokeInfoBG = IMG_Load("images/pokeInfoBG.png");
+
+SDL_Surface* titleScreenImage = IMG_Load("images/titleScreenImage.png");
+
+SDL_Surface* startButtonIMG = IMG_Load("images/startButton.png");
+
+SDL_Surface* startButtonHoverIMG = IMG_Load("images/startButtonHover.png");
+
+SDL_Surface* chooseScreen = IMG_Load("images/chooseScreen.png");
+
+SDL_Surface* curtain = IMG_Load("images/curtain.png");
+
+SDL_Surface* pokecenter = IMG_Load("images/p.png");
+
+SDL_Surface* spaceButton = IMG_Load("images/spaceButton.png");
+
+SDL_Surface* textboxIMG = IMG_Load("images/textbox.png");
+
+SDL_Surface* textSurf;
+
+Mix_Music* titleMusic;
+
+Mix_Music* worldMusic;
+
+Mix_Music* battleMusic;
+
+Mix_Chunk* battleIntro;
