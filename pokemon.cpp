@@ -59,6 +59,7 @@ Pokemon::~Pokemon() {
 }
 
 bool Pokemon::attack(Pokemon* pokemonToAttack) {
+    Mix_PlayChannel(1, currSound, 0);
     pokemonToAttack->addToHealth(int(-movePower[currAttack] * baseAttackPower) / pokemonToAttack->getBaseDefense());
     return true;
 }
@@ -521,10 +522,14 @@ bool FireType::attack(Pokemon* pokemonToAttack) {
     if (typeid(*pokemonToAttack) == typeid(GrassType)){
         movePower[currAttack] *= 1.5;
         messageList.push_back("It was super effective!");
+        currSound = critHit;
     }
     else if (typeid(*pokemonToAttack) == typeid(WaterType)){
         movePower[currAttack] *= 0.5;
         messageList.push_back("It wasn't very effective...");
+        currSound = enemyHit;
+    } else {
+        currSound = playerHit;
     }
 
     Pokemon::attack(pokemonToAttack);
@@ -581,10 +586,14 @@ bool WaterType::attack(Pokemon* pokemonToAttack) {
         if (typeid(*pokemonToAttack) == typeid(FireType)){
             movePower[currAttack] *= 1.5;
             messageList.push_back("It was super effective!");
+            currSound = critHit;
         }
         else if (typeid(*pokemonToAttack) == typeid(GrassType)){
             movePower[currAttack] *= 0.5;
             messageList.push_back("It wasn't very effective...");
+            currSound = enemyHit;
+        } else {
+            currSound = playerHit;
         }
 
         Pokemon::attack(pokemonToAttack);
@@ -658,9 +667,13 @@ bool GrassType::attack(Pokemon* pokemonToAttack) {
             if (typeid(*pokemonToAttack) == typeid(IceType)) {
                 movePower[currAttack] *= 1.5;
                 messageList.push_back("It was super effective!");
+                currSound = critHit;
             } else if (typeid(*pokemonToAttack) == typeid(FireType)) {
                 movePower[currAttack] *= 0.5;
                 messageList.push_back("It wasn't very effective...");
+                currSound = enemyHit;
+            } else {
+                currSound = playerHit;
             }
 
             Pokemon::attack(pokemonToAttack);
@@ -772,10 +785,14 @@ bool IceType::attack(Pokemon* pokemonToAttack) {
     if (typeid(*pokemonToAttack) == typeid(FireType)) {
         movePower[currAttack] *= 1.5;
         messageList.push_back("It was super effective!");
+        currSound = critHit;
     } else if (typeid(*pokemonToAttack) == typeid(GrassType)) {
         movePower[currAttack] *= 0.5;
         messageList.push_back("It wasn't very effective...");
-    };
+        currSound = enemyHit;
+    } else {
+        currSound = playerHit;
+    }
 
     Pokemon::attack(pokemonToAttack);
 

@@ -4,7 +4,6 @@
 
 #include "button.h"
 #include "globalVariables.h"
-#include "iostream"
 
 ButtonState checkForClickAndDisplayButton(SDL_Rect buttonRect, SDL_Surface *windowSurf, SDL_Surface *buttonIMG, SDL_Surface * hoveredIMG){
 
@@ -17,6 +16,7 @@ ButtonState checkForClickAndDisplayButton(SDL_Rect buttonRect, SDL_Surface *wind
 
         if (mouseDown && !mouseHeldDown) {
             mouseHeldDown = true;
+            Mix_PlayChannel(2, buttonSound, 0);
             return PRESSED;
         }
         else if (!mouseDown) {

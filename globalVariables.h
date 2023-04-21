@@ -134,6 +134,16 @@ extern Mix_Music* worldMusic;
 
 extern Mix_Music* battleMusic;
 
+extern Mix_Chunk* currSound;
+
 extern Mix_Chunk* battleIntro;
+
+extern Mix_Chunk* critHit;
+
+extern Mix_Chunk* enemyHit;
+
+extern Mix_Chunk* playerHit;
+
+extern Mix_Chunk* buttonSound;
 
 #endif //ADVPROGFINPROJ_GLOBALVARIABLES_H

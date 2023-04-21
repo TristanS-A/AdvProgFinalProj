@@ -123,4 +123,14 @@ Mix_Music* worldMusic;
 
 Mix_Music* battleMusic;
 
+Mix_Chunk* currSound;
+
 Mix_Chunk* battleIntro;
+
+Mix_Chunk* critHit;
+
+Mix_Chunk* enemyHit;
+
+Mix_Chunk* playerHit;
+
+Mix_Chunk* buttonSound;
