@@ -5,7 +5,6 @@
 #include "globalVariables.h"
 #include "SDL_image.h"
 
-
 //Dimensions for the screen
 extern const int SCREEN_WIDTH = 1440;
 extern const int SCREEN_HEIGHT = 810;
@@ -40,7 +39,7 @@ bool mouseDown = false;
 bool mouseHeldDown = false;
 
 //So that holding down a key will not skip through messages
-bool noSkip = true;
+bool noSkip = false;
 
 //Sets up key presses
 const Uint8 *keystates{SDL_GetKeyboardState(nullptr)};
@@ -72,77 +71,60 @@ Player* player;
 //To send messages in battle;
 vector<string> messageList;
 
+//Text color
+SDL_Color textColor = {255, 255, 255};
+
+//The amount of moves per pokemon type (in move txt file)
 int amountOfMovesPerType = 0;
 
+//The amount of names per pokemon type (in name txt file)
 int amountOfNamesPerType = 0;
 
+//Various button images
 SDL_Surface* buttonIMG = IMG_Load("images/button.png");
-
 SDL_Surface* buttonHoverIMG = IMG_Load("images/buttonHover.png");
-
 SDL_Surface* backButtonIMG = IMG_Load("images/backButton.png");
-
 SDL_Surface* backButtonHoverIMG = IMG_Load("images/backButtonHover.png");
-
 SDL_Surface* attackButtonIMG = IMG_Load("images/attackButton.png");
 SDL_Surface* attackButtonHoverIMG = IMG_Load("images/attackButtonHover.png");
-
 SDL_Surface* itemsButtonIMG = IMG_Load("images/itemsButton.png");
 SDL_Surface* itemsButtonHoverIMG = IMG_Load("images/itemsButtonHover.png");
-
 SDL_Surface* catchButtonIMG = IMG_Load("images/catchButton.png");
 SDL_Surface* catchButtonHoverIMG = IMG_Load("images/catchButtonHover.png");
-
 SDL_Surface* swapButtonIMG = IMG_Load("images/swapButton.png");
 SDL_Surface* swapButtonHoverIMG = IMG_Load("images/swapButtonHover.png");
-
 SDL_Surface* runButtonIMG = IMG_Load("images/runButton.png");
 SDL_Surface* runButtonHoverIMG = IMG_Load("images/runButtonHover.png");
-
 SDL_Surface* leftButtonIMG = IMG_Load("images/leftButton.png");
 SDL_Surface* leftButtonHoverIMG = IMG_Load("images/leftButtonHover.png");
-
 SDL_Surface* rightButtonIMG = IMG_Load("images/rightButton.png");
 SDL_Surface* rightButtonHoverIMG = IMG_Load("images/rightButtonHover.png");
-
-SDL_Surface* pokeInfoBG = IMG_Load("images/pokeInfoBG.png");
-
-SDL_Surface* titleScreenImage = IMG_Load("images/titleScreenImage.png");
-
 SDL_Surface* startButtonIMG = IMG_Load("images/startButton.png");
-
-SDL_Surface* startButtonHoverIMG = IMG_Load("images/startButtonHover.png");
-
-SDL_Surface* chooseScreen = IMG_Load("images/chooseScreen.png");
-
-SDL_Surface* curtain = IMG_Load("images/curtain.png");
-
-SDL_Surface* pokecenter = IMG_Load("images/p.png");
-
 SDL_Surface* spaceButton = IMG_Load("images/spaceButton.png");
 
+//Various background or other images
+SDL_Surface* pokeInfoBG = IMG_Load("images/pokeInfoBG.png");
+SDL_Surface* titleScreenImage = IMG_Load("images/titleScreenImage.png");
+SDL_Surface* startButtonHoverIMG = IMG_Load("images/startButtonHover.png");
+SDL_Surface* chooseScreen = IMG_Load("images/chooseScreen.png");
+SDL_Surface* curtain = IMG_Load("images/curtain.png");
+SDL_Surface* pokecenter = IMG_Load("images/pokecenteIMG.png");
 SDL_Surface* textboxIMG = IMG_Load("images/textbox.png");
 
+//Surface for displaying text
 SDL_Surface* textSurf;
 
+//Music
 Mix_Music* titleMusic;
-
 Mix_Music* worldMusic;
-
 Mix_Music* battleMusic;
 
+//Sound effects
 Mix_Chunk* currSound;
-
 Mix_Chunk* battleIntro;
-
 Mix_Chunk* critHit;
-
 Mix_Chunk* weakHit;
-
 Mix_Chunk* regularHit;
-
 Mix_Chunk* buttonSound;
-
 Mix_Chunk* pokecenterSound;
-
 Mix_Chunk* healSound;

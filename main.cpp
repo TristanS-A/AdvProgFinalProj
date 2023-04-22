@@ -1,8 +1,38 @@
+// Created and edited by Tristan Schonfeldt-Aultman (tropi is also me on the other files)
+//
+// Certificate of authenticity:
+//
+/*
+Author        : Tristan Schonfeldt-Aultman
+Class         : CSI - 240 : Advanced Programming
+Assignment    : Final Project
+Date Assigned : 3/24/2023
+Due Date      : Due-Date and Time as Tuesday 4/23/2023 by 11:59pm
+
+
+Project Description :
+This is my final project for the class. It is a game that mimics Pokemon. Read the README.txt for a more detailed '
+description of how the game works and credits
+
+Certification of Authenticity :
+
+I certify that this is entirely my own work, except where I have given
+fully-documented references to the work of others. I understand the
+definition and consequences of plagiarism and acknowledge that the assessor
+of this assignment may, for the purpose of assessing this assignment:
+- Reproduce this assignment and provide a copy to another member of
+academic staff; and/or
+- Communicate a copy of this assignment to a plagiarism checking
+service (which may then retain a copy of this assignment on its
+database for the purpose of future plagiarism checking)
+*/
+
 #define SDL_MAIN_HANDLED true
 #define _USE_MATH_DEFINES
 #include <iostream>
 #include <algorithm>
 #include <random>
+#include <filesystem>
 
 #include "screenSizeChange.h"
 #include "player.h"
@@ -28,11 +58,12 @@ using namespace std;
 #define SCREEN_WIDTH    1440
 #define SCREEN_HEIGHT   810
 
+//I know this is a massive main function, but I didn't have enough time to really clean it up well
 int main(int argc, char* argv[]) {
 
-    //--------------------------------------\\
-    //------------- SDL Set Up -------------\\
-    //--------------------------------------\\
+    //--------------------------------------------------------\\
+    //------------- SDL Set Up and File Checking -------------\\
+    //--------------------------------------------------------\\
 
     // Unused argc, argv
     (void) argc;
@@ -104,6 +135,62 @@ int main(int argc, char* argv[]) {
         error = true;
     }
 
+    namespace fs = std::filesystem;
+
+    //Checks for images file
+    string filePath = "images";
+    fs::path f{ filePath };
+
+    if (!fs::exists(f)) {
+        cout << "Could not find images file!\n";
+        error = true;
+    }
+
+    //Checks for pokemon names file
+    filePath = "nameList.txt";
+    f = { filePath };
+
+    if (!fs::exists(f)) {
+        cout << "Could not find pokemon names list file!\n";
+        error = true;
+    }
+
+    //Checks for pokemon moves file
+    filePath = "moveInfo.txt";
+    f = { filePath };
+
+    if (!fs::exists(f)) {
+        cout << "Could not find pokemon moves list file!\n";
+        error = true;
+    }
+
+    //Checks for music file
+    filePath = "music";
+    f = { filePath };
+
+    if (!fs::exists(f)) {
+        cout << "Could not find music file!\n";
+        error = true;
+    }
+
+    //Checks for fonts file
+    filePath = "fonts";
+    f = { filePath };
+
+    if (!fs::exists(f)) {
+        cout << "Could not find fonts file!\n";
+        error = true;
+    }
+
+    //Checks for sound effects file
+    filePath = "sounds";
+    f = { filePath };
+
+    if (!fs::exists(f)) {
+        cout << "Could not find sounds file!\n";
+        error = true;
+    }
+
     //Handles if there was an error initializing something
     if (error) {
 
@@ -140,20 +227,6 @@ int main(int argc, char* argv[]) {
     //---------------------------------------------------\\
     //------------- Variable initialization -------------\\
     //---------------------------------------------------\\
-
-    //TODO: Final Checklist
-    //      Add pokecenter and player images
-    //      Either get rid of or impliment textCOlor and change text color maybe like item text color
-    //      Maybe change default button images
-    //
-    //TODO: Maybe
-    //      Add level up sound effect
-    //      Add sp so that big moves cannot be used every turn maybe.
-    //      Make death animation (make pokemon go offscreen)
-    //      Make Attack animation
-    //      Make healing animations
-    //      Make extra stats for end file like total damage taken
-
 
     //Initialize fonts
     smallFont = TTF_OpenFont("fonts/font.ttf", SMALL_FONT_SIZE);
@@ -243,7 +316,7 @@ int main(int argc, char* argv[]) {
     bool curtainIsDropping = false;
 
     //The pokecenter rect
-    SDL_Rect pokecenterPos = {bgPos.w / 2 - 50, bgPos.h / 2 - 50, 100, 100};
+    SDL_Rect pokecenterPos = {bgPos.w / 2 - pokecenter->w / 2, bgPos.h / 2 - pokecenter->h / 2, pokecenter->w, pokecenter->h};
 
     //The rect for the textbox image
     SDL_Rect textboxPos = {0, SCREEN_HEIGHT - textboxIMG->h, 0, 0};
@@ -257,9 +330,6 @@ int main(int argc, char* argv[]) {
     //This exists because SDL's blitting function changes the destination rect's position when blitting, if the
     // position is offscreen
     SDL_Rect placeHolderRect = {0, 0, 0, 0};
-
-    //Text color
-    SDL_Color textColor = {255, 255, 255};
 
     //To quit the game
     bool quit = false;
@@ -344,7 +414,7 @@ int main(int argc, char* argv[]) {
     mt19937 outputNum(random());
 
     //Starting pokeballs the player has
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 5; i++) {
         player->addToPlayersPokeballs(new Pokeball("Pokeball", 1, IMG_Load("images/items/pokeball.png"),
                                                    "A normal Pokeball to catch pokemon"));
     }
@@ -593,16 +663,19 @@ int main(int argc, char* argv[]) {
                                                                         pokecenterPos.w) &&
                                 (bgPos.y < -bgPos.h / 2 + SCREEN_HEIGHT / 2
                                            + pokecenterPos.h && bgPos.y > -bgPos.h / 2 + SCREEN_HEIGHT / 2 -
-                                                                          pokecenterPos.h)) {
+                                                                          pokecenterPos.h / 2)) {
 
                                 //Test for interacting with the pokecenter
-                                if (keystates[SDL_SCANCODE_SPACE] || !messageList.empty() ||
+                                if ((keystates[SDL_SCANCODE_SPACE] && !noSkip) || !messageList.empty() ||
                                     (player->noOtherHealthyPokemon() && player->getCurrPokemon()->getHealth() == 0 &&
                                      !curtainHasDropped)) {
                                     if (messageList.empty()) {
                                         for (Pokemon *pokemon: player->getAllPokemon()) {
                                             pokemon->restore();
                                         }
+
+                                        //noSkip is here so that the player doesn't interact with the pokecenter the next frame after leaving
+                                        noSkip = true;
                                         Mix_FadeOutMusic(500);
                                         Mix_PlayChannel(1, pokecenterSound, 0);
                                         messageList.emplace_back("You healed up all your Pokemon!");
@@ -618,7 +691,13 @@ int main(int argc, char* argv[]) {
                                             Mix_FadeInMusicPos(worldMusic, -1, 1000, Mix_GetMusicPosition(worldMusic));
                                         }
                                     }
-                                } else {
+                                }
+                                else {
+
+                                    //To reset noSkip so the player can interact with the pokecenter again
+                                    if (!keystates[SDL_SCANCODE_SPACE]) {
+                                        noSkip = false;
+                                    }
 
                                     //Displays space button notification while not using the pokecenter and while close enough
                                     placeHolderRect = {pokecenterPos.x + pokecenterPos.w / 2 - spaceButton->w / 2,

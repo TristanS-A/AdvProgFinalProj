@@ -10,6 +10,7 @@
 
 using namespace std;
 
+//Function for calculating and outputting plathrough results to results file
 void calculateResults();
 
 #endif //ADVPROGFINPROJ_CALCULATERESULTS_H

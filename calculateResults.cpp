@@ -5,6 +5,8 @@
 #include "calculateResults.h"
 
 void calculateResults(){
+
+    //Creates output results file
     ofstream fout("Your_Results.txt");
     if (fout.is_open()) {
 

@@ -9,6 +9,7 @@
 #include "pokemon.h"
 #include "items.h"
 #include <vector>
+#include <algorithm>
 
 ///////////////////////////////Maybe capitalize the enums
 
@@ -26,7 +27,11 @@ public:
 
     ~Player();
 
-    void movePlayer(int xUnits, int yUnits);
+    void playWalkAnimation();
+
+    void setPlayerVel(int xVel, int yVel);
+
+    void movePlayer();
 
     void setPlayerPos(int x, int y);
 
@@ -44,7 +49,7 @@ public:
 
     void addToPlayersPokemon(Pokemon* pokemon);
 
-    void removeFromPlayersPokemon(Pokemon* pokemon);
+    //void removeFromPlayersPokemon(Pokemon* pokemon); //Function to remove a pokemon from player pokemon (unimplemented)
 
     void addToPlayersItems(Item* item);
 
@@ -53,8 +58,6 @@ public:
     void addToPlayersPokeballs(Pokeball* pokeball);
 
     void removeFromPlayersPokeballs(Pokeball* pokeball);
-
-    Item* getCurrItem();
 
     void useItem();
 
@@ -81,6 +84,16 @@ public:
 private:
     SDL_Rect playerPos;
     SDL_Surface* playerImage;
+    vector<SDL_Surface*> forwardWalk;
+    vector<SDL_Surface*> leftWalk;
+    vector<SDL_Surface*> rightWalk;
+    vector<SDL_Surface*> backWalk;
+    int walkTimeStep;
+    int walkPrevTime;
+    int walkIndex_X;
+    int walkIndex_Y;
+    int xVel = 0;
+    int yVel = 0;
     const int WALK_SPEED = 5;
     const int SPRINT_SPEED = 10;
     int playerSpeed;

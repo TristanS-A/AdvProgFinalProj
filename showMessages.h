@@ -9,6 +9,7 @@
 #include "globalVariables.h"
 #include <algorithm>
 
+//Function for displaying messages
 void showMessages(vector<string> &messagesToSend, SDL_Surface* windowSurf);
 
 #endif //ADVPROGFINPROJ_SHOWMESSAGES_H

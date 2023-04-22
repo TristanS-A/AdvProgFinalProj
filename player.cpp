@@ -13,19 +13,45 @@
 #include <string>
 
 Player::Player(SDL_Rect playerPos) {
-    playerImage = IMG_Load("images/p.png");
+    forwardWalk = {IMG_Load("images/forward0.png"), IMG_Load("images/forward1.png"), IMG_Load("images/forward2.png")};
+    leftWalk = {IMG_Load("images/left0.png"), IMG_Load("images/left1.png"), IMG_Load("images/left2.png")};
+    rightWalk = {IMG_Load("images/right0.png"), IMG_Load("images/right1.png"), IMG_Load("images/right2.png")};
+    backWalk = {IMG_Load("images/back0.png"), IMG_Load("images/back1.png"), IMG_Load("images/back2.png")};
+    walkIndex_X = 0;
+    walkIndex_Y = 0;
+    walkTimeStep = 5;
+    walkPrevTime = 0;
+    playerSpeed = WALK_SPEED;
+
+    playerImage = forwardWalk[walkIndex_X];
 
     if (!playerImage){
         std::cout << "Could not load player image.";
+    } else {
+        this->playerPos = {playerPos.x - playerImage->w / 2, playerPos.y - playerImage->h / 2, playerImage->w,
+                           playerImage->h};
     }
-
-    this->playerPos = {playerPos.x - playerImage->w / 2, playerPos.y - playerImage->h / 2, playerImage->w,
-                       playerImage->h};
-
-    playerSpeed = WALK_SPEED;
 }
 
 Player::~Player() {
+    for (SDL_Surface* surf : forwardWalk){
+        SDL_FreeSurface(surf);
+    }
+
+    for (SDL_Surface* surf : leftWalk){
+        SDL_FreeSurface(surf);
+    }
+
+    for (SDL_Surface* surf : rightWalk){
+        SDL_FreeSurface(surf);
+    }
+
+    for (SDL_Surface* surf : backWalk){
+        SDL_FreeSurface(surf);
+    }
+
+    playerImage = nullptr;
+
     for (vector<Item*> vectorOfItems: playersItems){
         for (Item* item : vectorOfItems){
             delete item;
@@ -49,9 +75,65 @@ Player::~Player() {
     SDL_FreeSurface(playerImage);
 }
 
-void Player::movePlayer(int xUnits, int yUnits) {
-    playerPos.x += xUnits;
-    playerPos.y += yUnits;
+void Player::playWalkAnimation() {
+    Uint32 currTime = SDL_GetTicks();
+
+    if (xVel != 0){
+        if (currTime > walkPrevTime + 1000 / walkTimeStep) {
+            walkPrevTime = currTime;
+            if (walkIndex_X == rightWalk.size() - 1) {
+                walkIndex_X = 0;
+            } else {
+                walkIndex_X++;
+            }
+        }
+        if (xVel > 0){
+            playerImage = rightWalk[walkIndex_X];
+        } else if (xVel < 0){
+            playerImage = leftWalk[walkIndex_X];
+        }
+    } else {
+        walkIndex_X = 0;
+        if (find(rightWalk.begin(), rightWalk.end(), playerImage) != rightWalk.end()){
+            playerImage = rightWalk[walkIndex_X];
+        }
+        else if (find(leftWalk.begin(), leftWalk.end(), playerImage) != leftWalk.end()){
+            playerImage = leftWalk[walkIndex_X];
+        }
+    }
+    if (yVel != 0){
+        if (currTime > walkPrevTime + 1000 / walkTimeStep) {
+            walkPrevTime = currTime;
+            if (walkIndex_Y == backWalk.size() - 1) {
+                walkIndex_Y = 0;
+            } else {
+                walkIndex_Y++;
+            }
+        }
+        if (yVel < 0){
+            playerImage = backWalk[walkIndex_Y];
+        } else if (yVel > 0){
+            playerImage = forwardWalk[walkIndex_Y];
+        }
+    } else {
+        walkIndex_Y = 0;
+        if (find(backWalk.begin(), backWalk.end(), playerImage) != backWalk.end()){
+            playerImage = backWalk[walkIndex_Y];
+        }
+        else if (find(forwardWalk.begin(), forwardWalk.end(), playerImage) != forwardWalk.end()){
+            playerImage = forwardWalk[walkIndex_Y];
+        }
+    }
+}
+
+void Player::setPlayerVel(int xVel, int yVel) {
+    this->xVel = xVel;
+    this->yVel = yVel;
+}
+
+void Player::movePlayer() {
+    playerPos.x += xVel;
+    playerPos.y += yVel;
 }
 
 void Player::setPlayerPos(int x, int y) {
@@ -61,10 +143,12 @@ void Player::setPlayerPos(int x, int y) {
 
 void Player::setSprinting() {
     playerSpeed = SPRINT_SPEED;
+    walkTimeStep = 10;
 }
 
 void Player::setWalking() {
-playerSpeed = WALK_SPEED;
+    playerSpeed = WALK_SPEED;
+    walkTimeStep = 5;
 }
 
 int Player::getPlayerSpeed() const {
@@ -119,14 +203,15 @@ CatchingState Player::tryCatchingPokemon(Pokemon* pokemonToCatch) {
 void Player::addToPlayersPokemon(Pokemon* pokemon) {
     playersPokemon.push_back(pokemon);
 
-    ///////////////////////////////////////Maybe place this in main when starter pokemon are given
+    //Sets player's current pokemon to the first pokemon gotten by the player
     if (playersPokemon.size() == 1){
         currPokemon = pokemon;
     }
 }
 
+//Function to remove Pokemon so the player can catch new ones, but didn't have enough time to impliment
+/*
 void Player::removeFromPlayersPokemon(Pokemon *pokemon) {
-    //////////////////////////////////////////////////////////////Decide on boxes storage or delete
     if (currPokemon == pokemon){
         if (playersPokemon[0] == pokemon){
             currPokemon = playersPokemon[1];
@@ -145,7 +230,7 @@ void Player::removeFromPlayersPokemon(Pokemon *pokemon) {
     }
 
     playersPokemon.erase(find(playersPokemon.begin(), playersPokemon.end(), pokemon));
-}
+}*/
 
 void Player::addToPlayersItems(Item *item) {
     for (vector<Item*> &vectorOfItems : playersItems){
@@ -163,7 +248,6 @@ void Player::addToPlayersItems(Item *item) {
     playersItems[playersItems.size() - 1].push_back(item);
 }
 
-///////////////////////////////////////////////////Maybe make a template for this and pokeball deletion and adding
 void Player::removeFromPlayersItems(Item *item) {
     for (vector<Item*> &vectorOfItems : playersItems){
         if (vectorOfItems[0]->getName() == item->getName()){
@@ -202,7 +286,6 @@ bool Player::noOtherHealthyPokemon() {
             noMorePokemon = false;
         }
     }
-
     return noMorePokemon;
 }
 
@@ -216,7 +299,6 @@ bool Player::allPokemonHealthy() {
 }
 
 PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
-    ///////////////////////////////////////////////////////////Maybe add random text for how the currPokemon is doing
     switch (chosenAction){
         case NOT_CHOSEN:
             if (currPokemon->getHealth() > 0 && checkForClickAndDisplayButton({120, 650, 200, 100}, windowSurf, attackButtonIMG, attackButtonHoverIMG) == PRESSED){
@@ -264,14 +346,14 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
                     resetBattleMenu();
                 }
 
-                SDL_Rect destRect = {1170, 630, 100, 100};
+                int itemIMGDimensions = 90;
+                SDL_Rect destRect = {1170 + (buttonHeight - itemIMGDimensions) / 2, 630 + (buttonHeight - itemIMGDimensions) / 2, itemIMGDimensions, itemIMGDimensions};
                 playersItems[currItem][0]->displayItem(windowSurf, destRect);
 
                 string text = to_string(playersItems[currItem].size());
-                int offset = 5;
-                destRect.x = destRect.x + destRect.w - text.size() * SMALL_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH - offset;
-                destRect.y = destRect.y + offset;
-                textSurf = TTF_RenderText_Solid(smallFont, text.c_str(), {255, 255, 255});
+                destRect.x = destRect.x + destRect.w - text.size() * SMALL_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH;
+                destRect.y = destRect.y;
+                textSurf = TTF_RenderText_Solid(smallFont, text.c_str(), textColor);
                 SDL_BlitSurface(textSurf, nullptr, windowSurf, &destRect);
                 SDL_FreeSurface(textSurf);
             } else {
@@ -306,13 +388,21 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
                         else if (selectButton == HOVER){
                             playersPokeballs[i][0]->displayDescription(windowSurf);
                         }
-                        playersPokeballs[i][0]->displayItem(windowSurf, displayPos);
 
                         string text = to_string(playersPokeballs[i].size());
                         int offset = 5;
-                        displayPos.x = displayPos.x + displayPos.w - text.size() * SMALL_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH - offset;
-                        displayPos.y = displayPos.y + offset;
-                        textSurf = TTF_RenderText_Solid(smallFont, text.c_str(), {255, 255, 255});
+
+                        displayPos.w -= offset * 2;
+                        displayPos.h -= offset * 2;
+                        displayPos.x += offset;
+                        displayPos.y += offset;
+
+                        playersPokeballs[i][0]->displayItem(windowSurf, displayPos);
+
+                        displayPos.x = int(displayPos.x + displayPos.w - text.size() * SMALL_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH);
+                        displayPos.y = displayPos.y - offset;
+
+                        textSurf = TTF_RenderText_Solid(smallFont, text.c_str(), textColor);
                         SDL_BlitSurface(textSurf, nullptr, windowSurf, &displayPos);
                         SDL_FreeSurface(textSurf);
                     }
@@ -349,6 +439,8 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
                             return SWITCH_POKEMON;
                         }
 
+                        int offset = 10;
+                        displayPos = {displayPos.x + offset / 2, displayPos.y + offset / 2, displayPos.w - offset, displayPos.h - offset};
                         playersPokemon[i]->displayPokemonInfoButton(windowSurf, displayPos);
                         spacing += 250;
                     }
@@ -363,12 +455,7 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
             return RUN;
             break;
     }
-
     return NOT_CHOSEN;
-}
-
-Item* Player::getCurrItem() {
-    return playersItems[currItem][0];
 }
 
 void Player::resetBattleMenu() {
@@ -420,7 +507,6 @@ int Player::getTeamAverageLevel() {
 }
 
 void Player::calculateTeamExperience(Pokemon* pokemonDefeated) {
-    /////////////////////////////Check if currPokemon hurts itself and faints
     int experienceToAdd = pokemonDefeated->getExperience() + 10;
     messageList.push_back(currPokemon->getName() + " got " + to_string(experienceToAdd) + " EXP!");
     if (playersPokemon.size() > 1) {

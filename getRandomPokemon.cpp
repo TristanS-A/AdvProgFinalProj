@@ -8,17 +8,21 @@ Pokemon* getRandomPokemon(){
     string randomName;
 
     random_device random;
-
     mt19937 outputNum(random());
 
+    //For adding an offset to Pokemon stats like health (so that the Pokemon have slightly different stats)
     float memberOffset = randomChanceRange(outputNum);
 
+    //Generates random pokemon level based on the players average team(the pokemon the player has) level
     int wildPokemonLevel = static_cast<int>(player->getTeamAverageLevel() +
                                             randomLevelRange(outputNum));
+
+    //Check so that a pokemon's level can't be less than or equal to 0
     if (wildPokemonLevel <= 0) {
         wildPokemonLevel = 1;
     }
 
+    //Checks for what quadrant the player is in to determine the pokemon type
     if (bgPos.x > topLeftQuadrant[0] && bgPos.y > topLeftQuadrant[1]) {
         currBattleBackground = battleBackground_Snow;
         try {

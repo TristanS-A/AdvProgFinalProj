@@ -82,79 +82,62 @@ extern SDL_Rect bgPos;
 //To send messages in battle;
 extern vector<string> messageList;
 
+//Text color
+extern SDL_Color textColor;
+
+//The amount of moves per pokemon type (in move txt file)
 extern int amountOfMovesPerType;
 
+//The amount of names per pokemon type (in name txt file)
 extern int amountOfNamesPerType;
 
+//Various button images
 extern SDL_Surface* buttonIMG;
-
 extern SDL_Surface* buttonHoverIMG;
-
 extern SDL_Surface* backButtonIMG;
-
 extern SDL_Surface* backButtonHoverIMG;
-
 extern SDL_Surface* attackButtonIMG;
 extern SDL_Surface* attackButtonHoverIMG;
-
 extern SDL_Surface* itemsButtonIMG;
 extern SDL_Surface* itemsButtonHoverIMG;
-
 extern SDL_Surface* catchButtonIMG;
 extern SDL_Surface* catchButtonHoverIMG;
-
 extern SDL_Surface* swapButtonIMG;
 extern SDL_Surface* swapButtonHoverIMG;
-
 extern SDL_Surface* runButtonIMG;
 extern SDL_Surface* runButtonHoverIMG;
-
 extern SDL_Surface* leftButtonIMG;
 extern SDL_Surface* leftButtonHoverIMG;
-
 extern SDL_Surface* rightButtonIMG;
 extern SDL_Surface* rightButtonHoverIMG;
-
-extern SDL_Surface* pokeInfoBG;
-
 extern SDL_Surface* titleScreenImage;
-
 extern SDL_Surface* startButtonIMG;
-
-extern SDL_Surface* startButtonHoverIMG;
-
-extern SDL_Surface* chooseScreen;
-
-extern SDL_Surface* curtain;
-
-extern SDL_Surface* pokecenter;
-
 extern SDL_Surface* spaceButton;
 
+//Various background or other images
+extern SDL_Surface* pokeInfoBG;
+extern SDL_Surface* startButtonHoverIMG;
+extern SDL_Surface* chooseScreen;
+extern SDL_Surface* curtain;
+extern SDL_Surface* pokecenter;
 extern SDL_Surface* textboxIMG;
 
+//Surface for displaying text
 extern SDL_Surface* textSurf;
 
+//Music
 extern Mix_Music* titleMusic;
-
 extern Mix_Music* worldMusic;
-
 extern Mix_Music* battleMusic;
 
+//Sound effects
 extern Mix_Chunk* currSound;
-
 extern Mix_Chunk* battleIntro;
-
 extern Mix_Chunk* critHit;
-
 extern Mix_Chunk* weakHit;
-
 extern Mix_Chunk* regularHit;
-
 extern Mix_Chunk* buttonSound;
-
 extern Mix_Chunk* healSound;
-
 extern Mix_Chunk* pokecenterSound;
 
 #endif //ADVPROGFINPROJ_GLOBALVARIABLES_H

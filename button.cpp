@@ -7,6 +7,7 @@
 
 ButtonState checkForClickAndDisplayButton(SDL_Rect buttonRect, SDL_Surface *windowSurf, SDL_Surface *buttonIMG, SDL_Surface * hoveredIMG){
 
+    //Get mouse position
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
 
@@ -17,6 +18,7 @@ ButtonState checkForClickAndDisplayButton(SDL_Rect buttonRect, SDL_Surface *wind
     mouseX = mouseX * (SCREEN_WIDTH) / windowTextureSize.w - windowTextureSize.x * (SCREEN_WIDTH) /
                                                                      windowTextureSize.w;
 
+    //Test if mouse is over button to display hovered image, but otherwise displays regular image
     if ((mouseX > buttonRect.x && mouseX < buttonRect.x + buttonRect.w) && (mouseY > buttonRect.y &&
                                                                             mouseY < buttonRect.y + buttonRect.h)) {
         SDL_BlitScaled(hoveredIMG, nullptr, windowSurf, &buttonRect);
@@ -26,7 +28,7 @@ ButtonState checkForClickAndDisplayButton(SDL_Rect buttonRect, SDL_Surface *wind
             Mix_PlayChannel(2, buttonSound, 0);
             return PRESSED;
         }
-        else if (!mouseDown) {
+        else if (!mouseDown) { //So that the player has to let go of the mouse button to click again
             mouseHeldDown = false;
         }
         return HOVER;

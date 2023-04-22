@@ -8,6 +8,7 @@
 #include <string>
 using namespace std;
 
+//Function to get a random name from the name list txt file
 string getRandomName(string typeID);
 
 #endif //ADVPROGFINPROJ_POKEMONNAMEHANDLER_H

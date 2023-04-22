@@ -12,6 +12,7 @@
 #include <iostream>
 #include <random>
 
+//Function for creating a random wild pokemon
 Pokemon* getRandomPokemon();
 
 #endif //ADVPROGFINPROJ_GETRANDOMPOKEMON_H

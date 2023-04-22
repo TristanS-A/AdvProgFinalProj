@@ -9,8 +9,10 @@
 #include <string>
 using namespace std;
 
+//The type of item that would boost defence or offensive power, but didn't get around to implementing it
 enum EffectType {OFFENSE, DEFENSE};
 
+//Class for items the player would use in battle (Wanted to also be able to use outside of battle but didn't get to it)
 class Item{
 public:
 
@@ -31,11 +33,12 @@ private:
     string description;
 };
 
+//Derived class for a healing item the player can use to heal Pokemon
 class HealthItem : public Item{
 public:
     HealthItem(string name, int amount, SDL_Surface* itemImage, string description);
 
-    int getAmount();
+    //int getAmount(); //Not used but thought it might be useful in the future
 
     void use(Pokemon* pokemonToEffect) override;
 
@@ -44,6 +47,9 @@ private:
     int amount;
 };
 
+//Class for a booster item (implemented since I didn't have the time to implement it)
+// (Was also going to make items that gave effects to the other Pokemon)
+/*
 class BoostItem : public Item{
 public:
     BoostItem(string name, EffectType itemEffectType, float boostAmount, SDL_Surface* itemImage, string description);
@@ -60,7 +66,9 @@ private:
     EffectType itemEffectType;
 
 };
+ */
 
+//Class for pokeballs that the player can use to catch pokemon
 class Pokeball : public Item{
 public:
     Pokeball(string name, float catchBooster, SDL_Surface* itemImage, string description);
@@ -73,7 +81,5 @@ public:
 private:
     float catchBooster;
 };
-
-////////////////////////////////////////////Passably an effect nullified item
 
 #endif //ADVPROGFINPROJ_ITEMS_H

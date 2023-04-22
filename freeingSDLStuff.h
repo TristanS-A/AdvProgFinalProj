@@ -10,6 +10,7 @@
 #include "SDL_mixer.h"
 #include "globalVariables.h"
 
+//Function for freeing SDL surfaces and music/sounds to avoid memory leaks
 void freeingSDLStuff();
 
 #endif //ADVPROGFINPROJ_FREEINGSDLSTUFF_H

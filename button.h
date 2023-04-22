@@ -10,10 +10,12 @@
 #include "SDL_ttf.h"
 #include <iostream>
 
+//Button states
 enum ButtonState {
     NOT_PRESSED, PRESSED, HOVER
 };
 
+//Function to display a button and check for button click or hover
 ButtonState checkForClickAndDisplayButton(SDL_Rect buttonRect, SDL_Surface *windowSurf, SDL_Surface *buttonIMG, SDL_Surface * hoveredIMG);
 
 #endif //ADVPROGFINPROJ_BUTTON_H
