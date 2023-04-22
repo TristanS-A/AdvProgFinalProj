@@ -15,8 +15,8 @@ How the game works:
 Credits:
 
 	Pokemon images: Stable Diffusion (AI generated)
-	Music: Nintendo/Pokemon - Pokemon Diamond and Pearl and Pokemon Sword and Shield
+	Music: Youtube/Nintendo/Pokemon - Pokemon Diamond and Pearl and Pokemon Sword and Shield
 	Other images and sound effects: Google images and Youtube and Nintendo/Pokemon
-	Alexandre Tolstenko: For helping me get SDL working (CMakeLists.txt and main.cpp SDL set up)
+	Alexandre Tolstenko: For helping me get SDL working (CMakeLists.txt and main.cpp SDL set up and git.ignore file)
 
 Additional Note: I wanted to add a bunch more, like animations for battles and other functionality, as well as general cleanup, but ran out of time.
