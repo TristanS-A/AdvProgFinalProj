@@ -381,7 +381,7 @@ int main(int argc, char* argv[]) {
     bool playersTurn = true;
 
     //To force the player to switch pokemon if their current one faints
-    bool hadToForceSwitchPokemon;
+    bool hadToForceSwitchPokemon = false;
 
     //To test if the battle has begun (FOr animation purposes)
     bool battleHasBegun = false;

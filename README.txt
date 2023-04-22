@@ -4,7 +4,7 @@ Description: It is a game heavily based off of Pokemon.
 
 Controls: WASD for movement, Space for skiping text, and mouse clicking for buttons in game.
 
-How to run the game: You have to drag the image, music, ect... files into the debug folder and this will also be where the results file is generated. Also, you must run the CMakeLists.txt file first to add SDL. 
+How to run the game: You have to drag the image, music, ect... files into the debug folder and this will also be where the results file is generated. Also, you must run the CMakeLists.txt file first to add SDL if using visual studio.
 
 How the game works:
 
