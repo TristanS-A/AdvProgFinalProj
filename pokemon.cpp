@@ -280,11 +280,10 @@ void Pokemon::addRandomMove(string typeID) {
     mt19937 outputNum(random());
     uniform_real_distribution<double> randomMoveRange(0, amountOfMovesPerType - 0.001);
 
-    /////////////////////////////Maybe ask teacher about creating variables here and then adding values in loop instead of all in the loop
     int fileLine = int(randomMoveRange(outputNum));
     bool noDuplicates = false;
     int count;
-    char ch;
+    char ch = '\0';
     string fullInfo;
     string temp;
     bool foundType;
@@ -296,6 +295,16 @@ void Pokemon::addRandomMove(string typeID) {
     moveNames.push_back("");
     movePower.push_back(0);
     moveDescriptions.push_back("");
+
+    if (typeID.find("FireType") != string::npos){
+        typeID = "FireType";
+    } else if (typeID.find("GrassType") != string::npos){
+        typeID = "GrassType";
+    } else if (typeID.find("WaterType") != string::npos){
+        typeID = "WaterType";
+    } else if (typeID.find("IceType") != string::npos){
+        typeID = "IceType";
+    }
 
     int lineToLoopBackTo = fileLine;
 
@@ -345,7 +354,7 @@ void Pokemon::addRandomMove(string typeID) {
                         count++;
                     } else {
                         count = 0;
-                        if (fullInfo.substr(0, fullInfo.length() - 1) == typeID.substr(1, typeID.length())) {
+                        if (fullInfo.substr(0, fullInfo.length() - 1) == typeID) {
                             foundType = true;
                         } else {
                             foundType = false;
@@ -421,7 +430,7 @@ void Pokemon::setLevelUpsWithoutNewMove(int num) {
 void Pokemon::addMoveByName(string moveName) {
     fstream fin("moveInfo.txt");
     if (fin.is_open()) {
-        char ch;
+        char ch = '\0';
         string fullInfo;
         string moveInfo;
         string tempPower;

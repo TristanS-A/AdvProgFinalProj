@@ -248,7 +248,7 @@ int main(int argc, char* argv[]) {
     //Looks for moveInfo file and calculates the amount of moves per pokemon type there are in the file
     fstream fin("moveInfo.txt");
     if (fin.is_open()) {
-        char ch;
+        char ch = '\0';
         string fullInfo;
 
         //Searches by char (to get '\n') and makes a full string of chars with fullInfo
@@ -277,7 +277,7 @@ int main(int argc, char* argv[]) {
     //Looks for nameList.txt file and calculates the amount of names per pokemon type there are in the file
     fin.open("nameList.txt");
     if (fin.is_open()) {
-        char ch;
+        char ch = '\0';
         string fullInfo;
 
         //Also looks by char and adds to fullInfo to make full string
@@ -546,7 +546,17 @@ int main(int argc, char* argv[]) {
                         SDL_FreeSurface(textSurf);
 
                         text = typeid(*listOfStarterPokemon[i]).name();
-                        text = text.substr(1, text.size());
+
+                        if (text.find("FireType") != string::npos){
+                            text = "FireType";
+                        } else if (text.find("GrassType") != string::npos){
+                            text = "GrassType";
+                        } else if (text.find("WaterType") != string::npos){
+                            text = "WaterType";
+                        } else if (text.find("IceType") != string::npos){
+                            text = "IceType";
+                        }
+
                         textPos = {int(buttonPos.x + buttonPos.w / 2 - text.size() / 2.0 * MEDIUM_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH), buttonPos.y + buttonPos.h + MEDIUM_FONT_SIZE, 0, 0};
                         textSurf = TTF_RenderText_Solid(mediumFont, text.c_str(), {0, 0, 0});
                         SDL_BlitSurface(textSurf, nullptr, windowSurf, &textPos);

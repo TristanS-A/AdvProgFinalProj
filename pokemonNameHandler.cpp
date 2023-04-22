@@ -15,10 +15,20 @@ string getRandomName(string typeID) {
 
     int fileLine = int(randomNameRange(outputNum));
     int count = 0;
-    char ch;
+    char ch = '\0';
     string fullInfo;
     string name;
     bool foundType = false;
+
+    if (typeID.find("FireType") != string::npos){
+        typeID = "FireType";
+    } else if (typeID.find("GrassType") != string::npos){
+        typeID = "GrassType";
+    } else if (typeID.find("WaterType") != string::npos){
+        typeID = "WaterType";
+    } else if (typeID.find("IceType") != string::npos){
+        typeID = "IceType";
+    }
 
     fstream fin("nameList.txt");
     if (fin.is_open()) {
@@ -37,7 +47,7 @@ string getRandomName(string typeID) {
                     count++;
                 } else {
                     count = 0;
-                    if (fullInfo.substr(0, fullInfo.length() - 1) == typeID.substr(1, typeID.length())) {
+                    if (fullInfo.substr(0, fullInfo.length() - 1) == typeID) {
                         foundType = true;
                     } else {
                         foundType = false;
