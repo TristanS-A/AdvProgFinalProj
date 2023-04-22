@@ -16,6 +16,13 @@
 
 using namespace std;
 
+//Dimensions for the screen
+extern const int SCREEN_WIDTH;
+extern const int SCREEN_HEIGHT;
+
+//Creates Rect for windowSurf surface so that its dimensions can be rescaled and repositioned
+extern SDL_Rect windowTextureSize;
+
 //Small font for game
 extern TTF_Font *smallFont;
 
@@ -140,10 +147,14 @@ extern Mix_Chunk* battleIntro;
 
 extern Mix_Chunk* critHit;
 
-extern Mix_Chunk* enemyHit;
+extern Mix_Chunk* weakHit;
 
-extern Mix_Chunk* playerHit;
+extern Mix_Chunk* regularHit;
 
 extern Mix_Chunk* buttonSound;
+
+extern Mix_Chunk* healSound;
+
+extern Mix_Chunk* pokecenterSound;
 
 #endif //ADVPROGFINPROJ_GLOBALVARIABLES_H

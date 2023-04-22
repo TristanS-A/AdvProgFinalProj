@@ -59,7 +59,6 @@ Pokemon::~Pokemon() {
 }
 
 bool Pokemon::attack(Pokemon* pokemonToAttack) {
-    Mix_PlayChannel(1, currSound, 0);
     pokemonToAttack->addToHealth(int(-movePower[currAttack] * baseAttackPower) / pokemonToAttack->getBaseDefense());
     return true;
 }
@@ -141,9 +140,9 @@ void Pokemon::pickRandomMove() {
 }
 
 void Pokemon::addToHealth(int amount) {
-    //////////////////////////////////////////Add things like water lowers fire temp or something.
     health += amount;
     if (amount > 0) {
+        currSound = healSound;
         if (health > maxHealth) {
             messageList.push_back(name + " restored " + to_string(amount - (health - maxHealth)) + " HP.");
             health = maxHealth;
@@ -159,6 +158,8 @@ void Pokemon::addToHealth(int amount) {
             messageList.push_back(name + " took " + to_string(-amount) + " damage.");
         }
     }
+
+    Mix_PlayChannel(1, currSound, 0);
 }
 
 void Pokemon::restore() {
@@ -527,9 +528,9 @@ bool FireType::attack(Pokemon* pokemonToAttack) {
     else if (typeid(*pokemonToAttack) == typeid(WaterType)){
         movePower[currAttack] *= 0.5;
         messageList.push_back("It wasn't very effective...");
-        currSound = enemyHit;
+        currSound = weakHit;
     } else {
-        currSound = playerHit;
+        currSound = regularHit;
     }
 
     Pokemon::attack(pokemonToAttack);
@@ -591,9 +592,9 @@ bool WaterType::attack(Pokemon* pokemonToAttack) {
         else if (typeid(*pokemonToAttack) == typeid(GrassType)){
             movePower[currAttack] *= 0.5;
             messageList.push_back("It wasn't very effective...");
-            currSound = enemyHit;
+            currSound = weakHit;
         } else {
-            currSound = playerHit;
+            currSound = regularHit;
         }
 
         Pokemon::attack(pokemonToAttack);
@@ -671,9 +672,9 @@ bool GrassType::attack(Pokemon* pokemonToAttack) {
             } else if (typeid(*pokemonToAttack) == typeid(FireType)) {
                 movePower[currAttack] *= 0.5;
                 messageList.push_back("It wasn't very effective...");
-                currSound = enemyHit;
+                currSound = weakHit;
             } else {
-                currSound = playerHit;
+                currSound = regularHit;
             }
 
             Pokemon::attack(pokemonToAttack);
@@ -685,6 +686,7 @@ bool GrassType::attack(Pokemon* pokemonToAttack) {
         }
     }
     else {
+        currSound = healSound;
         setDriedUpPercent(percentDriedUp - movePower[currAttack]);
     }
 
@@ -702,6 +704,7 @@ void GrassType::setDriedUpPercent(int newPercent) {
             newPercent = 0;
         }
         if (newPercent - percentDriedUp <= 0) {
+            Mix_PlayChannel(1, currSound, 0);
             messageList.push_back(
                     name + " restored " + to_string(percentDriedUp - newPercent) + " percent of its body water.");
         }
@@ -789,9 +792,9 @@ bool IceType::attack(Pokemon* pokemonToAttack) {
     } else if (typeid(*pokemonToAttack) == typeid(GrassType)) {
         movePower[currAttack] *= 0.5;
         messageList.push_back("It wasn't very effective...");
-        currSound = enemyHit;
+        currSound = weakHit;
     } else {
-        currSound = playerHit;
+        currSound = regularHit;
     }
 
     Pokemon::attack(pokemonToAttack);

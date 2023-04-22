@@ -5,6 +5,14 @@
 #include "globalVariables.h"
 #include "SDL_image.h"
 
+
+//Dimensions for the screen
+extern const int SCREEN_WIDTH = 1440;
+extern const int SCREEN_HEIGHT = 810;
+
+//Creates Rect for windowSurf surface so that its dimensions can be rescaled and repositioned
+SDL_Rect windowTextureSize = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+
 //Small font for game
 TTF_Font *smallFont;
 
@@ -129,8 +137,12 @@ Mix_Chunk* battleIntro;
 
 Mix_Chunk* critHit;
 
-Mix_Chunk* enemyHit;
+Mix_Chunk* weakHit;
 
-Mix_Chunk* playerHit;
+Mix_Chunk* regularHit;
 
 Mix_Chunk* buttonSound;
+
+Mix_Chunk* pokecenterSound;
+
+Mix_Chunk* healSound;

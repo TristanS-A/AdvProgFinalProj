@@ -88,7 +88,6 @@ CatchingState Player::tryCatchingPokemon(Pokemon* pokemonToCatch) {
     if (catchingChancesCount != TOTAL_CATCHING_CHANCES){
         catchProbability = float(0.5 - pokemonToCatch->getHealthPercent()) + float(0.1 * (float(getTeamAverageLevel()) / float(pokemonToCatch->getLevel())));
         catchProbability += currPokeball->getCatchBooster() * 0.2;
-        cout << catchProbability << endl;
         if (randomRange(outputNum) < catchProbability){
             addToPlayersPokemon(pokemonToCatch);
             removeFromPlayersPokeballs(currPokeball);
@@ -265,12 +264,14 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
                     resetBattleMenu();
                 }
 
-                SDL_Rect destRect = {1170, 630, 0, 0};
+                SDL_Rect destRect = {1170, 630, 100, 100};
                 playersItems[currItem][0]->displayItem(windowSurf, destRect);
 
-                destRect.x = destRect.x + buttonHeight - SMALL_FONT_SIZE;
-                destRect.y = destRect.y + buttonHeight - MEDIUM_FONT_SIZE;
-                textSurf = TTF_RenderText_Solid(smallFont, (to_string(playersItems[currItem].size())).c_str(), {255, 255, 255});
+                string text = to_string(playersItems[currItem].size());
+                int offset = 5;
+                destRect.x = destRect.x + destRect.w - text.size() * SMALL_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH - offset;
+                destRect.y = destRect.y + offset;
+                textSurf = TTF_RenderText_Solid(smallFont, text.c_str(), {255, 255, 255});
                 SDL_BlitSurface(textSurf, nullptr, windowSurf, &destRect);
                 SDL_FreeSurface(textSurf);
             } else {
@@ -307,9 +308,11 @@ PlayerAction Player::displayBattleMenu(SDL_Surface *windowSurf) {
                         }
                         playersPokeballs[i][0]->displayItem(windowSurf, displayPos);
 
-                        displayPos.x = displayPos.x + displayPos.w - SMALL_FONT_SIZE;
-                        displayPos.y = displayPos.y + displayPos.h - MEDIUM_FONT_SIZE;
-                        textSurf = TTF_RenderText_Solid(smallFont, (to_string(playersPokeballs[i].size())).c_str(), {255, 255, 255});
+                        string text = to_string(playersPokeballs[i].size());
+                        int offset = 5;
+                        displayPos.x = displayPos.x + displayPos.w - text.size() * SMALL_FONT_SIZE / FONT_PIXEL_HEIGHT_TO_WIDTH - offset;
+                        displayPos.y = displayPos.y + offset;
+                        textSurf = TTF_RenderText_Solid(smallFont, text.c_str(), {255, 255, 255});
                         SDL_BlitSurface(textSurf, nullptr, windowSurf, &displayPos);
                         SDL_FreeSurface(textSurf);
                     }
@@ -373,7 +376,7 @@ void Player::resetBattleMenu() {
 }
 
 void Player::addToPlayersPokeballs(Pokeball* pokeball) {
-    for (vector<Pokeball*> vectorOfPokeballs : playersPokeballs){
+    for (vector<Pokeball*> &vectorOfPokeballs : playersPokeballs){
         if (vectorOfPokeballs[0]->getName() == pokeball->getName()){
             if (vectorOfPokeballs.size() < MAX_POKEBALLS) {
                 vectorOfPokeballs.push_back(pokeball);

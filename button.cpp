@@ -10,6 +10,13 @@ ButtonState checkForClickAndDisplayButton(SDL_Rect buttonRect, SDL_Surface *wind
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
 
+    //If the user changed the screen dimension, this will translate the mouse position to the
+    // new screen/window dimensions
+    mouseY = mouseY * (SCREEN_HEIGHT) / windowTextureSize.h - windowTextureSize.y * (SCREEN_HEIGHT) /
+                                                                      windowTextureSize.h;
+    mouseX = mouseX * (SCREEN_WIDTH) / windowTextureSize.w - windowTextureSize.x * (SCREEN_WIDTH) /
+                                                                     windowTextureSize.w;
+
     if ((mouseX > buttonRect.x && mouseX < buttonRect.x + buttonRect.w) && (mouseY > buttonRect.y &&
                                                                             mouseY < buttonRect.y + buttonRect.h)) {
         SDL_BlitScaled(hoveredIMG, nullptr, windowSurf, &buttonRect);

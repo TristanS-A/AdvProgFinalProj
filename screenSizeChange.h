@@ -6,8 +6,9 @@
 #define ADVPROGFINPROJ_SCREENSIZECHANGE_H
 
 #include <SDL.h>
+#include "globalVariables.h"
 
 //Handles the dimensions of the gameplay window if the window size is changed
-void screenSizeChange(SDL_Rect &windowTextureSize, SDL_Window *window);
+void screenSizeChange(SDL_Window *window);
 
 #endif //ADVPROGFINPROJ_SCREENSIZECHANGE_H

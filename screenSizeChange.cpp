@@ -3,10 +3,9 @@
 //
 
 #include "screenSizeChange.h"
-#include <SDL.h>
 
 //Handles the dimensions of the gameplay window if the window size is changed
-void screenSizeChange(SDL_Rect &windowTextureSize, SDL_Window *window){
+void screenSizeChange(SDL_Window *window){
 
     //Gameplay window ratio
     int aspectRatio_X = 16;
