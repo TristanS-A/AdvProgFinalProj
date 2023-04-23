@@ -888,7 +888,7 @@ int main(int argc, char* argv[]) {
                                         pokemon->setImageFacingRight(true);
                                     }
                                     wildPokemon->setImageFacingRight(false);
-                                    player->getCurrPokemon()->setImagePos(100, 370);
+                                    player->getCurrPokemon()->setImagePos(100, 360);
                                     player->getCurrPokemon()->setInfoPos(500, 490);
                                     wildPokemon->setImagePos(950, 100);
                                     wildPokemon->setInfoPos(100, 100);

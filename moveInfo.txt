@@ -1,6 +1,6 @@
 FireType
 Name: Heat Wave; Power: 5; Description: The pokemon blasts the enemie with a wave of heat;
-Name: Flame Kick; Power: 10; Description: The pokemon attacks the enemywith a fiery kick;
+Name: Flame Kick; Power: 10; Description: The pokemon attacks the enemy with a fiery kick;
 Name: Combustion; Power: 20; Description: The pokemon attacks with a fiery explosion;
 Name: Flamethrower; Power: 15; Description: The pokemon shoots a stream of fire at the enemy;
 Name: Flame Rush; Power: 8; Description: The pokemon surrounds itself with fire and rushes the enemy;
