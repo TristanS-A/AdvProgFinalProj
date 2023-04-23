@@ -533,7 +533,7 @@ int main(int argc, char* argv[]) {
                     SDL_BlitSurface(chooseScreen, nullptr, windowSurf, &placeHolderRect);
 
                     //Goes through each starter pokemon making a button and displaying the pokemon and info
-                    for (int i = 0; i < 3; i++) {
+                    for (int i = 0; i < sizeof(listOfStarterPokemon) / sizeof(listOfStarterPokemon[0]); i++) {
                         buttonPos = {200 + i * 400, 400, 250, 250};
                         ButtonState starterPokemonButton = checkForClickAndDisplayButton(buttonPos, windowSurf, buttonIMG,
                                                                                 buttonHoverIMG);
